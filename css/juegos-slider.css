@@ -1,0 +1,237 @@
+/* =========================
+   Carousel Principal
+========================= */
+.carousel {
+  position: relative;
+  width: 100%;
+  max-width: 1280px; /* ancho recomendado para imágenes */
+  aspect-ratio: 1280 / 719; /* mantener la proporción de la imagen */
+  margin: 40px auto;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  background-color: #1a1a1a;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Contenedor de slides */
+.carousel-slides {
+  position: relative;
+  width: 100%;
+  height: 100%; /* se ajusta a la proporción del carousel */
+}
+
+/* Cada slide */
+.carousel-slides .slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  cursor: pointer;
+}
+
+/* Slide activo */
+.carousel-slides .slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+/* Contenido dentro del slide */
+.slide-content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Imagen del slide */
+.slide-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* cubre todo el contenedor sin deformarse */
+  display: block;
+  border-radius: 16px;
+
+  /* Mejorar nitidez en pantallas HD / Retina */
+  image-rendering: auto; 
+  -webkit-backface-visibility: hidden; 
+  -webkit-transform: translateZ(0); 
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Información sobre el slide */
+.slide-info {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  max-width: 50%;
+  color: #fff;
+  background: rgba(0,0,0,0.5);
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.slide-info h3 {
+  margin: 0 0 10px;
+  font-size: 1.5rem;
+}
+
+.slide-info p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.slide-info .game-price {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
+/* =========================
+   Ocultar botones
+========================= */
+.carousel-prev,
+.carousel-next {
+  display: none;
+}
+
+/* =========================
+   Indicadores
+========================= */
+.carousel-indicators {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
+  text-align: center;
+}
+
+.carousel-indicators .indicator {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin: 0 5px;
+  background-color: rgba(255,255,255,0.5);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.carousel-indicators .indicator.active {
+  background-color: #ffcc00;
+  transform: scale(1.2);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media screen and (max-width: 1024px) {
+  .carousel {
+    max-width: 100%;
+    aspect-ratio: 16/9; /* se mantiene la proporción */
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .slide-info {
+    max-width: 70%;
+    font-size: 0.9rem;
+    padding: 12px 15px;
+  }
+  .slide-info h3 {
+    font-size: 1.2rem;
+  }
+  .slide-info p {
+    font-size: 0.9rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .slide-info {
+    max-width: 90%;
+    padding: 10px 12px;
+    bottom: 10px;
+    left: 10px;
+  }
+  .slide-info h3 {
+    font-size: 1rem;
+  }
+  .slide-info p {
+    font-size: 0.8rem;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================
+   Sección "Ver Todos los Juegos"
+========================= */
+.ver-todos-juegos {
+  text-align: center;
+  padding: 20px 50px;
+  background: #252525;
+  border-radius: 16px;
+  margin: 50px auto;
+  max-width: 800px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.ver-todos-juegos h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.ver-todos-juegos p {
+  font-size: 1rem;
+  color: #01ff01;
+  margin-bottom: 30px;
+}
+
+.btn-ver-todos {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: #111;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-ver-todos:hover {
+  background-color: #333;
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media screen and (max-width: 768px) {
+  .ver-todos-juegos h2 {
+    font-size: 1.5rem;
+  }
+
+  .ver-todos-juegos p {
+    font-size: 0.9rem;
+  }
+
+  .btn-ver-todos {
+    padding: 10px 25px;
+    font-size: 0.9rem;
+  }
+}

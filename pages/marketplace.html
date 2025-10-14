@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../css/nav.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/game.css">
+    <link rel="stylesheet" href="../css/buscador.css">
+  <title>TakumiNet - Juegos Indie</title>
+  <style>
+/* ==================== */
+/*     FILTERS FORM      */
+/* ==================== */
+.filters-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 21px;
+  background-color: #2b2b2b2c;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border: 1px solid #383838;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+/* ==================== */
+/*     FILTER SECTION    */
+/* ==================== */
+.filter-section {
+  margin-bottom: 0;
+}
+
+.filter-section label {
+  display: block;
+  font-size: 14px;
+  color: #b3b3b3;
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.filter-section select {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  background-color: #383838;
+  color: #ffffff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b3b3b3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+}
+
+.filter-section select:hover {
+  border-color: #555;
+  background-color: #3e3e3e;
+}
+
+.filter-section select:focus {
+  outline: none;
+  border-color: #2ecc71;
+  box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+}
+
+/* ==================== */
+/*     FILTER ACTIONS    */
+/* ==================== */
+.filter-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-toggle {
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #b3b3b3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-toggle:hover {
+  background-color: #383838;
+  color: #ffffff;
+  border-color: #555;
+}
+
+/* ==================== */
+/*     RESPONSIVE        */
+/* ==================== */
+@media (max-width: 768px) {
+  .filters-form {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .filter-actions {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filters-form {
+    padding: 15px;
+  }
+  
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .btn-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <!-- Sección Izquierda: Logo -->
+    <div class="navbar-logo">
+        <img src="../assets/img/logo.png" alt="Logo de TakumiNet">
+    </div>
+
+
+ <!-- Botón hamburguesa (solo visible en móvil) -->
+  <div class="hamburger" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+  </div>
+
+    <!-- Sección Central: Enlaces de navegación -->
+    <ul class="nav-links">
+      <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
+      <li><a href="marketplace.html"><i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span></a></li>
+      <li><a href="game jam.html"><i class="fas fa-calendar-alt"></i> <span data-i18n="game_jams">Game Jams</span></a></li>
+      <li><a href="centro-aprendiz.html"><i class="fas fa-graduation-cap"></i> <span data-i18n="tutoriales">Tutoriales</span></a></li>
+      <li><a href="ranking.html"><i class="fas fa-trophy"></i> <span data-i18n="Ranking">Ranking</span></a></li>
+      <li><a href="comunidad.html"><i class="fas fa-users"></i> <span data-i18n="comunidad">Comunidad</span></a></li>
+    </ul>
+
+    <!-- Sección Derecha: Elementos interactivos -->
+    <div class="nav-right">
+      <!-- Búsqueda -->
+      <form class="search-box" role="search">
+        <input type="search" class="search-input" placeholder="Buscar juegos, usuarios..." aria-label="Buscar en el sitio" data-i18n="buscar" data-i18n-type="placeholder">
+        <button type="submit" class="search-btn" aria-label="Ejecutar búsqueda">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+
+    
+<!-- ================================
+     SELECTOR DE IDIOMA
+================================ -->
+<div class="language-selector">
+  <button class="icon-btn language-btn" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-globe"></i>
+    <span data-i18n="idioma"></span>
+  </button>
+
+  <div class="language-dropdown" id="languageDropdown" role="menu" aria-hidden="true">
+    <button class="lang-option" data-lang="es">🇪🇸 Español<span data-i18n="espanol"></span></button>
+    <button class="lang-option" data-lang="en">🇺🇸 English<span data-i18n="ingles"></span></button>
+    <button class="lang-option" data-lang="ja">🇯🇵 日本語<span data-i18n="japones"></span></button>
+  </div>
+</div>
+
+
+
+      <!-- Iconos de notificaciones -->
+      <div class="nav-icons">
+        <div class="notification-wrapper">
+          <button class="icon-btn notification-btn" onclick="toggleNotifications()" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" aria-live="polite">0</span>
+          </button>
+
+          <!-- Menú desplegable de notificaciones -->
+          <div class="dropdown-menu notification-dropdown" id="notificationDropdown" role="menu" aria-hidden="true" style="display:none;">
+            <div class="dropdown-header">
+              <h4 class="dropdown-title" data-i18n="notificaciones">Notificaciones</h4>
+              <button class="mark-read" id="markReadBtn" data-i18n="ver_todas">Marcar todas como leídas</button>
+            </div>
+
+            <div class="notifications-list" id="notificationsList">
+              <!-- Aquí se insertarán las notificaciones dinámicamente -->
+            </div>
+            <div class="dropdown-footer">
+              <a href="/notificaciones" class="view-all" data-i18n="ver_todas">Ver todas</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carrito de compras -->
+        <div class="icon-btn cart-btn" aria-label="Carrito de compras" role="button" tabindex="0" onclick="toggleCart()">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" aria-live="polite">5</span>
+        </div>
+
+
+  <!-- Menú de usuario -->
+  <div class="user-menu">
+    <button class="user-profile" aria-haspopup="true" aria-expanded="false" onclick="toggleUserMenu()">
+      <div id="avatar-circle" class="avatar">
+        <i id="avatar-icon" class="fas fa-user"></i>
+      </div>
+      <span class="username" id="current-username">Invitado</span>
+    </button>
+  </div>
+
+          <!-- Menú desplegable de usuario -->
+          <div class="user-dropdown" id="userDropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-group">
+              <a href="perfil del usuario.html" class="menu-item"><i class="fas fa-user"></i><span data-i18n="perfil">Perfil</span></a>
+               <a href="mis juegos.html" class="menu-item"><i class="fas fa-gamepad"></i><span data-i18n="mis_juegos">Mis Juegos</span></a>
+             <a href="Creator Dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span data-i18n="controlPanel">Panel de Control</span></a>
+              <a href="juegos favoritos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="favoritos">Favoritos</span></a>
+              <a href="subir_juegos.html" class="menu-item"><i class="fas fa-upload"></i><span data-i18n="subir_juego">Subir Juego</span></a>
+            </div>
+            <div class="dropdown-group">
+              <a href="biblioteca.html" class="menu-item"><i class="fas fa-book"></i><span data-i18n="biblioteca">Biblioteca</span></a>
+              <a href="descarga.html" class="menu-item"><i class="fas fa-download"></i><span data-i18n="descargas">Descargas</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <a href="perfil-editar.html" class="menu-item"><i class="fas fa-user-edit"></i><span data-i18n="editar_usuario">Editar Usuario</span></a>
+                <a href="pagos-desarrollador.html" class="menu-item"><i class="fas fa-money-bill-wave"></i><span data-i18n="pagos">Pagos</span></a>
+              <a href="seguidos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="seguidos">Seguidos</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <button class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span data-i18n="cerrar_sesion">Cerrar Sesión</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</nav>
+
+
+
+
+<!-- Formulario de Filtros -->
+<form id="gameFilters" class="filters-form">
+  <!-- Sección Categoría -->
+  <div class="filter-section">
+    <label for="category" data-i18n="filtros.categoria">Categoría:</label>
+    <select id="category" name="category">
+      <option value="" data-i18n="filtros.todos">Todas</option>
+      <option value="aventura" data-i18n="filtros.categorias.aventura">Aventura</option>
+      <option value="rpg" data-i18n="filtros.categorias.rpg">RPG</option>
+      <option value="acción" data-i18n="filtros.categorias.accion">Acción</option>
+      <option value="puzzle" data-i18n="filtros.categorias.puzzle">Puzzle</option>
+      <option value="terror" data-i18n="filtros.categorias.terror">Terror</option>
+      <option value="otro" data-i18n="filtros.categorias.otro">Otro</option>
+    </select>
+  </div>
+
+  <!-- Sección Géneros -->
+  <div class="filter-section">
+    <label for="genre" data-i18n="filtros.genero">Género:</label>
+    <select id="genre" name="genre">
+      <option value="" data-i18n="filtros.todos">Todos</option>
+      <option value="pixelart" data-i18n="filtros.generos.pixelart">Pixelart</option>
+      <option value="retro" data-i18n="filtros.generos.retro">Retro</option>
+      <option value="historia-corta" data-i18n="filtros.generos.historia-corta">Historia corta</option>
+      <option value="comedia" data-i18n="filtros.generos.comedia">Comedia</option>
+      <option value="fantasía" data-i18n="filtros.generos.fantasia">Fantasía</option>
+      <option value="niveles" data-i18n="filtros.generos.niveles">Niveles</option>
+      <option value="decisiones" data-i18n="filtros.generos.decisiones">Decisiones</option>
+      <option value="magia" data-i18n="filtros.generos.magia">Magia</option>
+      <option value="puzzles" data-i18n="filtros.generos.puzzles">Puzzles</option>
+      <option value="2D" data-i18n="filtros.generos.2D">2D</option>
+      <option value="3D" data-i18n="filtros.generos.3D">3D</option>
+      <option value="4K" data-i18n="filtros.generos.4K">4K</option>
+      <option value="cooperativo" data-i18n="filtros.generos.cooperativo">Cooperativo</option>
+      <option value="competitivo" data-i18n="filtros.generos.competitivo">Competitivo</option>
+      <option value="enemigos" data-i18n="filtros.generos.enemigos">Enemigos</option>
+      <option value="jefes" data-i18n="filtros.generos.jefes">Jefes</option>
+      <option value="minijuegos" data-i18n="filtros.generos.minijuegos">Minijuegos</option>
+      <option value="sin-texto" data-i18n="filtros.generos.sin-texto">Sin texto</option>
+      <option value="misterio" data-i18n="filtros.generos.misterio">Misterio</option>
+      <option value="cyberpunk" data-i18n="filtros.generos.cyberpunk">Cyberpunk</option>
+      <option value="anime" data-i18n="filtros.generos.anime">Anime</option>
+    </select>
+  </div>
+
+  <!-- Sección Precio -->
+  <div class="filter-section">
+    <label for="price" data-i18n="filtros.precio">Precio:</label>
+    <select name="price" id="price">
+      <option value="" data-i18n="filtros.todos">Todos</option>
+      <option value="gratis" data-i18n="filtros.gratis">Gratis</option>
+      <option value="pago" data-i18n="filtros.pago">Pago</option>
+      <option value="donation" data-i18n="filtros.donacion">Donación</option>
+      <option value="oferta" data-i18n="filtros.oferta">Oferta</option>
+    </select>
+  </div>
+
+  <!-- Sección Requisitos -->
+  <div class="filter-section">
+    <label for="requirements" data-i18n="filtros.requisitos">Requisitos mínimos:</label>
+    <select name="requirements" id="requirements">
+      <option value="" data-i18n="filtros.todos">Todos</option>
+      <option value="low" data-i18n="filtros.bajo">Bajo</option>
+      <option value="medium" data-i18n="filtros.medio">Medio</option>
+      <option value="high" data-i18n="filtros.alto">Alto</option>
+    </select>
+  </div>
+
+  <!-- Botones -->
+  <div class="filter-actions">
+    <button type="submit" class="btn btn-primary" data-i18n="filtros.aplicar_filtros">Aplicar Filtros</button>
+    <button type="button" id="resetFilters" class="btn btn-secondary" data-i18n="filtros.borrar_filtros">Borrar Filtros</button>
+  </div>
+</form>
+
+<!-- Contenedor de Juegos -->
+<div class="content-preview">
+  <div class="juegos-contenedor" id="contenedor-juegos" data-i18n="">
+    <!-- Aquí se cargarán los juegos dinámicamente -->
+  </div>
+</div>
+
+<script src="../js/notificacion.js"></script>
+<script src="../js/carrito.js"></script>
+<script src="../js/user.js"></script>
+<script src="../js/desplegar.js"></script>
+<script src="../js/buscador.js"></script>
+<script src="../js/cerrar sesion.js"></script>
+<script src="../js/traductor.js"></script>
+<script src="../js/games.js"></script>
+<script src="../js/movil.js"></script>
+<script src="../js/lang.js"></script>
+</body>
+</html>
+

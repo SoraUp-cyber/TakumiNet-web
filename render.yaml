@@ -1,0 +1,15 @@
+﻿services:
+  - type: web
+    name: takuminet-produccion
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: 'takuminet_secreto_super_seguro_2024'
+      - key: PORT
+        value: '10000'

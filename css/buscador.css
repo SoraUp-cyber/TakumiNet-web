@@ -1,0 +1,67 @@
+/* Contenedor del input con posición relativa */
+.nav-right {
+  position: relative; /* Necesario para que el dropdown se alinee al input */
+}
+
+/* Contenedor de resultados desplegable */
+#resultados-busqueda {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #2c2c2c; /* Gris oscuro */
+  border: 1px solid #444; /* borde más suave */
+  border-radius: 6px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  display: none;
+  z-index: 1000;
+}
+
+/* Ajustar cada resultado */
+#resultados-busqueda div {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  border-bottom: 1px solid #444;
+  color: #fff; /* letras blancas */
+}
+
+#resultados-busqueda div:last-child {
+  border-bottom: none;
+}
+
+#resultados-busqueda div:hover {
+  background-color: #1f6f3a; /* verde suave al pasar el mouse */
+  color: #fff;
+}
+
+/* Miniatura más grande */
+#resultados-busqueda img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  margin-right: 12px;
+  border-radius: 4px;
+}
+
+/* Título */
+#resultados-busqueda span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mensaje "no resultados" */
+#resultados-busqueda p {
+  margin: 10px 15px;
+  font-size: 14px;
+  color: #bbb;
+  text-align: center;
+}

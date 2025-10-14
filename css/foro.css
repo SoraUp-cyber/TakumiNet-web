@@ -1,0 +1,77 @@
+/* =========================
+   Contenedor de foros
+========================= */
+#forum-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;           /* separación entre tarjetas */
+    padding: 30px;       /* espacio alrededor del contenedor */
+}
+
+/* =========================
+   Tarjeta de foro (ancho adaptable)
+========================= */
+.foro-card {
+    width: 100%;               /* ocupa todo el ancho disponible en el grid */
+    max-width: 400px;          /* ancho máximo para no quedar demasiado grande */
+    background-color: #272727;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    color: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+/* =========================
+   Imagen del foro (más ancho y alto)
+========================= */
+.foro-image {
+    width: 100%;              /* ocupa todo el ancho de la tarjeta */
+    height: 250px;            /* altura aumentada */
+    object-fit: cover;
+    border-bottom: 1px solid #333;
+    display: block;
+}
+
+
+/* =========================
+   Contenido de la tarjeta
+========================= */
+.foro-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 15px 15px 5px 15px;
+}
+
+.foro-category,
+.foro-description,
+.foro-tags {
+    font-size: 0.95rem;
+    margin: 5px 15px;
+}
+
+.foro-tags {
+    font-style: italic;
+    color: #bbbbbb;         /* color más suave para las etiquetas */
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 768px) {
+    #forum-container {
+        grid-template-columns: 1fr; /* 1 columna en móviles */
+        padding: 20px;             /* reducir padding en móvil */
+    }
+
+    .foro-card {
+        width: 100%;               /* ancho completo en móvil */
+    }
+
+    .foro-image {
+        height: 200px;             /* ajuste proporcional en móvil */
+    }
+}

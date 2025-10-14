@@ -1,0 +1,422 @@
+/* ================================
+   ESTILOS GENERALES DEL CONTENEDOR
+================================ */
+.container_pagos {
+  width: 90%;
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #242424bd; /* gris oscuro */
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+  color: #ffffff; /* texto blanco */
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+/* ================================
+   TEXTOS
+================================ */
+.intro_text,
+.nota_advertencia,
+.texto_saldo,
+.texto_destino {
+  margin-bottom: 20px;
+  font-size: 1rem;
+  color: #ffffff; /* textos principales blancos */
+}
+
+.nota_advertencia {
+  background-color: #3a3a3a91; /* fondo gris más oscuro */
+  padding: 15px;
+  border-left: 5px solid #00c853; /* verde */
+  border-radius: 8px;
+}
+
+.link_config {
+  color: #00c853; /* verde */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link_config:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   SECCIONES
+================================ */
+.titulo_seccion {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.subtitulo_metodo {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* ================================
+   WIDGETS DE PAGO
+================================ */
+.widget_pago {
+  background-color: #33333391; /* gris medio */
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.widget_pago:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.texto_conexion {
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+}
+
+.descripcion_pago {
+  font-size: 0.95rem;
+  color: #d0d0d0; /* un gris claro */
+  margin-bottom: 15px;
+}
+
+/* ================================
+   LISTAS SIN PUNTOS
+================================ */
+.lista_sin_puntos {
+  list-style: none;
+  padding-left: 0;
+  margin: 10px 0;
+}
+
+.lista_sin_puntos li {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  color: #d0d0d0;
+  position: relative;
+  padding-left: 0;
+}
+
+/* ================================
+   FORMULARIOS
+================================ */
+.widget_pago form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.widget_pago input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background-color: #2c2c2c; /* gris fondo input */
+  color: #ffffff; /* texto blanco */
+  font-size: 0.95rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.widget_pago input:focus {
+  border-color: #00c853; /* verde al enfocar */
+  box-shadow: 0 0 5px rgba(0, 200, 83, 0.5);
+  outline: none;
+}
+
+.widget_pago input::placeholder {
+  color: #aaa;
+}
+
+/* ================================
+   BOTONES
+================================ */
+.btn_pago_conectar {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #00c853; /* verde */
+  color: #ffffff; /* texto blanco */
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn_pago_conectar:hover {
+  background-color: #00b245; /* verde más oscuro al pasar */
+  transform: translateY(-1px);
+}
+
+/* ================================
+   RESULTADOS / MENSAJES
+================================ */
+#pago_resultado {
+  font-weight: 600;
+  margin-top: 15px;
+  color: #00c853; /* verde */
+  text-align: center;
+}
+
+/* ================================
+   RESPONSIVE
+================================ */
+@media (max-width: 768px) {
+  .container_pagos {
+    padding: 20px;
+  }
+
+  .widget_pago {
+    padding: 15px;
+  }
+
+  .texto_conexion {
+    font-size: 1rem;
+  }
+
+  .subtitulo_metodo {
+    font-size: 1rem;
+  }
+}
+
+
+
+
+
+#cuentaForm {
+  background: linear-gradient(145deg, #1b1b1b, #161616);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 40px 35px;
+  width: 99%;          /* casi todo el ancho de la pantalla */
+  max-width: 1200px;   /* límite máximo para pantallas muy grandes */
+  margin: 20px auto;   /* centrado horizontal */
+  border: 1px solid rgba(57, 255, 8, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#cuentaForm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 6px 10px rgba(0, 0, 0, 0.08);
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 28px;
+}
+
+.input-group i {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00ff2a;
+  font-size: 18px;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.input-group input, 
+.input-group select {
+  width: 100%;
+  padding: 16px 20px 16px 55px;
+  border: 2px solid #2e2e2e;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #202020, #252525);
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+  appearance: none;
+  cursor: pointer;
+}
+
+.input-group input::placeholder {
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: #00fc2a;
+  background: #1d1d1d;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  transform: scale(1.02);
+}
+
+.input-group:focus-within i {
+  color: #3af800;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.input-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236c757d'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.btn {
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #02ff17, #303030);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(14, 14, 14, 0.3);
+}
+
+.btn:hover {
+  background: linear-gradient(135deg, #202020, #09ff00);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(14, 14, 14, 0.3);
+}
+
+.btn i {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.btn:hover i {
+  transform: scale(1.1) rotate(90deg);
+}
+
+input[type="hidden"] {
+  display: none;
+}
+
+/* Efectos de validación */
+.input-group input:valid {
+  border-color: #10b981;
+}
+
+.input-group input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  #cuentaForm {
+    padding: 30px 25px;
+    margin: 15px;
+    border-radius: 16px;
+  }
+  
+  .input-group input,
+  .input-group select {
+    padding: 14px 16px 14px 50px;
+    font-size: 14px;
+  }
+  
+  .btn {
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+/* ============================= */
+/* SECCIONES DE DESTINO (PAYPAL / PAYONEER) */
+/* ============================= */
+.destination_group {
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: #fff; /* texto blanco */
+}
+
+.destination_group h3 {
+  margin-top: 0;
+  color: #fff; /* título blanco */
+  font-size: 1.4em;
+}
+
+.destination_group p {
+  color: #fff; /* párrafos blancos */
+  line-height: 1.5;
+  margin-bottom: 15px;
+}
+
+/* ============================= */
+/* BOTONES */
+/* ============================= */
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #28a745; /* verde */
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: background 0.3s;
+  cursor: pointer;
+  border: none;
+}
+
+.button:hover {
+  background-color: #218838; /* verde más oscuro al hover */
+}
+
+.button:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+/* ============================= */
+/* WIDGET PAYPAL */
+.login_with_paypal_widget {
+  background-color: #444; /* gris un poco más oscuro */
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #555;
+}
+
+/* ============================= */
+/* ENLACES DENTRO DE LAS SECCIONES */
+.destination_group a {
+  color: #fcfdfc; /* enlaces verdes */
+}
+
+.destination_group a:hover {
+  color: #ffffff;
+}
+

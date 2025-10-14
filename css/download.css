@@ -1,0 +1,64 @@
+/* ============================
+   DESCARGA.CSS
+============================ */
+
+/* Contenedor de descarga */
+.download-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 30px;
+  color: #fff;
+  text-align: center;
+  border-radius: 15px;
+  font-family: Arial, sans-serif;
+}
+
+/* Título del juego */
+.download-container h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #00d4ff;
+}
+
+/* Descripción del juego */
+.download-container p {
+  font-size: 16px;
+  margin-bottom: 25px;
+  color: #ccc;
+}
+
+/* Botón de descarga con icono */
+.boton-descargar {
+  display: inline-flex;                 /* Centrar icono vertical y horizontal */
+  justify-content: center;
+  align-items: center;
+  width: 200px;                          /* Ancho del botón */
+  height: 50px;                           /* Alto del botón */
+  font-size: 18px;                        /* Tamaño del texto/icono */
+  font-weight: bold;
+  color: #ffffff;                         /* Color del texto/icono */
+  background: linear-gradient(135deg, #555555, #111111); /* Gris → Negro */
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Icono dentro del botón */
+.boton-descargar i {
+  margin-right: 10px;                     /* Separación entre icono y texto */
+  font-size: 20px;
+}
+
+/* Hover */
+.boton-descargar:hover {
+  background: linear-gradient(135deg, #28a745, #218838); /* Verde degradado */
+  transform: scale(1.05);
+}
+
+/* Click activo */
+.boton-descargar:active {
+  background: linear-gradient(135deg, #1e7e34, #155724); /* Verde más oscuro */
+  transform: scale(0.95);
+}
