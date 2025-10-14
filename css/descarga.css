@@ -1,0 +1,416 @@
+/* ==========================
+   Contenedor principal
+   ========================== */
+.container {
+    max-width: 1200px; /* ➜ Aumenté el ancho máximo de 950px a 1200px */
+    width: 90%;         /* ➜ Permite que ocupe el 90% de la pantalla en dispositivos grandes */
+    background: #16161681; 
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 40px auto; /* ➜ Separación superior e inferior de 40px */
+    transition: all 0.3s ease; /* ➜ Para animaciones o cambios suaves si se redimensiona */
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(135deg, #00cc88, #27ae60);
+}
+
+/* Logo */
+.logo-container {
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease;
+}
+
+.logo {
+    max-width: 120px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    border: 3px solid #3d3d3d;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+/* Nombre de la plataforma */
+.title-container {
+    margin-bottom: 20px;
+    animation: slideDown 0.8s ease;
+}
+
+.platform-name {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00cc88, #27ae60);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Descripción */
+.description-container {
+    margin-bottom: 30px;
+    animation: fadeIn 1.2s ease;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================
+   Contenedor del botón de descarga
+   ========================== */
+.download-container {
+    margin-bottom: 40px;
+    animation: fadeIn 1.4s ease;
+    text-align: center; /* Centra el botón horizontalmente */
+}
+
+/* ==========================
+   Botón de descarga ancho y cuadrado
+   ========================== */
+.download-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #00cc88, #27ae60);
+    color: #ffffff;
+    padding: 9px 60px;  /* ➜ Más ancho con padding horizontal */
+    border-radius: 5px;  /* ➜ Redondeo suave, más cuadrado */
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 15px rgba(0, 204, 136, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    min-width: 300px; /* ➜ Garantiza que el botón tenga un ancho mínimo */
+}
+
+/* Efecto hover */
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 204, 136, 0.4);
+    background: linear-gradient(135deg, #00ee9f, #2ecc71);
+}
+
+/* Efecto click */
+.download-btn:active {
+    transform: translateY(1px);
+}
+
+/* Efecto brillo superior */
+.download-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+    transition: transform 0.3s ease;
+    transform: translateY(100%);
+}
+
+.download-btn:hover::before {
+    transform: translateY(0);
+}
+
+
+/* Plataformas disponibles */
+.platforms-container {
+    animation: fadeIn 1.6s ease;
+}
+
+.platforms-container p {
+    margin-bottom: 15px;
+    color: #e0e0e0;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.platforms-icons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+}
+
+.platforms-icons svg {
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    width: 32px;
+    height: 32px;
+}
+
+.platforms-icons svg:hover {
+    color: #00cc88;
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px rgba(0, 204, 136, 0.5));
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Efectos de iluminación verde */
+.container:hover .platform-name {
+    text-shadow: 0 0 15px rgba(0, 204, 136, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+    
+    .platform-name {
+        font-size: 2.5rem;
+    }
+    
+    .description {
+        font-size: 1rem;
+    }
+    
+    .download-btn {
+        padding: 14px 30px;
+        font-size: 1.1rem;
+    }
+    
+    .platforms-icons {
+        gap: 20px;
+    }
+    
+    .platforms-icons svg {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .platform-name {
+        font-size: 2rem;
+    }
+    
+    .download-btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .platforms-icons {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .platforms-icons svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .description {
+        font-size: 0.95rem;
+    }
+}
+
+
+
+
+
+
+
+/* Estilos para el botón de toggle */
+#toggle-btn {
+    background: linear-gradient(135deg, #00cc88, #27ae60);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 204, 136, 0.3);
+    width: 100%;
+    text-align: left;
+    position: relative;
+    margin-bottom: 0;
+}
+
+#toggle-btn:hover {
+    background: linear-gradient(135deg, #00ee9f, #2ecc71);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 204, 136, 0.4);
+}
+
+#toggle-btn:active {
+    transform: translateY(0);
+}
+
+#toggle-btn::after {
+    content: '▼';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+#business-info[style*="block"] + #toggle-btn::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Estilos para el panel de información */
+#business-info {
+    background: #2d2d2d54;
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 10px;
+    border-left: 4px solid #00cc88;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Títulos */
+#business-info h2 {
+    color: #00cc88;
+    font-size: 1.4rem;
+    margin: 25px 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #3d3d3d;
+    font-weight: 600;
+}
+
+#business-info h2:first-child {
+    margin-top: 0;
+}
+
+/* Párrafos */
+#business-info p {
+    color: #e0e0e0;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-size: 1rem;
+}
+
+/* Listas */
+#business-info ul {
+    color: #e0e0e0;
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+#business-info li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+    padding-left: 5px;
+}
+
+/* Efectos de hover en elementos de lista */
+#business-info li:hover {
+    color: #ffffff;
+    transform: translateX(5px);
+    transition: all 0.3s ease;
+}
+
+/* Iconos decorativos */
+#business-info h2::before {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* Mejora de legibilidad para textos largos */
+#business-info p, #business-info li {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #toggle-btn {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+    
+    #business-info {
+        padding: 20px 15px;
+    }
+    
+    #business-info h2 {
+        font-size: 1.2rem;
+    }
+    
+    #business-info p, #business-info li {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #toggle-btn {
+        padding: 10px 15px;
+        font-size: 0.95rem;
+    }
+    
+    #toggle-btn::after {
+        right: 15px;
+    }
+    
+    #business-info {
+        padding: 15px 12px;
+    }
+    
+    #business-info h2 {
+        font-size: 1.1rem;
+    }
+}

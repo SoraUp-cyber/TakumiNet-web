@@ -1,0 +1,538 @@
+/* =========================
+   ESTILOS PROFESIONALES PARA GRID DE JUEGOS
+   COLORES: GRIS FONDO - BLANCO TEXTO - VERDE DETALLES
+   ========================= */
+
+.juegos-contenedor {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 10px;
+    padding: 0 0 20px 30px; /* quitamos padding superior */
+    margin-top: -20px;      /* sube el grid hacia arriba */
+    margin-left: -20px;}
+
+/* =========================
+   TARJETA DE JUEGO PROFESIONAL
+   ========================= */
+.juego-card {
+    background: linear-gradient(135deg, #050505 0%, #2b2b2b 100%); /* Gris más claro */
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    border: 1px solid #444; /* Borde gris */
+}
+
+.juego-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border-color: #666; /* Borde más claro al hover */
+}
+
+.juego-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #10b981, #34d399, #10b981); /* Verde */
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite linear;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* =========================
+   PORTADA DEL JUEGO
+   ========================= */
+.juego-cover {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.juego-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.juego-card:hover .juego-cover img {
+    transform: scale(1.05);
+}
+
+.juego-cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+}
+
+/* =========================
+   INFORMACIÓN DEL JUEGO - TEXTO BLANCO
+   ========================= */
+.juego-info {
+    padding: 20px;
+    position: relative;
+}
+
+.juego-info h3 {
+    color: #ffffff; /* Blanco */
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.juego-info p {
+    color: #e0e0e0; /* Gris muy claro casi blanco */
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 15px 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* =========================
+   ETIQUETA DE PRECIO - VERDE
+   ========================= */
+.juego-info p strong {
+    color: #10b981; /* Verde */
+    font-weight: 600;
+}
+
+.juego-info p:last-child {
+    margin-bottom: 0;
+    font-size: 1rem;
+}
+
+/* =========================
+   BOTÓN DE FAVORITOS - VERDE
+   ========================= */
+.btn-favorito {
+    background: rgba(16, 185, 129, 0.1); /* Verde transparente */
+    border: 2px solid rgba(16, 185, 129, 0.3); /* Borde verde */
+    color: #10b981; /* Texto verde */
+    padding: 8px 16px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 2;
+}
+
+.btn-favorito:hover {
+    background: rgba(16, 185, 129, 0.2); /* Verde más intenso */
+    border-color: #10b981; /* Borde verde sólido */
+    color: #ffffff; /* Texto blanco al hover */
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); /* Sombra verde */
+}
+
+/* =========================
+   BADGES Y ETIQUETAS - VERDE
+   ========================= */
+.juego-badges {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #ffffff; /* Texto blanco */
+}
+
+.badge-free {
+    background: linear-gradient(135deg, #10b981, #059669); /* Verde */
+}
+
+.badge-paid {
+    background: linear-gradient(135deg, #f59e0b, #d97706); /* Amarillo (para contraste) */
+    color: #1f2937; /* Texto oscuro */
+}
+
+.badge-donation {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed); /* Violeta (para contraste) */
+}
+
+/* =========================
+   ESTADÍSTICAS DEL JUEGO
+   ========================= */
+.juego-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #444; /* Línea gris */
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #9ca3af; /* Gris medio */
+    font-size: 0.8rem;
+}
+
+.stat i {
+    color: #10b981; /* Verde para íconos */
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+@media (max-width: 1200px) {
+    .juegos-contenedor {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-preview {
+        padding: 15px;
+    }
+    
+    .juegos-contenedor {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .juego-info {
+        padding: 15px;
+    }
+    
+    .juego-info h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .juegos-contenedor {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .juego-cover {
+        height: 180px;
+    }
+}
+
+/* =========================
+   ANIMACIONES DE CARGA - GRIS
+   ========================= */
+.juegos-contenedor.loading {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.skeleton-card {
+    background: #374151; /* Gris oscuro */
+    border-radius: 15px;
+    overflow: hidden;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-cover {
+    height: 200px;
+    background: #4b5563; /* Gris medio */
+}
+
+.skeleton-content {
+    padding: 20px;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: #4b5563; /* Gris medio */
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.skeleton-line.short {
+    width: 60%;
+}
+
+.skeleton-line.medium {
+    width: 80%;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* =========================
+   FILTROS Y ORDENACIÓN - VERDE
+   ========================= */
+.juegos-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #374151; /* Gris oscuro */
+    border: 1px solid #4b5563; /* Gris medio */
+    color: #d1d5db; /* Gris claro */
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: #10b981; /* Verde */
+    color: #ffffff; /* Blanco */
+    border-color: #10b981; /* Verde */
+}
+
+/* =========================
+   EFECTO DE BRILLO AL HOVER - VERDE
+   ========================= */
+.juego-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(16, 185, 129, 0.1), /* Verde transparente */
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.juego-card:hover::after {
+    left: 100%;
+}
+
+/* =========================
+   SCROLLBAR PERSONALIZADO - VERDE
+   ========================= */
+.juegos-contenedor::-webkit-scrollbar {
+    width: 8px;
+}
+
+.juegos-contenedor::-webkit-scrollbar-track {
+    background: #1f2937; /* Gris muy oscuro */
+    border-radius: 4px;
+}
+
+.juegos-contenedor::-webkit-scrollbar-thumb {
+    background: #10b981; /* Verde */
+    border-radius: 4px;
+}
+
+.juegos-contenedor::-webkit-scrollbar-thumb:hover {
+    background: #059669; /* Verde más oscuro */
+}
+
+/* =========================
+   ESTILOS ADICIONALES PARA ERRORES Y ESTADOS VACÍOS
+   ========================= */
+.error-message, .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    grid-column: 1 / -1;
+    background: #2d2d2d; /* Gris */
+    border-radius: 15px;
+    border: 1px solid #444;
+}
+
+.error-message i, .empty-state i {
+    font-size: 4rem;
+    color: #10b981; /* Verde */
+    margin-bottom: 20px;
+}
+
+.error-message h3, .empty-state h3 {
+    color: #ffffff; /* Blanco */
+    margin-bottom: 10px;
+}
+
+.error-message p, .empty-state p {
+    color: #e0e0e0; /* Gris claro */
+    margin-bottom: 20px;
+}
+
+.error-message button, .empty-state button {
+    background: #10b981; /* Verde */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.error-message button:hover, .empty-state button:hover {
+    background: #059669; /* Verde más oscuro */
+    transform: scale(1.05);
+}
+
+/* =========================
+   NOTIFICACIONES - VERDE
+   ========================= */
+.notificacion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981; /* Verde */
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 4px solid #059669; /* Verde oscuro */
+}
+
+.notificacion.error {
+    background: #ef4444; /* Rojo para errores */
+    border-left-color: #dc2626;
+}
+
+.notificacion button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* =========================
+   HEADER Y NAVEGACIÓN
+   ========================= */
+.header {
+    background: #2d2d2d; /* Gris */
+    border-bottom: 2px solid #10b981; /* Línea verde */
+}
+
+.nav-link {
+    color: #e0e0e0; /* Gris claro */
+}
+
+.nav-link:hover {
+    color: #10b981; /* Verde al hover */
+}
+
+/* =========================
+   BOTONES GENERALES - VERDE
+   ========================= */
+.btn-primary {
+    background: #10b981;
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #059669;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #10b981;
+    color: #10b981;
+}
+
+.btn-outline:hover {
+    background: #10b981;
+    color: white;
+}.juego-cover {
+  position: relative; /* necesario para posicionar absolutamente dentro */
+}
+
+.btn-favorito {
+  position: absolute;
+  top: 10px;   /* distancia desde arriba */
+  right: 10px; /* distancia desde la derecha */
+  background: rgba(26, 26, 26, 0.8); /* fondo semitransparente */
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.btn-favorito:hover {
+  transform: scale(1.2); /* efecto al pasar el mouse */
+}
+
+
+
+
+
+
+
+
+/* Contenedor del precio */
+.precio-oferta-box p {
+  font-size: 14px;
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Precio original tachado */
+.precio-original {
+  text-decoration: line-through;
+  color: #999;
+  font-weight: normal;
+}
+
+/* Precio final destacado */
+#precioOferta {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Porcentaje de descuento */
+#porcentajeOferta {
+  font-weight: bold;
+  color: #e01b24; /* rojo estilo oferta */
+  margin-left: 10px;
+}

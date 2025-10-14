@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Jams</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="../css/nav.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/temas.css">
+    <link rel="stylesheet" href="../css/buscador.css">
+    <style>
+/* ===== ESTILOS BASE Y TIPOGRAFÍA ===== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600&display=swap');
+
+.container {
+  width: 100%;
+  max-width: 100vw;
+  padding: 2rem 5vw;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===== CABECERA PRINCIPAL ===== */
+.jams-header {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    padding: 3.5rem;
+    margin: 0;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.jams-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #4CAF50);
+    opacity: 0.08;
+    z-index: 0;
+}
+
+.jams-header h1 {
+    font-weight: 300;
+    font-size: 2.6rem;
+    margin: 0 0 1.5rem 0;
+    letter-spacing: 0.5px;
+    color: #f5f5f5;
+    position: relative;
+    z-index: 1;
+}
+
+.jams-header h1 strong {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.jams-header p {
+    font-weight: 300;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #cccccc;
+    max-width: 65ch;
+    margin: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.jams-header:hover::after {
+    animation: light-sweep 1.2s ease;
+    opacity: 0.12;
+}
+
+@keyframes light-sweep {
+    0% { transform: translateX(100%); opacity: 0; }
+    50% { opacity: 0.2; }
+    100% { transform: translateX(0); opacity: 0.12; }
+}
+
+/* ===== SISTEMA DE PESTAÑAS ===== */
+.header_tabs {
+    display: inline-flex;
+    border-bottom: 1px solid #404040;
+    margin-bottom: 2rem;
+    background-color: #252525;
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header_tab {
+    padding: 0.75rem 1.5rem;
+    color: #cccccc;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+    border-right: 1px solid #333333;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.header_tab:last-child {
+    border-right: none;
+}
+
+.header_tab.active {
+    color: #ffffff;
+    background-color: #1e1e1e;
+    font-weight: 600;
+}
+
+.header_tab.active::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #4CAF50;
+}
+
+.header_tab:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+
+.tab_group {
+    display: flex;
+    margin-left: auto;
+}
+
+.tab_group .header_tab {
+    border-left: 1px solid #333333;
+    border-right: none;
+}
+
+/* ===== CONTENIDO DE PESTAÑAS ===== */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== FORMULARIO DE VISTA JAM ===== */
+.ver-jam-formulario {
+    background-color: #1e1e1e;
+    padding: 2.5rem;
+    border-radius: 0 8px 8px 8px;
+    border: 1px solid #333333;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ver-jam-formulario h2 {
+    color: #4CAF50;
+    font-size: 1.8rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #333333;
+    font-weight: 600;
+}
+
+.ver-jam-formulario p {
+    margin-bottom: 1.2rem;
+    line-height: 1.7;
+    color: #e0e0e0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.ver-jam-formulario strong {
+    color: #ffffff;
+    font-weight: 500;
+    min-width: 180px;
+    display: inline-block;
+}
+
+.ver-jam-formulario #jam-imagen {
+    max-width: 100%;
+    max-height: 300px;
+    height: auto;
+    border-radius: 6px;
+    margin: 1.5rem 0;
+    border: 1px solid #404040;
+    object-fit: cover;
+    display: block;
+}
+
+.ver-jam-formulario #jam-url {
+    color: #4CAF50;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.ver-jam-formulario #jam-url:hover {
+    color: #3d8b40;
+    background-color: rgba(76, 175, 80, 0.2);
+    text-decoration: none;
+}
+
+/* ===== DISEÑO RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem;
+    }
+    
+    .jams-header {
+        padding: 2.5rem 1.8rem;
+    }
+    
+    .jams-header h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .header_tabs {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    .header_tab {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    .tab_group {
+        margin-left: 0;
+        width: 100%;
+        order: 3;
+        margin-top: 0.5rem;
+    }
+    
+    .ver-jam-formulario {
+        padding: 1.5rem;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    .ver-jam-formulario strong {
+        min-width: 100%;
+        margin-bottom: 0.25rem;
+    }
+    
+    .ver-jam-formulario p {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+
+
+
+
+
+.foro-jam {
+  margin-top: 40px;
+  padding: 15px;
+  background: #222;
+  border-radius: 8px;
+  color: white;
+}
+
+.btn-foro {
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.btn-foro:hover {
+  background: #218838;
+}
+
+.lista-foro {
+  list-style: none;
+  padding: 0;
+}
+
+.lista-foro li {
+  padding: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.lista-foro a {
+  color: #00aaff;
+  text-decoration: none;
+}
+
+.lista-foro a:hover {
+  text-decoration: underline;
+}
+
+
+/* ===== Modal ===== */
+#modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#modal-container.visible {
+  opacity: 1;
+}
+
+.modal-content {
+  background: #272727;
+  padding: 25px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 500px;
+  transform: translateY(-50px);
+  transition: transform 0.3s ease;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+  border: 1px solid #636e72;
+  color: white;
+}
+
+#modal-container.visible .modal-content {
+  transform: translateY(0);
+}
+
+/* ===== Formulario ===== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: white;
+  font-size: 14px;
+}
+
+.form-group input, 
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  background: #303030;
+  border: 1px solid #62ff06;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s;
+  color: white;
+}
+
+.form-group input:focus, 
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0bff02;
+  box-shadow: 0 0 0 2px rgba(21, 255, 0, 0.5);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #dfe6e9;
+  opacity: 0.7;
+}
+
+/* ===== Botones del modal ===== */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.modal-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+.btn-cancel {
+  background: #fa0303;
+  color: black;
+}
+
+.btn-cancel:hover {
+  background: #ff8902;
+  color: white;
+}
+
+.btn-submit {
+  background: #03fc03;
+  color: black;
+}
+
+.btn-submit:hover {
+  background: #05c905;
+}
+
+/* ===== Caja de normas ===== */
+.rules-container {
+  background: rgba(99, 110, 114, 0.3);
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  border-left: 4px solid #00ff22;
+}
+
+.rules-container h4 {
+  margin-top: 0;
+  color: #00ff15;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.rules-container ul {
+  padding-left: 20px;
+  margin-bottom: 0;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rules-container li {
+  margin-bottom: 5px;
+}
+
+/* ===== Animaciones ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.shake {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+/* ===== Lista de temas ===== */
+#lista-temas {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tema-item {
+  background: #2d2d2d;
+  border: 1px solid #00b894;
+  border-radius: 6px;
+  padding: 15px;
+  margin-bottom: 15px;
+  transition: all 0.3s;
+}
+
+.tema-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border-color: #55efc4;
+  background: #555f63;
+}
+
+.tema-item a {
+  text-decoration: none;
+  color: white;
+}
+
+.tema-item h3 {
+  margin: 0 0 10px 0;
+  color: #55efc4;
+  font-size: 18px;
+}
+
+.tema-item p {
+  margin: 0 0 8px 0;
+  color: #dfe6e9;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.tema-item small {
+  color: #bdc3c7;
+  font-size: 12px;
+}
+
+/* ===== Botón Crear Tema ===== */
+#btn-crear-tema {
+  background: #0aff02;
+  color: black;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+  margin-bottom: 20px;
+}
+
+#btn-crear-tema:hover {
+  background: #05af21;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.boton-exito {
+  background: #008c6d !important;
+  box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.5) !important;
+}
+
+
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <!-- Sección Izquierda: Logo -->
+    <div class="navbar-logo">
+        <img src="../assets/img/logo.png" alt="Logo de TakumiNet">
+    </div>
+
+
+ <!-- Botón hamburguesa (solo visible en móvil) -->
+  <div class="hamburger" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+  </div>
+
+    <!-- Sección Central: Enlaces de navegación -->
+    <ul class="nav-links">
+      <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
+      <li><a href="marketplace.html"><i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span></a></li>
+      <li><a href="game jam.html"><i class="fas fa-calendar-alt"></i> <span data-i18n="game_jams">Game Jams</span></a></li>
+      <li><a href="centro-aprendiz.html"><i class="fas fa-graduation-cap"></i> <span data-i18n="tutoriales">Tutoriales</span></a></li>
+      <li><a href="ranking.html"><i class="fas fa-trophy"></i> <span data-i18n="Ranking">Ranking</span></a></li>
+      <li><a href="comunidad.html"><i class="fas fa-users"></i> <span data-i18n="comunidad">Comunidad</span></a></li>
+    </ul>
+
+    <!-- Sección Derecha: Elementos interactivos -->
+    <div class="nav-right">
+      <!-- Búsqueda -->
+      <form class="search-box" role="search">
+        <input type="search" class="search-input" placeholder="Buscar juegos, usuarios..." aria-label="Buscar en el sitio" data-i18n="buscar" data-i18n-type="placeholder">
+        <button type="submit" class="search-btn" aria-label="Ejecutar búsqueda">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+
+    
+<!-- ================================
+     SELECTOR DE IDIOMA
+================================ -->
+<div class="language-selector">
+  <button class="icon-btn language-btn" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-globe"></i>
+    <span data-i18n="idioma"></span>
+  </button>
+
+  <div class="language-dropdown" id="languageDropdown" role="menu" aria-hidden="true">
+    <button class="lang-option" data-lang="es">🇪🇸 Español<span data-i18n="espanol"></span></button>
+    <button class="lang-option" data-lang="en">🇺🇸 English<span data-i18n="ingles"></span></button>
+    <button class="lang-option" data-lang="ja">🇯🇵 日本語<span data-i18n="japones"></span></button>
+  </div>
+</div>
+
+
+
+      <!-- Iconos de notificaciones -->
+      <div class="nav-icons">
+        <div class="notification-wrapper">
+          <button class="icon-btn notification-btn" onclick="toggleNotifications()" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" aria-live="polite">0</span>
+          </button>
+
+          <!-- Menú desplegable de notificaciones -->
+          <div class="dropdown-menu notification-dropdown" id="notificationDropdown" role="menu" aria-hidden="true" style="display:none;">
+            <div class="dropdown-header">
+              <h4 class="dropdown-title" data-i18n="notificaciones">Notificaciones</h4>
+              <button class="mark-read" id="markReadBtn" data-i18n="ver_todas">Marcar todas como leídas</button>
+            </div>
+
+            <div class="notifications-list" id="notificationsList">
+              <!-- Aquí se insertarán las notificaciones dinámicamente -->
+            </div>
+            <div class="dropdown-footer">
+              <a href="/notificaciones" class="view-all" data-i18n="ver_todas">Ver todas</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carrito de compras -->
+        <div class="icon-btn cart-btn" aria-label="Carrito de compras" role="button" tabindex="0" onclick="toggleCart()">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" aria-live="polite">5</span>
+        </div>
+
+
+  <!-- Menú de usuario -->
+  <div class="user-menu">
+    <button class="user-profile" aria-haspopup="true" aria-expanded="false" onclick="toggleUserMenu()">
+      <div id="avatar-circle" class="avatar">
+        <i id="avatar-icon" class="fas fa-user"></i>
+      </div>
+      <span class="username" id="current-username">Invitado</span>
+    </button>
+  </div>
+
+          <!-- Menú desplegable de usuario -->
+          <div class="user-dropdown" id="userDropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-group">
+              <a href="perfil del usuario.html" class="menu-item"><i class="fas fa-user"></i><span data-i18n="perfil">Perfil</span></a>
+               <a href="mis juegos.html" class="menu-item"><i class="fas fa-gamepad"></i><span data-i18n="mis_juegos">Mis Juegos</span></a>
+             <a href="Creator Dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span data-i18n="controlPanel">Panel de Control</span></a>
+              <a href="juegos favoritos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="favoritos">Favoritos</span></a>
+              <a href="subir_juegos.html" class="menu-item"><i class="fas fa-upload"></i><span data-i18n="subir_juego">Subir Juego</span></a>
+            </div>
+            <div class="dropdown-group">
+              <a href="biblioteca.html" class="menu-item"><i class="fas fa-book"></i><span data-i18n="biblioteca">Biblioteca</span></a>
+              <a href="descarga.html" class="menu-item"><i class="fas fa-download"></i><span data-i18n="descargas">Descargas</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <a href="perfil-editar.html" class="menu-item"><i class="fas fa-user-edit"></i><span data-i18n="editar_usuario">Editar Usuario</span></a>
+                <a href="pagos-desarrollador.html" class="menu-item"><i class="fas fa-money-bill-wave"></i><span data-i18n="pagos">Pagos</span></a>
+              <a href="seguidos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="seguidos">Seguidos</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <button class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span data-i18n="cerrar_sesion">Cerrar Sesión</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</nav>
+
+
+
+<div class="container">
+
+  <!-- Encabezado -->
+  <section class="jams-header">
+    <h1 data-i18n="jams.title">Game Jams</h1>
+    <p data-i18n="jams.subtitle">Explora, participa y crea en nuestras emocionantes Game Jams. ¡Únete a la comunidad y muestra tu talento!</p>
+  </section>
+
+<!-- Pestañas -->
+<div class="header_tabs">
+  <a class="header_tab active" data-tab="vista" href="#" data-i18n="jams.tabs.overview">Vista general</a>
+  <div class="tab_group">
+    <a class="header_tab" data-tab="comunidad" href="#" data-i18n="jams.tabs.community">Comunidad</a>
+  </div>
+</div>
+
+
+  <!-- Contenido de Vista General -->
+  <div id="tab-vista" class="tab-content active">
+    <section class="ver-jam-formulario">
+      <h2 data-i18n="jams.details.title">Detalles de la Game Jam</h2>
+      <p><strong data-i18n="jams.details.fields.title">Título:</strong> <span id="jam-titulo"></span></p>
+      <img id="jam-imagen" src="" alt="Imagen de la jam">
+      <p><strong data-i18n="jams.details.fields.shortDescription">Descripción corta:</strong> <span id="jam-descripcion-corta"></span></p>
+      <p><strong data-i18n="jams.details.fields.url">URL:</strong> <a id="jam-url" href="#" target="_blank" data-i18n="jams.details.join">Unirme al Jam</a></p>
+      <p><strong data-i18n="jams.details.fields.startsIn">Empieza en:</strong> <span id="jam-contador" data-i18n="jams.details.calculating">Calculando...</span></p>
+      <p><strong data-i18n="jams.details.fields.type">Tipo de Jam:</strong> <span id="jam-tipo-jam"></span></p>
+      <p><strong data-i18n="jams.details.fields.whoVotes">¿Quién vota?:</strong> <span id="jam-quien-vota"></span></p>
+      <p><strong data-i18n="jams.details.fields.startDate">Fecha de inicio:</strong> <span id="jam-fecha-inicio"></span></p>
+      <p><strong data-i18n="jams.details.fields.endDate">Fecha de fin:</strong> <span id="jam-fecha-fin"></span></p>
+      <p><strong data-i18n="jams.details.fields.votingStart">Inicio de votación:</strong> <span id="jam-fecha-votacion"></span></p>
+      <p><strong data-i18n="jams.details.fields.fullDescription">Descripción completa:</strong> <span id="jam-contenido"></span></p>
+      <p><strong data-i18n="jams.details.fields.criteria">Criterios:</strong> <span id="jam-criterios"></span></p>
+      <p><strong data-i18n="jams.details.fields.hashtag">Hashtag:</strong> <span id="jam-hashtag"></span></p>
+      <p><strong data-i18n="jams.details.fields.community">Comunidad:</strong> <span id="jam-comunidad"></span></p>
+      <p><strong data-i18n="jams.details.fields.blockUploads">Bloquear subidas:</strong> <span id="jam-bloquear-subidas"></span></p>
+      <p><strong data-i18n="jams.details.fields.hideResults">Ocultar resultados:</strong> <span id="jam-ocultar-resultados"></span></p>
+      <p><strong data-i18n="jams.details.fields.hideSubmissions">Ocultar submisiones:</strong> <span id="jam-ocultar-submisiones"></span></p>
+      <p><strong data-i18n="jams.details.fields.visibility">Visibilidad:</strong> <span id="jam-visibilidad"></span></p>
+      <p><strong data-i18n="jams.details.fields.creationDate">Fecha de creación:</strong> <span id="jam-fecha-creacion"></span></p>
+    </section>
+  </div>
+
+
+
+<!-- ============================= -->
+<!--  SECCIÓN DE COMUNIDAD / JAMS -->
+<!-- ============================= -->
+<div id="tab-comunidad" class="tab-content">
+  <section class="jam-interaccion">
+    <h2 data-i18n="community.participationTitle">Participación en "El Jams"</h2>
+    <p data-i18n="community.voteFeedback">
+      Vota por tu juego favorito ⭐ y deja tu feedback 💬
+    </p>
+
+<div class="votacion-jam">
+  <h3 data-i18n="community.participantGameTitle">Juego participante</h3>
+  <div class="juego">
+    <h4 data-i18n="community.gameName">El Jams</h4>
+
+    <p id="estado-voto" class="mensaje-voto"></p>
+
+    <!-- Calificación de la Comunidad -->
+    <div class="calificacion-container">
+      <h3 data-i18n="community.rateTitle">Califica este juego</h3>
+
+      <!-- Botón para enviar calificación -->
+      <button id="btnEnviarCalificacion" class="btn-calificar" data-i18n="community.sendRating">
+        📩 Enviar calificación
+      </button>
+
+      <!-- Estrellas -->
+      <div class="rating">
+        <input type="radio" id="estrella5" name="rating" value="5">
+        <label for="estrella5" data-i18n="community.star">★</label>
+
+        <input type="radio" id="estrella4" name="rating" value="4">
+        <label for="estrella4" data-i18n="community.star">★</label>
+
+        <input type="radio" id="estrella3" name="rating" value="3">
+        <label for="estrella3" data-i18n="community.star">★</label>
+
+        <input type="radio" id="estrella2" name="rating" value="2">
+        <label for="estrella2" data-i18n="community.star">★</label>
+
+        <input type="radio" id="estrella1" name="rating" value="1">
+        <label for="estrella1" data-i18n="community.star">★</label>
+      </div>
+    </div>
+
+    <!-- Promedio y cantidad de votos -->
+    <p id="rating-info" class="rating-info" data-i18n="gameProfile.ratingInfo">Promedio: 0 (0 votos)</p>
+  </div>
+</div>
+<hr>
+
+
+        <!-- ============================= -->
+        <!-- COMENTARIOS DEL JUEGO -->
+        <!-- ============================= -->
+        <div class="comentarios-jam">
+          <h3 data-i18n="community.commentsTitle">
+            Comentarios sobre "El Jams"
+          </h3>
+          <textarea id="nuevo-comentario" placeholder="Escribe tu comentario..." data-i18n-placeholder="community.commentPlaceholder"></textarea>
+          <button id="btn-enviar-comentario" class="btn-comentar" data-i18n="community.sendButton">
+            💬 Enviar comentario
+          </button>
+
+          <ul id="lista-comentarios">
+            <li data-i18n="community.noComments">No hay comentarios aún.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+
+  <!-- Scripts -->
+  <script src="../js/notificacion.js"></script>
+  <script src="../js/buscador.js"></script>
+  <script src="../js/carrito.js"></script>
+  <script src="../js/user.js"></script>
+  <script src="../js/desplegar.js"></script>
+  <script src="../js/cerrar sesion.js"></script>
+<script src="../js/temas.js"></script>
+<script src="../js/temas crear.js"></script>
+<script src="../js/cambiar-pestanas.js"></script>
+ <script src="../js/lang.js"></script>
+</body>
+</html>
+

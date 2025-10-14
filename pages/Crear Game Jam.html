@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/footer.css">
+  <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/nav.css">
+  <title>Crear Game Jam - TakumiNet</title>
+  <style>
+/* 📦 Contenedor principal */
+.jam-container {
+  width: 100%;
+  max-width: 1200px; /* Más ancho que un formulario normal */
+  margin: 40px auto;
+  background-color: #1e1e1e;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
+
+}
+
+/* 🏷 Título */
+.jam-container h1 {
+  text-align: center;
+  color: #00ff88;
+  font-size: 2rem;
+  margin-bottom: 25px;
+}
+
+/* 🏷 Etiquetas */
+.jam-container label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #cfcfcf;
+}
+
+/* ✏️ Inputs y Selects */
+.jam-container input[type="text"],
+.jam-container input[type="url"],
+.jam-container input[type="datetime-local"],
+.jam-container input[type="file"],
+.jam-container select,
+.jam-container textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background-color: #262626;
+  color: #fff;
+  font-size: 14px;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.jam-container input:focus,
+.jam-container select:focus,
+.jam-container textarea:focus {
+  border-color: #00ff88;
+  box-shadow: 0 0 6px #00ff88;
+  outline: none;
+}
+
+/* 📄 Textarea */
+.jam-container textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ☑️ Checkboxes */
+.jam-container input[type="checkbox"] {
+  accent-color: #00ff88;
+  transform: scale(1.1);
+  margin-right: 8px;
+}
+
+/* 🖼 Vista previa imagen */
+.preview {
+  display: block;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 2px solid #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+/* 🔘 Botón enviar */
+.jam-container button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 20px;
+  background-color: #00ff88;
+  color: #121212;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.jam-container button:hover {
+  background-color: #00cc6a;
+  transform: scale(1.02);
+}
+
+/* 📱 Responsividad */
+@media (max-width: 600px) {
+  .jam-container {
+    padding: 20px;
+  }
+
+  .jam-container h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ✨ Animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+  .notificacion {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-family: sans-serif;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s ease;
+    z-index: 9999;
+    display: none;
+  }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+    <!-- Sección Izquierda: Logo -->
+    <div class="navbar-logo">
+        <img src="../assets/img/logo.png" alt="Logo de TakumiNet">
+    </div>
+
+
+ <!-- Botón hamburguesa (solo visible en móvil) -->
+  <div class="hamburger" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+  </div>
+
+    <!-- Sección Central: Enlaces de navegación -->
+    <ul class="nav-links">
+      <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
+      <li><a href="marketplace.html"><i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span></a></li>
+      <li><a href="game jam.html"><i class="fas fa-calendar-alt"></i> <span data-i18n="game_jams">Game Jams</span></a></li>
+      <li><a href="centro-aprendiz.html"><i class="fas fa-graduation-cap"></i> <span data-i18n="tutoriales">Tutoriales</span></a></li>
+      <li><a href="ranking.html"><i class="fas fa-trophy"></i> <span data-i18n="Ranking">Ranking</span></a></li>
+      <li><a href="comunidad.html"><i class="fas fa-users"></i> <span data-i18n="comunidad">Comunidad</span></a></li>
+    </ul>
+
+    <!-- Sección Derecha: Elementos interactivos -->
+    <div class="nav-right">
+      <!-- Búsqueda -->
+      <form class="search-box" role="search">
+        <input type="search" class="search-input" placeholder="Buscar juegos, usuarios..." aria-label="Buscar en el sitio" data-i18n="buscar" data-i18n-type="placeholder">
+        <button type="submit" class="search-btn" aria-label="Ejecutar búsqueda">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+
+    
+<!-- ================================
+     SELECTOR DE IDIOMA
+================================ -->
+<div class="language-selector">
+  <button class="icon-btn language-btn" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-globe"></i>
+    <span data-i18n="idioma"></span>
+  </button>
+
+  <div class="language-dropdown" id="languageDropdown" role="menu" aria-hidden="true">
+    <button class="lang-option" data-lang="es">🇪🇸 Español<span data-i18n="espanol"></span></button>
+    <button class="lang-option" data-lang="en">🇺🇸 English<span data-i18n="ingles"></span></button>
+    <button class="lang-option" data-lang="ja">🇯🇵 日本語<span data-i18n="japones"></span></button>
+  </div>
+</div>
+
+
+
+      <!-- Iconos de notificaciones -->
+      <div class="nav-icons">
+        <div class="notification-wrapper">
+          <button class="icon-btn notification-btn" onclick="toggleNotifications()" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" aria-live="polite">0</span>
+          </button>
+
+          <!-- Menú desplegable de notificaciones -->
+          <div class="dropdown-menu notification-dropdown" id="notificationDropdown" role="menu" aria-hidden="true" style="display:none;">
+            <div class="dropdown-header">
+              <h4 class="dropdown-title" data-i18n="notificaciones">Notificaciones</h4>
+              <button class="mark-read" id="markReadBtn" data-i18n="ver_todas">Marcar todas como leídas</button>
+            </div>
+
+            <div class="notifications-list" id="notificationsList">
+              <!-- Aquí se insertarán las notificaciones dinámicamente -->
+            </div>
+            <div class="dropdown-footer">
+              <a href="/notificaciones" class="view-all" data-i18n="ver_todas">Ver todas</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carrito de compras -->
+        <div class="icon-btn cart-btn" aria-label="Carrito de compras" role="button" tabindex="0" onclick="toggleCart()">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" aria-live="polite">5</span>
+        </div>
+
+
+  <!-- Menú de usuario -->
+  <div class="user-menu">
+    <button class="user-profile" aria-haspopup="true" aria-expanded="false" onclick="toggleUserMenu()">
+      <div id="avatar-circle" class="avatar">
+        <i id="avatar-icon" class="fas fa-user"></i>
+      </div>
+      <span class="username" id="current-username">Invitado</span>
+    </button>
+  </div>
+
+          <!-- Menú desplegable de usuario -->
+          <div class="user-dropdown" id="userDropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-group">
+              <a href="perfil del usuario.html" class="menu-item"><i class="fas fa-user"></i><span data-i18n="perfil">Perfil</span></a>
+               <a href="mis juegos.html" class="menu-item"><i class="fas fa-gamepad"></i><span data-i18n="mis_juegos">Mis Juegos</span></a>
+             <a href="Creator Dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span data-i18n="controlPanel">Panel de Control</span></a>
+              <a href="juegos favoritos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="favoritos">Favoritos</span></a>
+              <a href="subir_juegos.html" class="menu-item"><i class="fas fa-upload"></i><span data-i18n="subir_juego">Subir Juego</span></a>
+            </div>
+            <div class="dropdown-group">
+              <a href="biblioteca.html" class="menu-item"><i class="fas fa-book"></i><span data-i18n="biblioteca">Biblioteca</span></a>
+              <a href="descarga.html" class="menu-item"><i class="fas fa-download"></i><span data-i18n="descargas">Descargas</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <a href="perfil-editar.html" class="menu-item"><i class="fas fa-user-edit"></i><span data-i18n="editar_usuario">Editar Usuario</span></a>
+                <a href="pagos-desarrollador.html" class="menu-item"><i class="fas fa-money-bill-wave"></i><span data-i18n="pagos">Pagos</span></a>
+              <a href="seguidos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="seguidos">Seguidos</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <button class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span data-i18n="cerrar_sesion">Cerrar Sesión</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</nav>
+
+
+
+<div class="jam-container">
+  <h1 data-i18n="jam.create.title">Crear Game Jam</h1>
+  <form id="jamForm">
+    <label for="titulo" data-i18n="jam.fields.title">Título del Evento</label>
+    <input type="text" id="titulo" name="titulo" required>
+
+    <label for="descripcion_corta" data-i18n="jam.fields.shortDescription">Descripción corta</label>
+    <input type="text" id="descripcion_corta" name="descripcion_corta" required>
+
+    <label for="url" data-i18n="jam.fields.url">URL del Evento</label>
+    <input type="url" id="url" name="url" required>
+
+    <label for="tipo_jam" data-i18n="jam.fields.type">Tipo de Jam</label>
+    <select id="tipo_jam" name="tipo_jam" required>
+      <option value="no-ranking" data-i18n="jam.fields.type.noRanking">No clasificado</option>
+      <option value="ranking" data-i18n="jam.fields.type.ranking">Clasificado</option>
+    </select>
+
+    <label for="quien_vota" data-i18n="jam.fields.whoVotes">¿Quién puede votar?</label>
+    <select id="quien_vota" name="quien_vota" required>
+      <option value="solo-submisores" data-i18n="jam.fields.whoVotes.submitters">Solo submisores</option>
+      <option value="submisores-contribuidores" data-i18n="jam.fields.whoVotes.submittersContributors">Submisores y colaboradores</option>
+      <option value="jueces" data-i18n="jam.fields.whoVotes.judges">Solo jueces</option>
+      <option value="publico" data-i18n="jam.fields.whoVotes.anyone">Cualquiera</option>
+    </select>
+
+    <label for="fecha_inicio" data-i18n="jam.fields.startDate">Fecha de inicio</label>
+    <input type="datetime-local" id="fecha_inicio" name="fecha_inicio" required>
+
+    <label for="fecha_fin" data-i18n="jam.fields.endDate">Fecha de finalización</label>
+    <input type="datetime-local" id="fecha_fin" name="fecha_fin" required>
+
+    <label for="fecha_votacion" data-i18n="jam.fields.votingEndDate">Fecha de fin de votación</label>
+    <input type="datetime-local" id="fecha_votacion" name="fecha_votacion" required>
+
+    <label for="imagen_portada" data-i18n="jam.fields.coverImage">Imagen de portada</label>
+    <input type="file" id="imagen_portada" accept="image/*" required>
+    <img id="preview" class="preview" style="display:none;">
+
+    <label for="contenido" data-i18n="jam.fields.content">Contenido del evento</label>
+    <textarea id="contenido" name="contenido" rows="4" required></textarea>
+
+    <label for="criterios" data-i18n="jam.fields.criteria">Criterios de clasificación</label>
+    <input type="text" id="criterios" name="criterios">
+
+    <label for="hashtag" data-i18n="jam.fields.hashtag">Hashtag</label>
+    <input type="text" id="hashtag" name="hashtag">
+
+    <label><input type="checkbox" id="comunidad"> <span data-i18n="jam.fields.enableCommunity">Habilitar comunidad</span></label>
+    <label><input type="checkbox" id="bloquear_subidas"> <span data-i18n="jam.fields.blockUploads">Bloquear nuevas subidas durante la votación</span></label>
+    <label><input type="checkbox" id="ocultar_resultados"> <span data-i18n="jam.fields.hideResults">Ocultar resultados hasta el final</span></label>
+    <label><input type="checkbox" id="ocultar_submisiones"> <span data-i18n="jam.fields.hideSubmissions">Ocultar submisiones antes de terminar</span></label>
+
+    <label for="visibilidad" data-i18n="jam.fields.visibility">Visibilidad</label>
+    <select id="visibilidad" name="visibilidad" required>
+      <option value="publicada" data-i18n="jam.fields.visibility.published">Publicado</option>
+      <option value="no-publicada" data-i18n="jam.fields.visibility.unpublished">No publicada</option>
+    </select>
+
+    <div id="notificacion" class="notificacion" data-i18n="jam.fields.notification"></div>
+
+    <button id="btn-crear-jam" data-i18n="jam.buttons.create">Crear Game Jam</button>
+  </form>
+</div>
+
+
+
+<script src="../js/notificacion.js"></script>
+<script src="../js/carrito.js"></script>
+<script src="../js/user.js"></script>
+<script src="../js/desplegar.js"></script>
+<script src="../js/cerrar sesion.js"></script>
+<script src="../js/crea game jams.js"></script>
+<script src="../js/lang.js"></script>
+</body>
+</html>
+

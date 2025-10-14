@@ -1,0 +1,94 @@
+/* Contenedor del panel */
+#infoUsuario {
+  display: none; /* se muestra solo al hacer clic */
+  padding: 20px;
+  margin-top: 15px;
+  border-radius: 10px;
+  background-color: #2c2c2c; /* gris oscuro */
+  color: #ffffff; /* letras blancas */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5;
+  max-width: 600px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Botón de ver info */
+#btnInfo {
+  background-color: #28a745; /* verde */
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+#btnInfo:hover {
+  background-color: #218838; /* verde más oscuro al pasar mouse */
+}
+
+/* Avatar */
+#infoUsuario img {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border: 2px solid #28a745;
+}
+
+/* Título del creador */
+#infoUsuario strong {
+  font-size: 16px;
+  color: #ffffff;
+}
+
+/* Enlaces de redes */
+#infoUsuario a {
+  color: #28a745; /* verde */
+  text-decoration: none;
+  margin-right: 8px;
+  font-size: 13px;
+}
+
+#infoUsuario a:hover {
+  text-decoration: underline;
+}
+
+/* Otros juegos del creador */
+#infoUsuario h4 {
+  margin-top: 15px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+#infoUsuario div.otros-juegos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.otros-juegos .juego-card {
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 5px;
+  width: 120px;
+  text-align: center;
+  background-color: #3a3a3a;
+  transition: transform 0.2s, box-shadow 0.2s;
+  color: #fff;
+}
+
+.otros-juegos .juego-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+.otros-juegos img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  border: 1px solid #28a745;
+}

@@ -1,0 +1,259 @@
+/* 🎨 Variables de colores para fácil personalización */
+:root {
+  --bg-color: #22222200;        /* Fondo principal */
+  --bg-light: #1e1f1f00;        /* Fondo secundario */
+  --accent: #ffffff;          /* Celeste */
+  --accent-hover: #e90e0e;    /* Celeste más oscuro */
+  --text-color: #ffffff;      /* Texto principal */
+  --text-muted: #08ff1c;      /* Texto secundario */
+  --card-bg: #313131;         /* Fondo tarjetas */
+  --border-radius: 14px;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0);
+  --transition: all 0.3s ease-in-out;
+  --font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==========================
+   🔹 Contenedor principal
+   ========================== */
+.perfil-container {
+  max-width: 1400px;              /* Aumentado de 1000px a 1400px */
+  width: 95%;                     /* Que ocupe el 95% de la pantalla */
+  margin: 3rem auto;
+  padding: 3rem;                  /* Más espacio interno */
+  background: linear-gradient(145deg, var(--bg-light), var(--bg-color));
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  font-family: var(--font);
+  color: var(--text-color);
+  animation: fadeIn 0.8s ease;
+}
+
+
+/* Animación suave de entrada */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================
+   🔹 Avatar + Nombre
+   ========================== */
+.perfil {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--card-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.3rem;
+  color: var(--accent);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(243, 243, 243, 0.3);
+}
+
+.username {
+  font-size: 1.7rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+/* ==========================
+   🔹 Biografía
+   ========================== */
+.perfil-info {
+  margin-bottom: 2rem;
+  padding: 1.2rem;
+  background: rgba(54, 54, 54, 0.7);
+  border-radius: var(--border-radius);
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+
+
+/* --- Redes Sociales (perfil) --- */
+.perfil-social {
+  margin-top: 20px;
+}
+
+#usuario-social {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#usuario-social p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  color: #444;
+}
+
+#usuario-social i {
+  font-size: 18px;
+  margin-right: 8px;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Estilo links */
+#usuario-social a {
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+#usuario-social a:hover {
+  color: #15ff00;
+}
+
+/* Hover en íconos */
+#usuario-social p:hover i {
+  transform: scale(1.15);
+}
+
+/* Colores oficiales por red */
+#usuario-social .bi-twitter   { color: #1DA1F2; }
+#usuario-social .bi-instagram { color: #E4405F; }
+#usuario-social .bi-youtube   { color: #FF0000; }
+#usuario-social .bi-discord   { color: #5865F2; }
+
+
+
+
+/* =========================
+   Contacto - Profesional & Minimalista
+   ========================= */
+.perfil-contacto {
+  margin-top: 20px;
+  padding: 15px 20px;
+  border-radius: 12px;
+
+}
+
+.perfil-contacto h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff; /* gris oscuro */
+  margin-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 8px;
+}
+
+/* Lista de contacto */
+#usuario-contacto p {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  font-size: 0.95rem;
+  color: #374151; /* gris elegante */
+}
+
+/* Íconos */
+#usuario-contacto img {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  flex-shrink: 0;
+  opacity: 0.9;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#usuario-contacto img:hover {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Links */
+#usuario-contacto a {
+  color: #00ff15; /* azul elegante */
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+#usuario-contacto a:hover {
+  color: #007200; /* azul más oscuro al hover */
+  text-decoration: underline;
+}
+
+
+
+
+/* =========================
+   Juegos Publicados - Grid Minimalista
+   ========================= */
+.juegos-section {
+  margin-top: 30px;
+}
+
+.juegos-section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #ffffff; /* gris oscuro */
+  margin-bottom: 20px;
+  border-bottom: 1px solid #0aff1f;
+  padding-bottom: 8px;
+}
+
+/* Contenedor en grid */
+.juegos-contenedor {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Card del juego */
+.juego-card {
+  background: linear-gradient(135deg, #000000, #444444);
+  border: 1px solid #08ff08;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.juego-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Imagen del juego */
+.juego-cover {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Texto del juego */
+.juego-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 12px;
+  color: #ffffff;
+}
+
+.juego-card p {
+  font-size: 0.9rem;
+  color: #00ff15; /* gris elegante */
+  margin: 0 12px 12px;
+  line-height: 1.4;
+}

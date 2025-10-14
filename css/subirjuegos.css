@@ -1,0 +1,332 @@
+/* ===== Estilos generales del formulario (versión ancha) ===== */
+#upload-form {
+    max-width: 1200px;         /* Formulario más ancho en pantallas grandes */
+    width: 95%;                /* Flexible en pantallas medianas y pequeñas */
+    margin: 80px auto 40px;    /* Separación superior y centrado horizontal */
+    background-color: #1616166c; /* Fondo oscuro */
+    padding: 40px;             /* Más espacio interno */
+    border-radius: 15px;       /* Bordes más redondeados */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); /* Sombra profesional */
+    color: #ffffff;            /* Texto blanco */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* Grupos de formulario */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #15ff00;
+  font-size: 16px;
+}
+
+/* Campos de entrada */
+.form-input,
+.form-select,
+.form-textarea,
+.form-file {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #005e08;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background-color: #2e2e2e;
+  color: #ecf0f1;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #95a5a6;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #1abc9c;
+  box-shadow: 0 0 0 3px rgba(51, 255, 0, 0.3);
+}
+
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-text {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #bdc3c7;
+}
+
+/* Sección de usuario */
+.user-section {
+  background-color: #202020;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #00ff22;
+}
+
+.domain-wrapper {
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.domain {
+  background-color: #66ff00;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.user-info {
+  margin: 0;
+  font-size: 14px;
+  color: #ecf0f1;
+}
+
+.user-info strong {
+  color: #13eb37;
+}
+
+/* Fieldset y leyenda */
+.form-fieldset {
+  border: 1px solid #353535;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  background-color: #272727;
+}
+
+.form-legend {
+  font-weight: 600;
+  padding: 0 10px;
+  color: #2df105;
+  background-color: #3d3d3d;
+}
+
+/* Formularios de requisitos */
+.requirements-form {
+  background-color: #474747;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.requirements-form h3 {
+  margin-top: 0;
+  color: #ffffff;
+  font-size: 16px;
+  border-bottom: 1px solid #424242;
+  padding-bottom: 8px;
+}
+
+/* Opciones de almacenamiento */
+.storage-options {
+  margin-top: 10px;
+}
+
+.storage-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.storage-btn-green {
+  background-color: #05ff50;
+  color: white;
+}
+
+.storage-btn-green:hover {
+  background-color: #16a085;
+}
+
+.storage-btn i {
+  margin-right: 8px;
+}
+
+/* Términos y condiciones */
+.terms-group {
+  display: flex;
+  align-items: center;
+}
+
+.terms-group input[type="checkbox"] {
+  margin-right: 10px;
+  accent-color: #00b300;
+}
+
+.terms-group label {
+  margin-bottom: 0;
+  font-weight: normal;
+  color: #ecf0f1;
+}
+
+.terms-group a {
+  color: #01b80a;
+  text-decoration: none;
+  margin-left: 5px;
+}
+
+.terms-group a:hover {
+  text-decoration: underline;
+}
+
+/* Botones */
+button {
+  background-color: #09eb27;
+  color: rgb(8, 8, 8);
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #1d9200;
+}
+
+button i {
+  margin-right: 8px;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  background-color: #2c3e50;
+  margin: 10% auto;
+  padding: 25px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: #ecf0f1;
+  border: 1px solid #34495e;
+}
+
+.close {
+  color: #bdc3c7;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 10px;
+}
+
+.close:hover {
+  color: #ecf0f1;
+}
+
+.mediafire-info {
+  background-color: #34495e;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #ecf0f1;
+}
+
+.mediafire-info strong {
+  color: #1abc9c;
+}
+
+#mediafire-url {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px solid #34495e;
+  background-color: #34495e;
+  color: #ecf0f1;
+}
+
+#mediafire-url::placeholder {
+  color: #95a5a6;
+}
+
+/* Estilos para selectores */
+.form-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ecf0f1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Estilos para el input de precio */
+#price {
+  margin-top: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #upload-form {
+    padding: 20px;
+  }
+  
+  .form-fieldset {
+    padding: 15px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+    padding: 20px;
+  }
+  
+  .storage-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Estilos para el input file */
+.form-file {
+  padding: 8px;
+}
+
+.form-file::-webkit-file-upload-button {
+  background-color: #00ff0d;
+  color: rgb(0, 0, 0);
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.form-file::-webkit-file-upload-button:hover {
+  background-color: #1b7500;
+}

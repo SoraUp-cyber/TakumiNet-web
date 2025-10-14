@@ -1,0 +1,292 @@
+/* Sección de la jam */
+.jam-interaccion {
+  max-width: 1900px;          /* súper ancha */
+  width: 99%;                 /* ocupa casi todo */
+  margin: 40px auto;
+  background: #1e1e1e;        /* gris más elegante */
+  padding: 60px;              /* espacio generoso */
+  border-radius: 8px;         /* esquinas suaves (ya no cuadradas) */
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75); /* sombra fuerte */
+  border: 1px solid #3a3a3a;  /* borde un poco más fino */
+}
+
+/* Títulos */
+.jam-interaccion h2,
+.jam-interaccion h3,
+.jam-interaccion h4 {
+  color: #4caf50; /* verde acento */
+  margin-bottom: 15px;
+}
+
+/* Votación de estrellas */
+.rating {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 5px;
+}
+
+.rating input {
+  display: none;
+}
+
+.rating label {
+  font-size: 2rem;
+  color: #555; /* estrellas apagadas (gris) */
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+/* Cuando paso el mouse */
+.rating label:hover,
+.rating label:hover ~ label {
+  color: #4caf50; /* verde al pasar */
+}
+
+/* Cuando está seleccionado */
+.rating input:checked ~ label {
+  color: #4caf50;
+}
+
+/* Texto del resultado */
+#resultado-voto {
+  font-weight: bold;
+  color: #4caf50;
+}
+
+/* Caja de comentarios */
+.comentarios-jam textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  background: #1c1c1c;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #fff;
+  resize: none;
+  margin-bottom: 10px;
+}
+
+/* Botón enviar */
+#btn-enviar-comentario {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+#btn-enviar-comentario:hover {
+  background: #43a047; /* verde más oscuro */
+}
+
+/* Lista de comentarios */
+#lista-comentarios {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+#lista-comentarios li {
+  background: #333;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+
+
+
+
+/* =========================
+   Cada comentario
+========================= */
+.comentario-item {
+  display: flex;
+  align-items: flex-start;
+  background-color: #2c2c2c; /* Gris oscuro de fondo */
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3); /* sombra sutil */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.comentario-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+/* Avatar */
+.comentario-item .avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  border: 2px solid #4caf50; /* borde verde */
+}
+
+/* Contenido del comentario */
+.comentario-contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Header: nombre y fecha */
+.comentario-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #ffffff; /* letra blanca */
+}
+
+.comentario-header strong {
+  color: #4caf50; /* nombre en verde */
+  font-weight: 600;
+}
+
+.comentario-fecha {
+  font-size: 0.8rem;
+  color: #81c784; /* fecha verde más suave */
+}
+
+/* Texto del comentario */
+.comentario-texto {
+  font-size: 0.95rem;
+  color: #e0e0e0; /* letra blanca suave */
+  line-height: 1.4;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Mensaje de voto */
+#estado-voto {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 6px 10px;
+  border-radius: 5px;
+  display: inline-block;
+  transition: opacity 0.3s ease;
+}
+
+/* Voto nuevo */
+.mensaje-voto.correcto {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+/* Voto actualizado */
+.mensaje-voto.actualizado {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+}
+/* Botón de enviar calificación */
+.btn-calificar {
+  background-color: #4caf50;   /* verde agradable */
+  color: white;                /* texto blanco */
+  border: none;
+  padding: 6px 12px;           /* pequeño y cómodo */
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;                    /* espacio entre icono y texto */
+}
+
+/* Hover: cambia ligeramente el color */
+.btn-calificar:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Focus: borde de enfoque */
+.btn-calificar:focus {
+  outline: 2px solid #2e7d32;
+  outline-offset: 2px;
+}
+
+/* Botón deshabilitado */
+.btn-calificar:disabled {
+  background-color: #a5d6a7;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+
+
+
+
+
+
+
+
+/* =============================
+   BOTÓN "DENUNCIAR" PROFESIONAL
+   ============================= */
+.denunciar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ff4d4d, #d93535);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  width: auto;
+  max-width: fit-content;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(255, 77, 77, 0.3);
+  margin-top: 6px;
+}
+
+/* Efecto hover elegante */
+.denunciar-btn:hover {
+  background: linear-gradient(135deg, #ff5f5f, #e64545);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
+}
+
+/* Efecto clic */
+.denunciar-btn:active {
+  transform: scale(0.96);
+  background: linear-gradient(135deg, #d93535, #b82a2a);
+  box-shadow: 0 1px 4px rgba(255, 77, 77, 0.2);
+}
+
+/* Ícono 🚩 */
+.denunciar-btn::before {
+  font-size: 14px;
+  margin-right: 4px;
+}
+
+/* Versión compacta (por si la usas en móviles o listas) */
+.denunciar-btn.compacto {
+  padding: 2px 6px;
+  font-size: 12px;
+  border-radius: 6px;
+}

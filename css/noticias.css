@@ -1,0 +1,156 @@
+/* =========================
+   Estilos Generales
+========================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ranking-container {
+  max-width: 1500px; /* Contenedor ancho */
+  width: 95%;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #22222257; /* Fondo gris oscuro */
+  border-radius: 5px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); /* Sombra elegante */
+  color: #ffffff; /* Texto principal blanco */
+}
+
+.titulo-seccion {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 30px;
+  color: #ffffff;
+  letter-spacing: 1px;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.titulo-seccion i {
+  color: #3dae27;   /* Verde profesional */
+  margin-right: 10px;
+  font-size: 1.5em; /* Más grande que el texto */
+  vertical-align: middle;
+}
+
+/* =========================
+   Tabla de ranking
+========================= */
+.tabla-ranking {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 1rem;
+  background-color: #25252554;
+}
+
+.tabla-ranking thead {
+  background-color: #161616; /* Encabezado más oscuro */
+  color: #ffffff;
+}
+
+.tabla-ranking th,
+.tabla-ranking td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.tabla-ranking tbody tr {
+  border-bottom: 1px solid #5eff00; /* Separador sutil */
+  transition: background-color 0.3s ease;
+}
+
+
+/* =========================
+   Imágenes de los juegos
+========================= */
+.tabla-ranking td img {
+  width: 250px;          /* Imagen grande */
+  height: 150px;         /* Mantener proporción */
+  object-fit: cover;     /* Evita deformación */
+  border-radius: 10px;   /* Bordes redondeados */
+  vertical-align: middle;
+  margin-right: 12px;    /* Separación entre imagen y texto */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4); /* Sombra elegante */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tabla-ranking td img:hover {
+  transform: scale(1.05); /* Efecto hover profesional */
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.5);
+}
+
+/* =========================
+   Paginación
+========================= */
+#pagination {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+#pagination button {
+  background-color: #27ae60; /* Verde profesional */
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  margin: 0 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.25s ease;
+}
+
+#pagination button:disabled {
+  background-color: #555;
+  cursor: default;
+}
+
+#pagination button:hover:not(:disabled) {
+  background-color: #2ecc71; /* Verde claro al pasar mouse */
+}
+
+#pagination i {
+  color: #ffffff;   /* Color de los iconos de flecha */
+  margin: 0 5px;    
+  vertical-align: middle;
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 900px) {
+  .tabla-ranking td img {
+    width: 90px;
+    height: 70px;
+  }
+  .titulo-seccion {
+    font-size: 1.8rem;
+  }
+  .tabla-ranking th,
+  .tabla-ranking td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .tabla-ranking td img {
+    width: 70px;
+    height: 60px;
+    margin-right: 8px;
+  }
+  .titulo-seccion {
+    font-size: 1.5rem;
+  }
+  .tabla-ranking th,
+  .tabla-ranking td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}

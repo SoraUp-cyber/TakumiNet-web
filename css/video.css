@@ -1,0 +1,107 @@
+/* ================================
+   Contenedor de previsualización
+   ================================ */
+#preview-container {
+  position: relative;
+  margin-top: 15px;
+  max-width: 600px;
+  display: inline-block;
+}
+
+/* ================================
+   Imagen de vista previa
+   ================================ */
+#cover-preview {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+/* ================================
+   Video de vista previa
+   ================================ */
+#video-preview {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  display: block;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+/* ================================
+   Botón de eliminar profesional (X)
+   ================================ */
+#remove-cover {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 50px;                       /* Más grande para visibilidad */
+  height: 50px;                      /* Igual que ancho para círculo perfecto */
+  background: rgba(0, 0, 0, 0.7);    /* Fondo semitransparente */
+  color: #fff;
+  border: none;
+  border-radius: 50%;                 /* Forma circular garantizada */
+  font-size: 24px;                    /* Texto grande y visible */
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+  transition: all 0.25s ease-in-out;
+  z-index: 10;
+  opacity: 0.95;
+}
+
+/* Hover profesional del botón */
+#remove-cover:hover {
+  background: #e74c3c;              /* Rojo intenso */
+  transform: scale(1.25);            /* Pequeño zoom */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+  opacity: 1;
+}
+
+/* Efecto al presionar */
+#remove-cover:active {
+  transform: scale(1.15);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+/* ================================
+   Texto de recomendación debajo del input
+   ================================ */
+.form-text {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.875rem;
+  color: #666;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ================================
+   Estilo del input de archivo
+   ================================ */
+.form-file {
+  display: block;
+  margin-top: 5px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-file:hover {
+  border-color: #34495e;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}

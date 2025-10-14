@@ -1,0 +1,87 @@
+/* ===== Ajustes móviles ===== */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 30px 15px;
+  }
+
+  .auth-form {
+    max-width: 100%;
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+
+  .logo img {
+    height: 100px;
+    margin-bottom: 20px;
+  }
+
+  .auth-input {
+    font-size: 16px; /* evita zoom automático en iOS */
+    padding: 14px 14px 14px 40px;
+  }
+
+  .auth-button {
+    font-size: 16px;
+    padding: 14px;
+    width: 100%; /* botón ocupa todo el ancho */
+  }
+
+  .discord-button {
+    font-size: 16px;
+    padding: 14px;
+    width: 100%; /* también ocupa todo el ancho */
+  }
+
+  .auth-links {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+/* Extra pequeño (teléfonos muy chicos) */
+@media (max-width: 400px) {
+  .auth-form {
+    padding: 20px 10px;
+  }
+
+  .logo img {
+    height: 80px;
+  }
+
+  .auth-button, 
+  .discord-button {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+
+
+
+.auth-button, .discord-button {
+  border-radius: 12px; /* más redondeado estilo móvil */
+  font-size: 18px;
+  padding: 16px;
+  transition: transform 0.2s ease;
+}
+
+.auth-button:active, .discord-button:active {
+  transform: scale(0.97); /* feedback táctil al presionar */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
