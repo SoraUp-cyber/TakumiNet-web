@@ -1,91 +1,58 @@
-# TakumiNet
-<<<<<<< HEAD
+<p align="center">
+  <img src="https://images.steamusercontent.com/ugc/2408955968503539166/A71312AD3823CD9FC1E7858282911CD5AC5E469D/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" width="192" height="192" alt="Takori GIF">
+</p>
 
-## Resumen de la Idea de Negocio
+<h1 align="center">Hi 👋, I'm Takori 💻🎮</h1>
 
-**TakumiNet** es una plataforma digital multiplataforma (escritorio y móvil) para la **venta y promoción de videojuegos indie**.
-
----
-
-## 📌 Descripción detallada
-
-TakumiNet permitirá a los desarrolladores:
-- Subir sus juegos.
-- Gestionar precios, capturas y videos promocionales.
-
-Además, incluirá:
-- Un **marketplace** con categorías y filtros avanzados.
-- Un **sistema de recomendaciones personalizadas**.
-- Una **comunidad** activa para la interacción entre jugadores y desarrolladores.
-- Eventos como **game jams**, desafíos creativos, recompensas, y un **centro de aprendizaje** para devs.
+<p align="center"><em>Software Developer | Gamer 🎮 | Anime & Tech Enthusiast 🚀</em></p>
 
 ---
 
-## 🎯 Necesidad que atiende
-
-Facilita a los desarrolladores indie un espacio accesible y seguro para **comercializar sus juegos**, y ofrece a los jugadores una plataforma confiable para:
-- Descubrir nuevos títulos.
-- Mejorar su experiencia.
-- Conectar con una comunidad afín.
-
----
-
-## 🧩 Productos (Bienes y Servicios)
-
-1. **Marketplace de videojuegos indie**  
-   Espacio para comprar y vender juegos independientes.
-
-2. **Centro de aprendizaje**  
-   Cursos, artículos y mentorías para desarrolladores.
-
-3. **Eventos y competencias**  
-   Game jams y desafíos que estimulan la creatividad.
-
-4. **Sistema de recompensas**  
-   Beneficios y reconocimientos para usuarios activos.
+### Sobre mí
+<p align="center">
+Soy <strong>Desarrollador de Software</strong> apasionado por crear soluciones digitales innovadoras y experiencias interactivas.<br>
+Amo los videojuegos 🎮 y el anime, y me inspiro en ellos para mis proyectos.
+</p>
 
 ---
 
-## 🌟 Componente innovador / Valor agregado
-
-- Enfoque exclusivo en **desarrolladores emergentes**.
-- **Comunidad interactiva** con foros, chat y eventos.
-- **Algoritmo de recomendaciones** basado en gustos y actividad.
-- **Espacios de aprendizaje y mentorías** para crecer profesionalmente.
-
----
-
-## 👥 Perfil del mercado objetivo
-
-- Jóvenes emprendedores.
-- Desarrolladores indie.
-- Jugadores que buscan nuevas experiencias y apoyar proyectos emergentes.
+### 🚀 Actualmente
+<p align="center">
+- 🔭 Trabajando en <strong>proyectos personales</strong><br>
+- 🌱 Aprendiendo <strong>GO, Python, Game Dev & Tecnologías Web Avanzadas</strong><br>
+- 💬 Pregúntame sobre <strong>JavaScript, HTML, videojuegos y anime (Sakamoto Days)</strong><br>
+- ⚡ Fun fact: <strong>Soy gamer y amante de la tecnología</strong> 🎮💻🎧
+</p>
 
 ---
 
-## 🌍 Ubicación geográfica
-
-- Departamento de Antioquia, Municipio de Medellín (Colombia).  
-- Modalidad: **100% virtual** con **proyección internacional**.
-
----
-
-## 📈 Estado actual del proyecto
-
-- Fase: **Identificación de la idea y oportunidad de negocio**.
-- Desarrollo del prototipo: Estimado entre **6 a 12 meses**.
-
----
-
-## 🧠 ¿Se requiere acompañamiento adicional al SENA?
-
-**No.**  
-El equipo busca avanzar con apoyo técnico propio y recursos disponibles.
+## 🛠️ Lenguajes de Programación
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="60" height="60" alt="HTML"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="60" height="60" alt="CSS"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="60" height="60" alt="JavaScript"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg" width="60" height="60" alt="C++"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg" width="60" height="60" alt="C#"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="60" height="60" alt="Python"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg" width="60" height="60" alt="PHP"/>
+</p>
 
 ---
 
-## 🗨️ Comentarios finales
-
-TakumiNet aspira a consolidarse como un referente en el mundo de los videojuegos indie, promoviendo la accesibilidad, la seguridad y el crecimiento de una comunidad vibrante de desarrolladores y jugadores.
+## 🗄️ Bases de Datos
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg" width="60" height="60" alt="SQLite"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mariadb/mariadb-original.svg" width="60" height="60" alt="MariaDB"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg" width="60" height="60" alt="MySQL"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" width="60" height="60" alt="Node.js"/>
+</p>
 
 ---
+
+## ⚙️ Frameworks, Librerías y Motores
+<p align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="60" height="60" alt="React"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/electron/electron-original.svg" width="60" height="60" alt="Electron"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/unity/unity-original.svg" width="60" height="60" alt="Unity"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/godot/godot-original.svg" width="60" height="60" alt="Godot"/>
+</p>
