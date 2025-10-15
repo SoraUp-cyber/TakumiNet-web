@@ -56,3 +56,11 @@ Amo los videojuegos 🎮 y el anime, y me inspiro en ellos para mis proyectos.
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/unity/unity-original.svg" width="60" height="60" alt="Unity"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/godot/godot-original.svg" width="60" height="60" alt="Godot"/>
 </p>
+<<<<<<< HEAD
+=======
+
+
+TakumiNet aspira a consolidarse como un referente en el mundo de los videojuegos indie, promoviendo la accesibilidad, la seguridad y el crecimiento de una comunidad vibrante de desarrolladores y jugadores.
+
+---
+>>>>>>> 6065edd7b3cca1424d4e89ab9bce4a414ef4ff81
