@@ -1,235 +1,92 @@
-/* Contenedor del botón */
+/* ==============================
+   CONTENEDOR PRINCIPAL DE BOTÓN
+   ============================== */
 #contenedor-boton-juego {
   display: flex;
-  justify-content: center; /* centra horizontal */
-  align-items: center;     /* opcional: centra vertical si le das altura */
-  margin: 40px 0;          /* espacio arriba y abajo */
-}
-
-/* Botón de descarga */
-.boton-descargar {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
-
-  padding: 14px 28px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-
-  background: linear-gradient(135deg, #1a1a1a, #262626, #00cc44, #00ff66);
-  background-size: 300% 300%;
-
-  text-decoration: none;
-  letter-spacing: 0.6px;
-
-  border-radius: 12px;
-  box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.4);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background-position 0.6s ease;
-}
-
-.boton-descargar:hover {
-  transform: scale(1.08);
-  background-position: right center;
-  box-shadow: 0px 6px 20px rgba(1, 83, 34, 0.6);
-}
-
-.boton-descargar img {
-  width: 24px;
-  height: 24px;
-  filter: brightness(0) invert(1); /* negro → blanco */
-}
-
-
-
-.boton-descargar {
-  background-color: #22c55e;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  display: inline-flex;
   align-items: center;
-  transition: 0.3s;
-}
-
-.boton-descargar:hover {
-  background-color: #16a34a;
-}
-/* ===========================
-   ESTILOS PARA BOTONES DE JUEGO
-   =========================== */
-#contenedor-boton-juego {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
   gap: 15px;
-  margin-top: 30px;
+  margin: 30px auto;
+  padding: 20px;
+  width: 100%;
+  max-width: 400px;
   text-align: center;
+  border-radius: 14px;
+
 }
 
-/* ===== Botón base ===== */
-.boton-descargar,
+/* ==============================
+   BOTÓN DESCARGAR / CONTINUAR
+   ============================== */
+.boton-descargar {
+  background: linear-gradient(135deg, #009600, #4b4b4b);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 80%;
+  max-width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.boton-descargar:hover {
+  background: linear-gradient(135deg, #292929, #01880d);
+  transform: scale(1.05);
+}
+
+/* ==============================
+   INPUT DONACIÓN
+   ============================== */
+#contenedor-boton-juego input[type="number"] {
+  background: #1c1c1c;
+  color: #f5f5f5;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  width: 80%;
+  max-width: 250px;
+  text-align: center;
+  transition: border 0.2s ease;
+}
+
+#contenedor-boton-juego input[type="number"]:focus {
+  outline: none;
+  border-color: #00aaff;
+}
+
+/* ==============================
+   BOTONES DE PAYPAL
+   ============================== */
 #paypal-button-container,
 #paypal-donation-container {
   width: 100%;
   max-width: 280px;
 }
 
-/* Botón personalizado */
-.boton-descargar {
-  background: linear-gradient(135deg, #00b09b, #96c93d);
-  color: #fff;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 40px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-}
+/* ==============================
+   EFECTOS Y RESPONSIVE
+   ============================== */
+@media (max-width: 600px) {
+  #contenedor-boton-juego {
+    width: 90%;
+    padding: 15px;
+  }
 
-.boton-descargar:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(135deg, #00d4ff, #00ff85);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-}
+  .boton-descargar {
+    font-size: 0.95rem;
+    padding: 10px 18px;
+  }
 
-/* ===== Input de donación ===== */
-#contenedor-boton-juego input[type="number"] {
-  background: #1f1f1f;
-  border: 1px solid #444;
-  border-radius: 10px;
-  color: #fff;
-  width: 140px;
-  padding: 8px 10px;
-  font-size: 15px;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.2s ease;
-}
-
-#contenedor-boton-juego input[type="number"]:focus {
-  border-color: #00ff99;
-}
-
-/* ===== Textos / mensajes ===== */
-#contenedor-boton-juego p {
-  color: #bbb;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-/* ===== PayPal Buttons Container ===== */
-#paypal-button-container iframe,
-#paypal-donation-container iframe {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-/* ===== Animación suave ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-#contenedor-boton-juego {
-  animation: fadeIn 0.6s ease-out;
-}
-
-
-.input-donacion {
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid #444;
-  background: #1e1e1e;
-  color: #fff;
-  margin-right: 10px;
-  width: 160px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.input-donacion:focus {
-  border-color: #33ff00;
-  box-shadow: 0 0 8px #33ff00aa;
-}
-
-.boton-juego.donar {
-  background: linear-gradient(90deg, #202020, #33ff00, #1a1a1a);
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  color: #ffffff;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  animation: glowShift 4s ease-in-out infinite;
-}
-
-.boton-juego.donar:hover {
-  transform: scale(1.05);
-}
-
-
-
-
-
-
-
-
-
-/* Botón minimalista profesional */
-.boton-juego.descargar {
-  background-color: #2b2b2b; /* Gris oscuro elegante */
-  color: #ffffff; /* Letras blancas */
-  font-size: 16px;
-  font-weight: 600;
-  padding: 12px 28px;
-  border: 2px solid #2b2b2b; /* borde inicial igual al fondo */
-  border-radius: 12px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  text-transform: uppercase;
-}
-
-/* Pseudo-elemento para animación de brillo */
-.boton-juego.descargar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(120deg, rgba(0,255,120,0.2), rgba(0,255,120,0.5), rgba(0,255,120,0.2));
-  transform: skewX(-25deg);
-  transition: all 0.5s ease;
-}
-
-/* Hover: brillo animado + glow */
-.boton-juego.descargar:hover::after {
-  left: 125%; /* anima de izquierda a derecha */
-}
-
-.boton-juego.descargar:hover {
-  border-color: #00ff78; /* borde verde */
-  box-shadow: 0 0 12px rgba(0, 255, 120, 0.5), 0 0 20px rgba(0, 255, 120, 0.3);
-  transform: translateY(-2px);
-}
-
-/* Click: efecto presionado */
-.boton-juego.descargar:active {
-  transform: translateY(0);
-  box-shadow: 0 0 6px rgba(0, 255, 120, 0.4);
+  #contenedor-boton-juego input[type="number"] {
+    font-size: 0.9rem;
+  }
 }

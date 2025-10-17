@@ -1,12 +1,15 @@
-document.getElementById("discordBtn").addEventListener("click", () => {
-  const clientId = "1397287228744532162"; // 🔹 Reemplaza con tu client_id de Discord
-  const redirectUri = encodeURIComponent("http://localhost:3001/auth/discord/callback"); // 🔹 URL de tu callback (debes registrarla en Discord Developer Portal)
-  const responseType = "code";
-  const scope = "identify email"; // Permisos básicos del usuario
+document.addEventListener("DOMContentLoaded", () => {
+  const discordBtn = document.getElementById("discordBtn");
 
-  // Construye la URL de autorización de Discord
-  const discordAuthUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+  discordBtn.addEventListener("click", () => {
+    const CLIENT_ID = "1397287228744532162"; // tu client ID real
+    const REDIRECT_URI = "https://takuminet-app.netlify.app/discord-callback.html"; // la página de callback
+    const SCOPES = "identify email";
 
-  // Redirige al usuario al login de Discord
-  window.location.href = discordAuthUrl;
+    const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      REDIRECT_URI
+    )}&response_type=code&scope=${encodeURIComponent(SCOPES)}`;
+
+    window.location.href = DISCORD_AUTH_URL;
+  });
 });

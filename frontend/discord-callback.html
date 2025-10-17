@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conectando con Discord...</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      color: #ffffff;
+      background-color: #1c1c1c;
+    }
+  </style>
+</head>
+<body>
+  <h2>Conectando con Discord...</h2>
+  <p>Por favor, espera un momento...</p>
+
+  <script>
+    // Extraer el "code" que devuelve Discord
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      console.log("Código recibido de Discord:", code);
+
+      // Aquí podrías enviarlo a tu backend para intercambiarlo por el token del usuario
+
+      // Luego redirige al index
+      setTimeout(() => {
+        window.location.href = "https://takuminet-app.netlify.app/index.html";
+      }, 1500);
+    } else {
+      document.body.innerHTML = "<h2>Error: no se recibió código de Discord.</h2>";
+    }
+  </script>
+</body>
+</html>

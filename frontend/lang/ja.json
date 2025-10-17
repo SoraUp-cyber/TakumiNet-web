@@ -429,7 +429,12 @@
   "about.links.privacy": "プライバシーポリシー",
   "about.links.content": "コンテンツポリシー",
   "about.links.devGuide": "開発者ガイド",
-  "about.footer": "© 2025 TakumiNet - インディーゲームのための独立プラットフォーム。"
+  "about.footer": "© 2025 TakumiNet - インディーゲームのための独立プラットフォーム。",
+  "titulo-carrito": "ショッピングカート",
+  "lista-carrito": "カート内の商品一覧",
+  "vacio": "カートは空です。",
+  "item": "カート内の商品",
+  "btn-cerrar": "閉じる"
 }
 
 

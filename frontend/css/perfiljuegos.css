@@ -298,3 +298,43 @@
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
+
+
+
+
+
+
+
+
+
+
+
+/* 🎯 SOLO para móviles */
+@media (max-width: 768px) {
+  #video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* Proporción 16:9 */
+    height: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background-color: #000; /* Fondo negro elegante */
+  }
+
+  #video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Opcional: estiliza el título solo en móvil */
+  .ocultar-texto[data-i18n="gameProfile.videoTitle"] {
+    font-size: 1rem;
+    text-align: center;
+    margin: 10px 0;
+    color: #fff;
+  }
+}

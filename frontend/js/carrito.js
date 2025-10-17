@@ -18,22 +18,25 @@ function mostrarCarrito() {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'cart-modal';
+        modal.setAttribute('data-i18', 'cart-modal'); // 👈 Marca simbólica sin traducción
         modal.style.position = 'fixed';
         modal.style.top = '60px';
         modal.style.right = '20px';
-        modal.style.background = '#fff';
-        modal.style.border = '1px solid #ccc';
+        modal.style.background = '#1d1d1dff';
+        modal.style.border = '1px solid #1eff00ff';
         modal.style.padding = '20px';
         modal.style.zIndex = 1000;
         modal.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
         document.body.appendChild(modal);
     }
     modal.innerHTML = `
-        <h3>Carrito de Compras</h3>
-        <ul>
-            ${carrito.length === 0 ? '<li>El carrito está vacío.</li>' : carrito.map(j => `<li>${j.nombre} - $${j.precio}</li>`).join('')}
+        <h3 data-i18="titulo-carrito">Carrito de Compras</h3>
+        <ul data-i18="lista-carrito">
+            ${carrito.length === 0 
+                ? '<li data-i18="vacio">El carrito está vacío.</li>' 
+                : carrito.map(j => `<li data-i18="item">${j.nombre} - $${j.precio}</li>`).join('')}
         </ul>
-        <button id="cerrar-carrito">Cerrar</button>
+        <button id="cerrar-carrito" data-i18="btn-cerrar">Cerrar</button>
     `;
     document.getElementById('cerrar-carrito').onclick = () => modal.remove();
 }

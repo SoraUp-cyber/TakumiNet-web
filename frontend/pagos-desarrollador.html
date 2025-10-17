@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="icon" type="image/png" href="../assets/img/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+   <link rel="stylesheet" href="css/footer.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/nav.css"> 
+    <link rel="stylesheet" href="css/pagos-desarrollador.css">
+  <title>Formulario de Pago</title>
+  <style>
+
+
+/* Configuración de la barra de navegación */
+.config-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 1rem 2rem;
+    background-color: #1B1B1B; /* Fondo oscuro profesional */
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    gap: 1rem;
+    border-bottom: 2px solid #00ff0d; /* Línea morada decorativa */
+}
+
+.back-btn {
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.back-btn:hover {
+    color: #17ff02; /* Morado hover */
+}
+
+.config-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    color: #f3f4f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+   /* Fondo partículas */
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: -1; /* Queda detrás del contenido */
+      background: #0f0f0f; /* Fondo base oscuro */
+    }
+
+
+
+
+
+
+
+
+
+
+
+    .toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  opacity: 0.9;
+  z-index: 9999;
+  font-family: sans-serif;
+}
+
+.toast-success { background-color: #28a745; }
+.toast-error { background-color: #dc3545; }
+.toast-info { background-color: #007bff; }
+
+  </style>
+</head>
+<body>
+<nav class="config-navbar">
+    <!-- Botón Volver -->
+    <a href="Creator Dashboard.html" class="back-btn" title="Pagos" data-i18n-title="config.payments">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <!-- Título -->
+    <h1 class="config-title" data-i18n="config.payments">Pagos desarrollador</h1>
+</nav>
+
+<!-- Partículas de fondo -->
+<div id="particles-js"></div>
+
+<div class="container_pagos">
+
+  <!-- ============================= -->
+  <!-- INTRODUCCIÓN -->
+  <!-- ============================= -->
+  <p class="intro_text">
+    En esta página puedes solicitar un pago por cualquier dinero que tu cuenta tenga disponible si estás usando <strong>TakumiNet</strong> para gestionar tus ganancias. 
+    Puedes configurar cómo recibes tus pagos en
+    <a href="/user/settings/seller" class="link_config">Configuración de Vendedor</a>.
+  </p>
+
+  <!-- ============================= -->
+  <!-- NOTA DE ADVERTENCIA -->
+  <!-- ============================= -->
+  <p class="nota_advertencia">
+    <strong>Nota: </strong>Tu cuenta está configurada actualmente para pagos <strong>directos a ti</strong>. Las compras individuales van directamente a tu cuenta bancaria y no están disponibles a través de nuestro sistema de pagos de <strong>TakumiNet</strong>. 
+    Puedes cambiar esta configuración en
+    <a href="/user/settings/seller" class="link_config">Configuración de Vendedor</a>.
+  </p>
+
+  <!-- ============================= -->
+  <!-- SALDO DE LA CUENTA -->
+  <!-- ============================= -->
+  <section class="area_saldo">
+    <h2 class="titulo_seccion">Saldo de la Cuenta</h2>
+    <p class="texto_saldo">
+      Tu cuenta no tiene saldo pendiente. Cuando tengas saldo disponible, podrás solicitar un pago aquí en <strong>TakumiNet</strong>.
+    </p>
+  </section>
+
+  <!-- ============================= -->
+  <!-- DISTRIBUCIÓN DE GANANCIAS -->
+  <!-- ============================= -->
+  <p class="texto_destino">
+    <strong>Distribución de ganancias:</strong> Por cada venta realizada, recibirás el <strong>70%</strong> del total como desarrollador. El <strong>30%</strong> restante corresponde a la comisión de <strong>TakumiNet</strong> por el uso de la plataforma.
+  </p>
+
+<!-- En tu sección PayPal -->
+<section class="destination_group">
+  <h3>PayPal</h3>
+  <div class="login_with_paypal_widget base_widget">
+    <p>
+      Tus ganancias pueden ser enviadas a tu cuenta de PayPal. 
+      Por favor conecta tu cuenta para recibir pagos. 
+      Se aplican tarifas de transferencia, 
+      <a href="https://www.paypal.com/us/webapps/mpp/merchant-fees#paypal-payouts" target="_blank" rel="noopener noreferrer">
+        Aprende más
+      </a>.
+    </p>
+    <p>
+      <a id="connectPayPal" class="button" href="#">Conectar PayPal</a>
+    </p>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="js/particulas.js"></script>
+<script src="js/pagos.js"></script>
+<script src="js/lang.js"></script>
+
+</body>
+</html>
+

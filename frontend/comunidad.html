@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="assets/img/logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/comunidad.css">
+  <link rel="stylesheet" href="css/foro.css">
+  <link rel="stylesheet" href="css/buscador.css">
+  <title>Comunidad de Desarrolladores</title>
+  <style>
+.promo-btn {
+  display: inline-block;
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  box-shadow: 0 3px 6px rgba(40, 167, 69, 0.4);
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  user-select: none;
+  cursor: pointer;
+  margin: 12px 0 24px 20px; /* <-- margen izquierdo ajustado a 20px */
+}
+
+.promo-btn:hover,
+.promo-btn:focus {
+  background-color: #218838;
+  box-shadow: 0 5px 10px rgba(33, 136, 56, 0.6);
+  outline: none;
+}
+
+
+.forum-section h2 {
+  font-size: 2rem;                     /* Tamaño grande y destacado */
+  font-weight: 700;                    /* Negrita */
+  color: #ffffff;                      /* Gris oscuro moderno */
+  letter-spacing: 1px;                 /* Espaciado de letras sutil */
+  margin-bottom: 20px;                 /* Separación con el contenido siguiente */
+  padding-left: 15px;                  /* Mueve el texto ligeramente a la derecha */
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+
+
+ 
+  </style>
+</head>
+<body>
+<nav class="navbar">
+    <!-- Sección Izquierda: Logo -->
+    <div class="navbar-logo">
+        <img src="assets/img/logo.png" alt="Logo de TakumiNet">
+    </div>
+
+
+ <!-- Botón hamburguesa (solo visible en móvil) -->
+  <div class="hamburger" onclick="toggleMenu()">
+      <i class="fas fa-bars"></i>
+  </div>
+
+    <!-- Sección Central: Enlaces de navegación -->
+    <ul class="nav-links">
+      <li><a href="home.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
+      <li><a href="marketplace.html"><i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span></a></li>
+      <li><a href="game jam.html"><i class="fas fa-calendar-alt"></i> <span data-i18n="game_jams">Game Jams</span></a></li>
+      <li><a href="centro-aprendiz.html"><i class="fas fa-graduation-cap"></i> <span data-i18n="tutoriales">Tutoriales</span></a></li>
+      <li><a href="ranking.html"><i class="fas fa-trophy"></i> <span data-i18n="Ranking">Ranking</span></a></li>
+      <li><a href="comunidad.html"><i class="fas fa-users"></i> <span data-i18n="comunidad">Comunidad</span></a></li>
+    </ul>
+
+    <!-- Sección Derecha: Elementos interactivos -->
+    <div class="nav-right">
+      <!-- Búsqueda -->
+      <form class="search-box" role="search">
+        <input type="search" class="search-input" placeholder="Buscar juegos, usuarios..." aria-label="Buscar en el sitio" data-i18n="buscar" data-i18n-type="placeholder">
+        <button type="submit" class="search-btn" aria-label="Ejecutar búsqueda">
+          <i class="fas fa-search"></i>
+        </button>
+      </form>
+
+    
+<!-- ================================
+     SELECTOR DE IDIOMA
+================================ -->
+<div class="language-selector">
+  <button class="icon-btn language-btn" aria-haspopup="true" aria-expanded="false">
+    <i class="fas fa-globe"></i>
+    <span data-i18n="idioma"></span>
+  </button>
+
+  <div class="language-dropdown" id="languageDropdown" role="menu" aria-hidden="true">
+    <button class="lang-option" data-lang="es">🇪🇸 Español<span data-i18n="espanol"></span></button>
+    <button class="lang-option" data-lang="en">🇺🇸 English<span data-i18n="ingles"></span></button>
+    <button class="lang-option" data-lang="ja">🇯🇵 日本語<span data-i18n="japones"></span></button>
+  </div>
+</div>
+
+
+
+      <!-- Iconos de notificaciones -->
+      <div class="nav-icons">
+        <div class="notification-wrapper">
+          <button class="icon-btn notification-btn" onclick="toggleNotifications()" aria-haspopup="true" aria-expanded="false" aria-label="Notificaciones">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" aria-live="polite">0</span>
+          </button>
+
+          <!-- Menú desplegable de notificaciones -->
+          <div class="dropdown-menu notification-dropdown" id="notificationDropdown" role="menu" aria-hidden="true" style="display:none;">
+            <div class="dropdown-header">
+              <h4 class="dropdown-title" data-i18n="notificaciones">Notificaciones</h4>
+              <button class="mark-read" id="markReadBtn" data-i18n="ver_todas">Marcar todas como leídas</button>
+            </div>
+
+            <div class="notifications-list" id="notificationsList">
+              <!-- Aquí se insertarán las notificaciones dinámicamente -->
+            </div>
+            <div class="dropdown-footer">
+              <a href="/notificaciones" class="view-all" data-i18n="ver_todas">Ver todas</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carrito de compras -->
+        <div class="icon-btn cart-btn" aria-label="Carrito de compras" role="button" tabindex="0" onclick="toggleCart()">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge" aria-live="polite">5</span>
+        </div>
+
+
+  <!-- Menú de usuario -->
+  <div class="user-menu">
+    <button class="user-profile" aria-haspopup="true" aria-expanded="false" onclick="toggleUserMenu()">
+      <div id="avatar-circle" class="avatar">
+        <i id="avatar-icon" class="fas fa-user"></i>
+      </div>
+      <span class="username" id="current-username">Invitado</span>
+    </button>
+  </div>
+
+          <!-- Menú desplegable de usuario -->
+          <div class="user-dropdown" id="userDropdown" role="menu" aria-hidden="true">
+            <div class="dropdown-group">
+              <a href="perfil del usuario.html" class="menu-item"><i class="fas fa-user"></i><span data-i18n="perfil">Perfil</span></a>
+               <a href="mis juegos.html" class="menu-item"><i class="fas fa-gamepad"></i><span data-i18n="mis_juegos">Mis Juegos</span></a>
+             <a href="Creator Dashboard.html" class="menu-item"><i class="fas fa-tachometer-alt"></i><span data-i18n="controlPanel">Panel de Control</span></a>
+              <a href="juegos favoritos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="favoritos">Favoritos</span></a>
+              <a href="subir_juegos.html" class="menu-item"><i class="fas fa-upload"></i><span data-i18n="subir_juego">Subir Juego</span></a>
+            </div>
+            <div class="dropdown-group">
+              <a href="biblioteca.html" class="menu-item"><i class="fas fa-book"></i><span data-i18n="biblioteca">Biblioteca</span></a>
+              <a href="descarga.html" class="menu-item"><i class="fas fa-download"></i><span data-i18n="descargas">Descargas</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <a href="perfil-editar.html" class="menu-item"><i class="fas fa-user-edit"></i><span data-i18n="editar_usuario">Editar Usuario</span></a>
+                <a href="pagos-desarrollador.html" class="menu-item"><i class="fas fa-money-bill-wave"></i><span data-i18n="pagos">Pagos</span></a>
+              <a href="seguidos.html" class="menu-item"><i class="fas fa-heart"></i><span data-i18n="seguidos">Seguidos</span></a>
+            </div>
+            <hr class="divider">
+            <div class="dropdown-group">
+              <button class="menu-item logout"><i class="fas fa-sign-out-alt"></i><span data-i18n="cerrar_sesion">Cerrar Sesión</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</nav>
+
+
+<header class="community-header">
+  <h1 data-i18n="community.title">Comunidad de Desarrolladores - TakumiNet</h1>
+  <p data-i18n="community.subtitle">¡Bienvenido a la comunidad! Comparte, aprende y conecta con otros desarrolladores.</p>
+</header>
+
+<section class="foro-rules-box">
+  <button id="toggle-rules" class="toggle-rules-btn" data-i18n="community.rules.toggle">
+    Mostrar reglas para crear un foro
+  </button>
+  <div id="rules-content" class="foro-rules-content" style="display: none;">
+    <ul class="foro-rules-list">
+      <li><strong data-i18n="community.rules.clarityTitle">Sé claro y específico:</strong> <span data-i18n="community.rules.clarityDesc">Usa un título que resuma el tema de forma directa.</span></li>
+      <li><strong data-i18n="community.rules.noSpamTitle">Evita el spam:</strong> <span data-i18n="community.rules.noSpamDesc">No publiques enlaces irrelevantes o contenido promocional.</span></li>
+      <li><strong data-i18n="community.rules.categorizeTitle">Categoriza correctamente:</strong> <span data-i18n="community.rules.categorizeDesc">Selecciona la categoría que mejor se ajuste al tema.</span></li>
+      <li><strong data-i18n="community.rules.respectTitle">Respeta a los demás:</strong> <span data-i18n="community.rules.respectDesc">No se toleran insultos, lenguaje ofensivo o contenido discriminatorio.</span></li>
+      <li><strong data-i18n="community.rules.shareValueTitle">Comparte con valor:</strong> <span data-i18n="community.rules.shareValueDesc">Intenta que tu descripción aporte algo útil a la comunidad.</span></li>
+      <li><strong data-i18n="community.rules.useTagsTitle">Usa etiquetas:</strong> <span data-i18n="community.rules.useTagsDesc">Añade etiquetas clave para facilitar la búsqueda de tu tema.</span></li>
+      <li><strong data-i18n="community.rules.noRepeatTitle">No repitas temas:</strong> <span data-i18n="community.rules.noRepeatDesc">Antes de crear, revisa si ya existe un foro similar.</span></li>
+    </ul>
+    <p class="foro-rules-footer" data-i18n="community.rules.footer">
+      Cumplir estas reglas ayuda a mantener un espacio sano y útil para todos.
+    </p>
+  </div>
+</section>
+
+<section class="forum-section">
+  <h2 data-i18n="community.forums.title">Foros de Discusión</h2>
+  <a href="crear-foro.html" class="promo-btn" data-i18n="community.forums.createButton">Crear nuevo tema</a>
+  <div class="forum-topic-container" id="forum-container">
+    <!-- Foros cargados dinámicamente -->
+  </div>
+</section>
+
+
+
+<script src="js/notificacion.js"></script>
+<script src="js/carrito.js"></script>
+<script src="js/user.js"></script>
+<script src="js/desplegar.js"></script>
+<script src="js/cerrar sesion.js"></script>
+<script src="js/comunidad.js"></script>
+<script src="js/usario.js"></script>
+<script src="js/lang.js"></script>
+<script src="js/buscador.js"></script>
+<script src="js/movil.js"></script>
+<script>
+  // ============================
+// Toggle reglas del foro
+// ============================
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleBtn = document.getElementById("toggle-rules");
+  const rulesContent = document.getElementById("rules-content");
+
+  toggleBtn.addEventListener("click", () => {
+    if (rulesContent.style.display === "none" || rulesContent.style.display === "") {
+      rulesContent.style.display = "block";
+      toggleBtn.textContent = "Ocultar reglas para crear un foro";
+    } else {
+      rulesContent.style.display = "none";
+      toggleBtn.textContent = "Mostrar reglas para crear un foro";
+    }
+  });
+});
+
+</script>
+</body>
+</html>
+

@@ -1,55 +1,90 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // ==========================
-  // PAYPAL LOGIN
-  // ==========================
-  const paypalButton = document.getElementById('connectPayPal');
-  if (paypalButton) {
-    paypalButton.addEventListener('click', function(e) {
-      e.preventDefault();
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+  if (!token) return;
 
-      const clientId = 'AaVT5Wtj5NoNpg6BVlcDSyE0vPXJ7Cs5A1ZQkOPY7pQYXvTLbp6Uf5HTsn4J0_Ulz0CbBEwvGRk5eMea';
-      const redirectUri = encodeURIComponent('https://soraup-cyber.github.io/TakumiNet-web/paypal/callback');
-      const state = encodeURIComponent(JSON.stringify({
-        user_id: 12345,
-        return_to: '/dashboard/payouts',
-        time: Date.now()
-      }));
+  const connectPayPalBtn = document.getElementById("connectPayPal");
 
-      const scope = encodeURIComponent('openid profile email');
-      const responseType = 'code';
+  // =========================
+  // Cargar usuario y estado PayPal
+  // =========================
+  async function loadUser() {
+    try {
+      const res = await fetch("http://localhost:3001/api/user", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!data.ok) return console.error("No se pudo cargar usuario:", data.error);
 
-      const paypalUrl = `https://www.sandbox.paypal.com/signin/authorize?scope=${scope}&response_type=${responseType}&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+      const user = data.user;
 
-      window.open(paypalUrl, '_blank', 'width=600,height=700');
-      console.log('Redirigiendo a PayPal Sandbox para pruebas...');
-    });
+      localStorage.setItem("userId", user.id);
+      if (user.paypalConnected) {
+        localStorage.setItem("paypalConnected", "true");
+      } else {
+        localStorage.setItem("paypalConnected", "false");
+      }
+
+      if (localStorage.getItem("paypalConnected") === "true") {
+        connectPayPalBtn.textContent = "PayPal Conectado ✅";
+        connectPayPalBtn.classList.add("connected");
+        connectPayPalBtn.href = "#";
+        connectPayPalBtn.disabled = true;
+      }
+
+    } catch (err) {
+      console.error("Error cargando usuario:", err);
+    }
   }
 
-  // ==========================
-  // PAYONEER CONNECT
-  // ==========================
-  const payoneerForm = document.querySelector('form.form');
-  if (payoneerForm) {
-    const button = payoneerForm.querySelector('button');
+  await loadUser();
 
-    // Crear contenedor para mensajes
-    const message = document.createElement('span');
-    message.style.marginLeft = '10px';
-    message.style.fontWeight = 'bold';
-    button.after(message);
+  // =========================
+  // Botón: Conectar PayPal
+  // =========================
+  connectPayPalBtn.addEventListener("click", (e) => {
+    e.preventDefault();
 
-    payoneerForm.addEventListener('submit', (e) => {
-      e.preventDefault(); // Evita envío real para prueba
+    const clientId = "AW2Kw82wf0gEkP-5iMLlZUachT2-l5M9l-chRt13lPkRSzAEZL1edMRSD64O-X9rZIKCS3BM-HUQwA3_"; 
+    const redirectUri = encodeURIComponent("https://takuminet-app.netlify.app/pagos-desarrollador");
+    const scope = encodeURIComponent("openid");
+    const userId = localStorage.getItem("userId");
 
-      button.disabled = true;
-      button.textContent = 'Conectando... 🔄';
+    const paypalAuthUrl = `https://www.sandbox.paypal.com/connect?flowEntry=static&client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}&state=${userId}`;
 
-      // Simular proceso de conexión (2 segundos)
-      setTimeout(() => {
-        button.textContent = 'Conectado ✅💸✨';
-        message.textContent = '¡Tu cuenta Payoneer está lista!';
-        message.style.color = 'green';
-      }, 2000);
-    });
+    window.location.href = paypalAuthUrl;
+  });
+
+  // =========================
+  // Detectar retorno de PayPal
+  // =========================
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+  const state = params.get("state"); // userId pasado desde PayPal
+
+  if (code && state) {
+    localStorage.setItem("paypalConnected", "true");
+    localStorage.setItem("paypalCode", code);
+    localStorage.setItem("paypalUserId", state);
+
+    connectPayPalBtn.textContent = "PayPal Conectado ✅";
+    connectPayPalBtn.classList.add("connected");
+    connectPayPalBtn.href = "#";
+    connectPayPalBtn.disabled = true;
+
+    // ✅ Enviar al backend para guardar en DB
+    fetch("http://localhost:3001/api/paypal/conectar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ code }) // backend obtiene userId del token
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) console.error("Error guardando PayPal:", data.error);
+      else console.log("PayPal conectado en backend ✅");
+    })
+    .catch(err => console.error("Error en fetch:", err));
   }
 });

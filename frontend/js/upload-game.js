@@ -439,7 +439,7 @@ async function subirJuego() {
         const token = localStorage.getItem("token");
         if (!token) {
             alert("Debes iniciar sesión para subir un juego");
-            window.location.href = "login.html";
+            window.location.href = "index.html";
             return;
         }
 

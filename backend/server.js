@@ -3,6 +3,8 @@
 // =======================
 const fs = require("fs");
 const path = require("path");
+const nodemailer = require("nodemailer");
+
 
 // =======================
 // FRAMEWORKS Y CORE
@@ -14,6 +16,9 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const cookieParser = require("cookie-parser");
 const multer = require("multer"); // Para subir archivos
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY); // tu API key de SendGrid
+
 
 // =======================
 // SEGURIDAD Y AUTENTICACIÓN
@@ -27,6 +32,7 @@ cloudinary.config({
   api_key: "793396746524197",
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
+
 
 // =======================
 // CONFIGURACIÓN DEL ENTORNO
@@ -896,12 +902,12 @@ const allAsync = async (query, params = []) => {
 };
 
 // =======================
-// ENDPOINT: Obtener juego por ID con datos del usuario y otros juegos
+// ENDPOINT OPTIMIZADO - CARGA ULTRA RÁPIDA
 // =======================
 app.get("/api/juegos/:id", async (req, res) => {
-  const gameId = req.params.id;
-
   try {
+    const gameId = req.params.id;
+
     // 1️⃣ Obtener el juego y datos del usuario
     const query = `
       SELECT j.*, 
@@ -919,7 +925,9 @@ app.get("/api/juegos/:id", async (req, res) => {
     `;
     const juego = await getAsync(query, [gameId]);
 
-    if (!juego) return res.status(404).json({ ok: false, error: "Juego no encontrado" });
+    if (!juego) {
+      return res.status(404).json({ ok: false, error: "Juego no encontrado" });
+    }
 
     // Procesar capturas si existen
     juego.screenshots = juego.screenshots ? JSON.parse(juego.screenshots) : [];
@@ -932,7 +940,7 @@ app.get("/api/juegos/:id", async (req, res) => {
     `;
     const otrosJuegos = await allAsync(otrosJuegosQuery, [juego.user_id, gameId]);
 
-    // 3️⃣ Responder con toda la info
+    // Responder con toda la info
     res.json({ ok: true, juego, otrosJuegos });
 
   } catch (err) {
@@ -940,6 +948,8 @@ app.get("/api/juegos/:id", async (req, res) => {
     res.status(500).json({ ok: false, error: "Error al obtener el juego" });
   }
 });
+
+
 
 // =======================
 // ENDPOINT OBTENER JUEGOS DEL USUARIO
@@ -1369,9 +1379,106 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 });
 
 
-// =======================
-// INICIAR SERVIDOR
-// =======================
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+
+
+
+
+
+app.post("/api/paypal/conectar", authMiddleware, async (req, res) => {
+  try {
+    const { code } = req.body; // code de PayPal
+    const userId = req.userId; // id del usuario del token
+
+    await runAsync(
+      "UPDATE usuarios SET paypal_connected = 1, paypal_code = ? WHERE user_id = ?",
+      [code, userId]
+    );
+
+    res.json({ ok: true, message: "PayPal conectado correctamente ✅" });
+  } catch (err) {
+    console.error("❌ Error conectando PayPal:", err);
+    res.status(500).json({ ok: false, error: "Error interno del servidor" });
+  }
 });
+
+
+
+
+
+app.post("/api/user/solicitar-reset", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ ok: false, error: "Email obligatorio" });
+
+    const user = await getAsync("SELECT user_id, username FROM usuarios WHERE email = ?", [email]);
+    if (!user) return res.status(404).json({ ok: false, error: "Usuario no encontrado" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    // Guardar token en DB por 1 hora
+    await runAsync(
+      `INSERT INTO reset_password_tokens (user_id, token, expira_en) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
+      [user.user_id, token]
+    );
+
+    // Enviar link a frontend Netlify
+    const resetLink = `https://takuminet-app.netlify.app/reset-password.html?token=${token}`;
+
+    const msg = {
+      to: email,
+      from: process.env.SENDGRID_FROM, // tu correo verificado en SendGrid
+      subject: "🔐 Recuperar contraseña - TakumiNet",
+      html: `
+        <h2>Hola ${user.username}</h2>
+        <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+        <p>Haz clic en el enlace para cambiar tu contraseña:</p>
+        <a href="${resetLink}" style="padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px;">Cambiar contraseña</a>
+        <p>Este enlace expira en 1 hora.</p>
+      `
+    };
+
+    await sgMail.send(msg);
+
+    res.json({ ok: true, mensaje: "Correo de recuperación enviado" });
+  } catch (err) {
+    console.error("❌ Error enviando correo:", err);
+    res.status(500).json({ ok: false, error: "No se pudo enviar el correo. Intenta nuevamente." });
+  }
+});
+
+
+app.post("/api/user/reset-password", async (req, res) => {
+  try {
+    const { token, nuevaPassword } = req.body;
+    if (!token || !nuevaPassword) return res.status(400).json({ ok: false, error: "Token y nueva contraseña requeridos" });
+
+    const row = await getAsync(
+      "SELECT user_id, expira_en FROM reset_password_tokens WHERE token = ?",
+      [token]
+    );
+    if (!row) return res.status(400).json({ ok: false, error: "Token inválido" });
+
+    const ahora = new Date();
+    if (ahora > new Date(row.expira_en)) return res.status(400).json({ ok: false, error: "Token expirado" });
+
+    // Actualizar contraseña en la tabla usuarios (hash recomendado)
+    await runAsync(
+      "UPDATE usuarios SET password = ? WHERE user_id = ?",
+      [nuevaPassword, row.user_id] // reemplaza con hash si usas bcrypt
+    );
+
+    // Borrar token
+    await runAsync("DELETE FROM reset_password_tokens WHERE token = ?", [token]);
+
+    res.json({ ok: true, mensaje: "Contraseña actualizada correctamente" });
+  } catch (err) {
+    console.error("❌ Error reseteando contraseña:", err);
+    res.status(500).json({ ok: false, error: "Error al actualizar contraseña" });
+  }
+});
+
+
+
+
+// ✅ PONES ESTO:
+module.exports = app;

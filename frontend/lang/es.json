@@ -429,6 +429,11 @@
   "about.links.privacy": "Política de Privacidad",
   "about.links.content": "Política de Contenido",
   "about.links.devGuide": "Guía para Desarrolladores",
-  "about.footer": "© 2025 TakumiNet - Plataforma independiente para juegos indie."
+  "about.footer": "© 2025 TakumiNet - Plataforma independiente para juegos indie.",
+   "titulo-carrito": "Carrito de Compras",
+  "lista-carrito": "Lista de artículos en el carrito",
+  "vacio": "El carrito está vacío.",
+  "item": "Artículo del carrito",
+  "btn-cerrar": "Cerrar"
 }
 

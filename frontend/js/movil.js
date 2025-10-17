@@ -1,62 +1,22 @@
-document.addEventListener('DOMContentLoaded', () => {
+// =========================
+// 🔹 MENÚ HAMBURGUESA
+// =========================
+function toggleMenu() {
+  const navLinks = document.querySelector(".nav-links");
+  const hamburger = document.querySelector(".hamburger");
 
-    // ELEMENTOS
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks = document.querySelector('.nav-links');
+  navLinks.classList.toggle("active");
+  hamburger.classList.toggle("active");
 
-    // Crear overlay una sola vez
-    const overlay = document.createElement('div');
-    overlay.className = 'nav-overlay';
-    document.body.appendChild(overlay);
+  const expanded = hamburger.classList.contains("active");
+  hamburger.setAttribute("aria-expanded", expanded);
+}
 
-    // FUNCIONES
-    function openMenu() {
-        navLinks.classList.add('active');
-        hamburger.classList.add('active');
-        overlay.classList.add('active');
-        closeAllDropdowns();
-    }
-
-    function closeMenu() {
-        navLinks.classList.remove('active');
-        hamburger.classList.remove('active');
-        overlay.classList.remove('active');
-    }
-
-    function toggleMenu() {
-        if(navLinks.classList.contains('active')) {
-            closeMenu();
-        } else {
-            openMenu();
-        }
-    }
-
-    // DROPDOWNS
-    function closeAllDropdowns() {
-        document.querySelectorAll('.notification-dropdown, .user-dropdown, .language-dropdown')
-            .forEach(d => d.classList.remove('show'));
-    }
-
-    // EVENTOS
-    hamburger.addEventListener('click', toggleMenu);
-    overlay.addEventListener('click', closeMenu);
-
-    // Cerrar dropdowns al hacer click fuera
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.nav-links') && !e.target.closest('.hamburger')) {
-            closeMenu();
-        }
-
-        // Cerrar dropdowns
-        if (!e.target.closest('.user-menu-btn') && !e.target.closest('#userDropdown')) {
-            document.getElementById('userDropdown')?.classList.remove('show');
-        }
-        if (!e.target.closest('.notification-btn') && !e.target.closest('#notificationDropdown')) {
-            document.getElementById('notificationDropdown')?.classList.remove('show');
-        }
-        if (!e.target.closest('.language-btn') && !e.target.closest('#languageDropdown')) {
-            document.getElementById('languageDropdown')?.classList.remove('show');
-        }
-    });
-
+// Cerrar el menú al hacer clic en un enlace
+document.querySelectorAll(".nav-links a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.querySelector(".nav-links").classList.remove("active");
+    document.querySelector(".hamburger").classList.remove("active");
+  });
 });
+

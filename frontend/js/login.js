@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (width >= 100) {
         clearInterval(interval);
         overlay.remove();
-        window.location.href = "index.html"; // Redirige a la página principal
+        window.location.href = "home.html"; // Redirige a la página principal
       }
     }, 20);
   };

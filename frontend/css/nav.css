@@ -462,182 +462,398 @@ html {
 
 
 
-/* =================================
-   BOTÓN HAMBURGUESA (SOLO MÓVIL)
-================================= */
+
+/* ===== HAMBURGUESA ===== */
 .hamburger {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #ffffff;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    z-index: 1002;
+  display: none;
+  font-size: 1.6rem;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  z-index: 1100;
 }
-
-.hamburger:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* =================================
-   MENÚ DE NAVEGACIÓN PRINCIPAL
-================================= */
-.nav-links {
-    display: flex;
-    list-style: none;
-    gap: 25px;
-    transition: all 0.3s ease;
-}
-
-.nav-links li a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-
-
-.nav-links li a i {
-    margin-right: 8px;
-    font-size: 18px;
-}
-
-/* =================================
-   SECCIÓN DERECHA
-================================= */
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* =================================
-   DISEÑO RESPONSIVO (MÓVIL)
-================================= */
-@media screen and (max-width: 768px) {
-    /* Mostrar botón hamburguesa en móvil */
-    .hamburger {
-        display: block;
-    }
-    
-    /* Ocultar menú principal en móvil */
-    .nav-links {
-        position: fixed;
-        top: 0;
-        left: -100%;
-        width: 280px;
-        height: 100vh;
-        background: #272727;
-        flex-direction: column;
-        padding: 80px 20px 20px;
-        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.3);
-        transition: left 0.3s ease;
-        z-index: 1001;
-        overflow-y: auto;
-    }
-    
-    .nav-links.active {
-        left: 0;
-    }
-    
-    .nav-links li a {
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 5px;
-        justify-content: flex-start;
-    }
-    
-    /* Ajustar sección derecha en móvil */
-    .nav-right {
-        gap: 10px;
-    }
-    
-    /* Ocultar búsqueda en móvil */
-    .search-box {
-        display: none;
-    }
-    
-    /* Ajustar menús desplegables para móvil */
-    .notification-dropdown, .user-dropdown {
-        position: fixed;
-        top: 70px;
-        right: 10px;
-        left: 10px;
-        width: auto;
-    }
-    
-    .language-dropdown {
-        position: fixed;
-        top: 70px;
-        right: 10px;
-        left: auto;
-        width: 200px;
-    }
-    
-    /* Overlay para menú móvil */
-    .nav-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: none;
-    }
-    
-    .nav-overlay.active {
-        display: block;
-    }
-}
-
-/* =================================
-   MEDIA QUERIES ADICIONALES
-================================= */
-@media screen and (max-width: 480px) {
-    .nav-container {
-        padding: 10px 0;
-    }
-    
-    .nav-icons {
-        gap: 10px;
-    }
-    
-    .username {
-        display: none;
-    }
-    
-    .user-dropdown, .notification-dropdown {
-        width: calc(100vw - 20px);
-        right: 10px;
-        left: 10px;
-    }
-}
-
-/* =================================
-   ANIMACIONES Y ESTADOS
-================================= */
-.nav-links li a i {
-    min-width: 20px;
-    text-align: center;
-}
-
-.menu-item i {
-    min-width: 20px;
-    text-align: center;
-}
-
-/* Estilos para el estado activo del botón hamburguesa */
 .hamburger.active {
-    color: #09ff00;
+  transform: rotate(90deg);
 }
 
-/* Transiciones suaves */
-.nav-links, .notification-dropdown, .user-dropdown, .language-dropdown {
-    transition: all 0.3s ease;
+/* ===== RESPONSIVE ===== */
+@media (max-width: 950px) {
+  .nav-links {
+    position: fixed;
+    top: 70px;
+    right: -100%;
+    background: #0d0e12;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 220px;
+    height: calc(100vh - 70px);
+    padding: 1.5rem;
+    gap: 1.2rem;
+    border-left: 2px solid #111;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.6);
+    transition: right 0.35s ease;
+  }
+
+  .nav-links.active {
+    right: 0;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .search-box {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 0.6rem;
+  }
+
+  .nav-links a {
+    width: 100%;
+    padding: 0.5rem 0;
+    color: #bbb;
+    border-bottom: 1px solid #1d1d1f;
+  }
+
+  .nav-links a:hover {
+    color: #00aaff;
+  }
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+
+
+
+
+
+/* ========================= */
+/* 🔹 ESTILO BASE            */
+/* ========================= */
+
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: #00ff7f; /* Verde neón */
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #00ff7f;
+  color: #000;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 50%;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* ========================= */
+/* 🔹 DROPDOWN NOTIFICACIONES */
+/* ========================= */
+
+.notification-dropdown {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background: #2a2a2a; /* Gris oscuro */
+  color: #ffffff;
+  width: 300px;
+  max-height: 400px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+  animation: fadeIn 0.25s ease;
+  border: 1px solid #00ff7f22; /* sutil borde verde translúcido */
+}
+
+.notification-dropdown.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-5px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+.dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: #3a3a3a;
+  border-bottom: 1px solid #00ff7f33;
+  border-radius: 12px 12px 0 0;
+}
+
+.dropdown-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.mark-read {
+  background: none;
+  border: none;
+  color: #00ff7f;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.mark-read:hover {
+  color: #66ffb3;
+}
+
+.notifications-list {
+  padding: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.notifications-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+  background: #00ff7f66;
+  border-radius: 3px;
+}
+
+.notification-item {
+  background: #333;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  transition: background 0.2s ease, border 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.notification-item:hover {
+  background: #3f3f3f;
+  border-color: #00ff7f44;
+}
+
+.dropdown-footer {
+  padding: 10px;
+  text-align: center;
+  border-top: 1px solid #00ff7f33;
+}
+
+.dropdown-footer .view-all {
+  color: #00ff7f;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.dropdown-footer .view-all:hover {
+  color: #66ffb3;
+}
+
+/* ========================= */
+/* 🔹 MODO MÓVIL RESPONSIVE  */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 60px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    max-height: 70vh;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    background: #222;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from {opacity: 0; transform: translateY(15px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
+
+  .dropdown-header {
+    font-size: 1.1rem;
+    background: #333;
+  }
+
+  .notifications-list {
+    max-height: 55vh;
+  }
+
+  .notification-item {
+    font-size: 1rem;
+    padding: 12px;
+  }
+
+  .dropdown-footer {
+    background: #2a2a2a;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* --- Modal del carrito --- */
+#cart-modal {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  background: #2a2a2a; /* Gris oscuro */
+  color: #ffffff; /* Letras blancas */
+  border-radius: 16px;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(8px);
+  font-family: "Inter", "Poppins", sans-serif;
+}
+
+/* Título */
+#cart-modal h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 10px;
+  color: #00ff88; /* Verde brillante */
+}
+
+/* Lista de productos */
+#cart-modal ul {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+#cart-modal li {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #eaeaea;
+}
+
+#cart-modal li:last-child {
+  border-bottom: none;
+}
+
+/* Botón Cerrar */
+#cart-modal button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(90deg, #00ff88, #00c46a);
+  color: #000000;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 0.95rem;
+  margin-top: 10px;
+}
+
+#cart-modal button:hover {
+  background: linear-gradient(90deg, #00e07a, #009955);
+  transform: translateY(-1px);
+}
+
+/* Scrollbar personalizado */
+#cart-modal ul::-webkit-scrollbar {
+  width: 6px;
+}
+#cart-modal ul::-webkit-scrollbar-thumb {
+  background: #00ff88;
+  border-radius: 4px;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Responsive (Móvil) --- */
+@media (max-width: 600px) {
+  #cart-modal {
+    top: 80px;
+    left: 10px;
+    right: 10px;
+    width: auto;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  #cart-modal h3 {
+    font-size: 1rem;
+  }
+
+  #cart-modal li {
+    font-size: 0.9rem;
+  }
+
+  #cart-modal button {
+    font-size: 0.9rem;
+  }
 }
