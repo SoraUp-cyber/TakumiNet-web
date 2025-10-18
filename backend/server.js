@@ -1478,19 +1478,26 @@ app.post("/api/user/reset-password", async (req, res) => {
 });
 
 
+// =======================
+// ✅ RUTA DE PRUEBA BÁSICA
+// =======================
+app.get("/", (req, res) => {
+  res.send("✅ Servidor Express funcionando correctamente 🚀");
+});
+
+app.get("/api/hello", (req, res) => {
+  res.json({ ok: true, message: "Hola mundo desde Express 👋" });
+});
 
 
 // =======================
 // ✅ EXPORT PARA VERCEL + DESARROLLO LOCAL
 // =======================
-if (process.env.NODE_ENV === 'production') {
-  // 👉 Modo producción (Vercel)
-  const serverless = require("serverless-http");
+if (process.env.NODE_ENV === "production") {
   module.exports = app;
-  module.exports.handler = serverless(app);
 } else {
-  // 👉 Modo desarrollo local
+  const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
-    console.log('🎮🚀 Servidor de Juegos corriendo en http://localhost:3001 🌐✨');
+    console.log(`🚀 Servidor Express corriendo en http://localhost:${PORT}`);
   });
 }
