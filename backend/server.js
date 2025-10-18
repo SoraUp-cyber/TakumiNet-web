@@ -44,11 +44,11 @@ const SECRET = process.env.JWT_SECRET || "TAKUMINET_SUPER_SEGURO_2025";
 const mysql = require("mysql2/promise");
 
 const dbConfig = {
-  host: "127.0.0.1",
-  user: "root",
-  password: "2001",
-  database: "TakumiNet",
-  port: 3307,
+  host: process.env.DB_HOST || "127.0.0.1",
+  user: process.env.DB_USER || "root", 
+  password: process.env.DB_PASSWORD || "2001",
+  database: process.env.DB_NAME || "TakumiNet",
+  port: process.env.DB_PORT || 3307,
 };
 
 // =======================
@@ -1493,11 +1493,10 @@ app.get("/api/hello", (req, res) => {
 // =======================
 // ✅ EXPORT PARA VERCEL + DESARROLLO LOCAL
 // =======================
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === 'production') {
   module.exports = app;
 } else {
-  const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
-    console.log(`🚀 Servidor Express corriendo en http://localhost:${PORT}`);
+    console.log('🎮🚀 Servidor de Juegos corriendo en http://localhost:3001 🌐✨');
   });
 }
