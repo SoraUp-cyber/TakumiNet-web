@@ -3,6 +3,7 @@
 // =======================
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto"); // ← AÑADE ESTA LÍNEA
 const nodemailer = require("nodemailer");
 
 
@@ -39,16 +40,16 @@ cloudinary.config({
 // =======================
 require("dotenv").config();
 const PORT = process.env.PORT || 3001;
-const SECRET = process.env.JWT_SECRET || "TAKUMINET_SUPER_SEGURO_2025";
+const SECRET = process.env.JWT_SECRET || "TU_SECRETO_SUPER_SEGURO";
 
 const mysql = require("mysql2/promise");
 
 const dbConfig = {
-  host: process.env.DB_HOST || "127.0.0.1",
-  user: process.env.DB_USER || "root", 
-  password: process.env.DB_PASSWORD || "2001",
-  database: process.env.DB_NAME || "TakumiNet",
-  port: process.env.DB_PORT || 3307,
+  host: "127.0.0.1",
+  user: "root",
+  password: "2001",
+  database: "TakumiNet",
+  port: 3307,
 };
 
 // =======================
@@ -107,18 +108,22 @@ let pool; // Pool de MariaDB
 // =======================
 // INICIALIZAR POOL DE CONEXIONES
 // =======================
-// Inicializar pool de conexiones
-pool = mysql.createPool(dbConfig);
+if (process.env.NODE_ENV !== 'production') {
+  pool = mysql.createPool(dbConfig);
 
-pool.getConnection()
-  .then(conn => {
-    console.log("✅ Pool de base de datos inicializado");
-    conn.release();
-  })
-  .catch(err => {
-    console.error("❌ Error al inicializar el pool de base de datos:", err);
-    process.exit(1);
-  });
+  pool.getConnection()
+    .then(conn => {
+      console.log("✅ Pool de base de datos inicializado (Local)");
+      conn.release();
+    })
+    .catch(err => {
+      console.error("❌ Error al inicializar el pool de base de datos:", err);
+    });
+} else {
+  console.log("⚠️  Modo producción - Base de datos no inicializada (necesita variables de entorno)");
+  pool = null;
+}
+
 
 // =======================
 // HELPERS MariaDB
@@ -126,21 +131,27 @@ pool.getConnection()
 const runAsync = async (query, params = []) => {
   try {
     if (!pool) {
-      throw new Error("Pool de base de datos no inicializado");
+      // En producción sin BD, devolver array vacío
+      console.log("⚠️  Sin conexión a BD - Query ignorado:", query);
+      return [];
     }
     const [rows] = await pool.query(query, params);
     return rows;
   } catch (err) {
     console.error("❌ Error SQL:", err);
-    throw err;
+    // En producción, no lances error
+    return [];
   }
 };
 
 const getAsync = async (query, params = []) => {
-  const rows = await runAsync(query, params);
-  return rows[0] || null;
+  try {
+    const rows = await runAsync(query, params);
+    return rows[0] || null;
+  } catch (err) {
+    return null;
+  }
 };
-
 
 
 
@@ -1482,13 +1493,24 @@ app.post("/api/user/reset-password", async (req, res) => {
 // ✅ RUTA DE PRUEBA BÁSICA
 // =======================
 app.get("/", (req, res) => {
-  res.send("✅ Servidor Express funcionando correctamente 🚀");
+  res.json({ 
+    ok: true, 
+    message: "✅ Servidor Express funcionando correctamente 🚀",
+    environment: process.env.NODE_ENV || 'development',
+    database: pool ? "Conectada" : "No configurada",
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.get("/api/hello", (req, res) => {
-  res.json({ ok: true, message: "Hola mundo desde Express 👋" });
+  res.json({ 
+    ok: true, 
+    message: "Hola mundo desde Express 👋",
+    status: "Servidor funcionando en Vercel",
+    database: pool ? "Conectada" : "No configurada",
+    timestamp: new Date().toISOString()
+  });
 });
-
 
 // =======================
 // ✅ EXPORT PARA VERCEL + DESARROLLO LOCAL
