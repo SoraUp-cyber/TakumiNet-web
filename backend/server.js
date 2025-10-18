@@ -1480,5 +1480,17 @@ app.post("/api/user/reset-password", async (req, res) => {
 
 
 
-// ✅ PONES ESTO:
-module.exports = app;
+// =======================
+// ✅ EXPORT PARA VERCEL + DESARROLLO LOCAL
+// =======================
+if (process.env.NODE_ENV === 'production') {
+  // 👉 Modo producción (Vercel)
+  const serverless = require("serverless-http");
+  module.exports = app;
+  module.exports.handler = serverless(app);
+} else {
+  // 👉 Modo desarrollo local
+  app.listen(PORT, () => {
+    console.log('🎮🚀 Servidor de Juegos corriendo en http://localhost:3001 🌐✨');
+  });
+}
