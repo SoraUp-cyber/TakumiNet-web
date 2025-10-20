@@ -1,41 +1,55 @@
 document.addEventListener("DOMContentLoaded", async () => {
+  // =============================
+  // 🧩 REFERENCIAS A ELEMENTOS
+  // =============================
   const form = document.getElementById("gameFilters");
   const resetBtn = document.getElementById("resetFilters");
   const contenedor = document.getElementById("contenedor-juegos");
-  const API_BASE = "http://localhost:3001";
-  const token = localStorage.getItem("token");
-  
-  // Elementos del usuario
   const avatarCircle = document.getElementById("avatar-circle");
   const avatarIcon = document.getElementById("avatar-icon");
   const currentUsername = document.getElementById("current-username");
 
-  // =====================
-  // Verificar autenticación
-  // =====================
+  // =============================
+  // ⚙️ CONFIGURACIÓN BASE API
+  // =============================
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const API_BASE = isLocal ? "http://localhost:3001" : "https://takuminet.vercel.app";
+  console.log(`🌐 Conectando a: ${API_BASE}`);
+
+  // =============================
+  // 🔑 TOKEN Y AUTENTICACIÓN
+  // =============================
+  const token = localStorage.getItem("token");
   if (!token) {
     alert("Debes iniciar sesión para ver los juegos");
+    window.location.href = "login.html";
     return;
   }
 
-  // =====================
-  // Cargar datos del usuario
-  // =====================
+  // =============================
+  // 👤 FUNCIÓN: Cargar Usuario
+  // =============================
   async function loadUser() {
     try {
+      console.log("👤 Cargando datos del usuario...");
       const res = await fetch(`${API_BASE}/api/user`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+
       const data = await res.json();
-      
       if (!data.ok) {
         console.error("No se pudo cargar usuario:", data.error);
+        localStorage.removeItem("token");
+        window.location.href = "login.html";
         return;
       }
 
       const user = data.user;
       currentUsername.textContent = user.username || "Invitado";
 
+      // Imagen del usuario
       if (user.avatar) {
         avatarCircle.style.backgroundImage = `url(${user.avatar})`;
         avatarCircle.style.backgroundSize = "cover";
@@ -44,68 +58,69 @@ document.addEventListener("DOMContentLoaded", async () => {
         avatarCircle.style.backgroundImage = "none";
         avatarIcon.style.display = "block";
       }
+
+      console.log("✅ Usuario cargado:", user.username);
     } catch (err) {
-      console.error("Error cargando usuario:", err);
+      console.error("❌ Error cargando usuario:", err);
+      alert("Error de conexión. Verifica que el servidor esté funcionando.");
     }
   }
 
-  // =====================
-  // Función para cargar juegos con filtros
-  // =====================
+  // =============================
+  // 🎮 FUNCIÓN: Cargar Juegos
+  // =============================
   async function cargarJuegos(filtros = {}) {
     try {
-      const res = await fetch(`${API_BASE}/api/juegos`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
+      console.log("🎮 Cargando juegos...");
+      contenedor.innerHTML = "<p>Cargando juegos...</p>";
 
+      const res = await fetch(`${API_BASE}/api/juegos`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+
+      const data = await res.json();
       if (!data.ok) {
-        contenedor.innerHTML = "<p>Error al cargar los juegos.</p>";
+        contenedor.innerHTML = `<p>Error: ${data.error}</p>`;
         return;
       }
 
-      // =====================
+      // -------------------------
       // Normalizar datos
-      // =====================
-      let juegos = Array.isArray(data.juegos) ? data.juegos.map(j => ({
-        ...j,
-        // Normalizar géneros a array en minúsculas sin espacios extra
-        genresArray: j.main_genre ? j.main_genre.split(",").map(g => g.trim().toLowerCase()) : [],
-        categoryLower: j.category ? j.category.trim().toLowerCase() : "",
-        pricingLower: j.pricing ? j.pricing.trim().toLowerCase() : ""
-      })) : [];
+      // -------------------------
+      let juegos = Array.isArray(data.juegos)
+        ? data.juegos.map((j) => ({
+            ...j,
+            genresArray: j.main_genre ? j.main_genre.split(",").map((g) => g.trim().toLowerCase()) : [],
+            categoryLower: j.category ? j.category.trim().toLowerCase() : "",
+            pricingLower: j.pricing ? j.pricing.trim().toLowerCase() : "",
+          }))
+        : [];
 
-      // =====================
-      // FILTROS FLEXIBLES
-      // =====================
+      console.log(`📊 ${juegos.length} juegos encontrados`);
 
-      // Filtrar por categoría
+      // -------------------------
+      // Filtros
+      // -------------------------
       if (filtros.category) {
         const catLower = filtros.category.toLowerCase().trim();
-        juegos = juegos.filter(j => j.categoryLower === catLower);
+        juegos = juegos.filter((j) => j.categoryLower === catLower);
       }
 
-      // Filtrar por género
       if (filtros.genre) {
         const genreLower = filtros.genre.toLowerCase().trim();
-        juegos = juegos.filter(j => j.genresArray.includes(genreLower));
+        juegos = juegos.filter((j) => j.genresArray.includes(genreLower));
       }
 
-      // Filtrar por precio
       if (filtros.price) {
-        let priceMap = {
-          'gratis': 'free',
-          'pago': 'paid',
-          'donation': 'donation',
-          'oferta': 'sale'
-        };
+        const priceMap = { gratis: "free", pago: "paid", donation: "donation", oferta: "sale" };
         const filtroPrice = priceMap[filtros.price.toLowerCase().trim()] || filtros.price.toLowerCase().trim();
-        juegos = juegos.filter(j => j.pricingLower === filtroPrice);
+        juegos = juegos.filter((j) => j.pricingLower === filtroPrice);
       }
 
-      // Filtrar por requisitos mínimos (RAM)
       if (filtros.requirements) {
-        juegos = juegos.filter(j => {
+        juegos = juegos.filter((j) => {
           const ram = parseInt(j.min_ram) || 0;
           if (filtros.requirements === "low") return ram <= 4;
           if (filtros.requirements === "medium") return ram > 4 && ram <= 8;
@@ -114,146 +129,153 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       }
 
-// =====================
-// Renderizar juegos
-// =====================
-contenedor.innerHTML = "";
+      // -------------------------
+      // Renderizar juegos
+      // -------------------------
+      contenedor.innerHTML = "";
 
-if (juegos.length === 0) {
-  contenedor.innerHTML = "<p>No se encontraron juegos con estos filtros.</p>";
-  return;
-}
+      if (juegos.length === 0) {
+        contenedor.innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <p>🎮 No se encontraron juegos con estos filtros.</p>
+            <button onclick="cargarJuegos()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+              Ver todos los juegos
+            </button>
+          </div>
+        `;
+        return;
+      }
 
-for (const juego of juegos) {
-  try {
-    // =====================
-    // Obtener precio actualizado desde el endpoint
-    // =====================
-    const precioRes = await fetch(`${API_BASE}/api/juegos/${juego.id}/precio`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const precioData = await precioRes.json();
+      for (const juego of juegos) {
+        try {
+          const precioOriginal = parseFloat(juego.price) || 0;
+          const descuento = parseFloat(juego.discount) || 0;
+          const finalPrice = descuento > 0 && !juego.final_price
+            ? precioOriginal * (1 - descuento / 100)
+            : parseFloat(juego.final_price) || precioOriginal;
 
-    let precioOriginal = 0;
-    let descuento = 0;
-    let finalPrice = 0;
+          const imagen = juego.cover || "https://via.placeholder.com/300x200/667eea/ffffff?text=No+Cover";
 
-    if (precioData.ok) {
-      precioOriginal = parseFloat(precioData.price) || 0;
-      descuento = parseFloat(precioData.discount) || 0;
-      finalPrice = parseFloat(precioData.final_price ?? precioOriginal * (1 - descuento / 100)).toFixed(2);
-    }
+          let precioHTML = "";
+          if (juego.pricing === "free") {
+            precioHTML = `<strong style="color: #10b981;">🎁 Gratis</strong>`;
+          } else if (juego.pricing === "donation") {
+            precioHTML = `<strong style="color: #f59e0b;">💝 Donación</strong>`;
+          } else {
+            const tachado = descuento > 0 ? 'style="color:#ef4444;text-decoration:line-through;"' : "";
+            const descuentoTxt = descuento > 0 ? `<span style="color:#10b981;"> (${descuento}% OFF)</span>` : "";
+            precioHTML = `
+              <strong>💰 Precio:</strong> 
+              <span ${tachado}>$${precioOriginal.toFixed(2)}</span>
+              ${descuento > 0 ? `<br><strong>🎯 Final: $${finalPrice.toFixed(2)}</strong>` : ""}
+              ${descuentoTxt}
+            `;
+          }
 
-    const div = document.createElement("div");
-    div.classList.add("juego-card");
+          // Crear tarjeta del juego
+          const card = document.createElement("div");
+          card.classList.add("juego-card");
+          card.innerHTML = `
+            <div class="juego-cover" style="position: relative;">
+              <img src="${imagen}" alt="${juego.title}" style="width:100%;height:200px;object-fit:cover;border-radius:8px 8px 0 0;">
+              <button class="btn-favorito" data-id="${juego.id}" style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px;">❤️</button>
+            </div>
+            <div class="juego-info" style="padding:1rem;">
+              <h3 style="margin:0 0 0.5rem 0;color:#1f2937;">${juego.title}</h3>
+              <p style="margin:0 0 0.5rem 0;color:#6b7280;font-size:0.9rem;">${juego.description ? juego.description.substring(0,100) + "..." : "Sin descripción disponible"}</p>
+              <p style="margin:0;font-size:0.9rem;">${precioHTML}</p>
+              ${juego.username ? `<p style="margin-top:0.5rem;color:#9ca3af;font-size:0.8rem;">Por: ${juego.username}</p>` : ""}
+            </div>
+          `;
 
-    // Agregar evento de clic para ir al perfil del juego
-    div.addEventListener("click", () => {
-      if (juego.id) window.location.href = `perfil-juegos.html?id=${juego.id}`;
-    });
+          // Evento para abrir perfil del juego
+          card.addEventListener("click", () => {
+            window.location.href = `perfil-juegos.html?id=${juego.id}`;
+          });
 
-    const imagenPrincipal = juego.cover || 'https://via.placeholder.com/300x200?text=No+Cover';
+          contenedor.appendChild(card);
+        } catch (err) {
+          console.error(`❌ Error renderizando juego ${juego.id}:`, err);
+        }
+      }
 
-    // Determinar tipo de precio
-    let precioHTML = "";
-    if (juego.pricing === "free") {
-      precioHTML = `<strong>Gratis</strong>`;
-    } else if (juego.pricing === "donation") {
-      precioHTML = `<strong>Donación</strong>`;
-    } else {
-      precioHTML = `<strong>Precio Final:</strong> $${finalPrice} (${descuento}%)`;
-    }
-
-    div.innerHTML = `
-      <div class="juego-cover" style="position: relative;">
-        <img src="${imagenPrincipal}" alt="${juego.title || 'Untitled Game'}">
-        <button class="btn-favorito" data-id="${juego.id}">❤️</button>
-      </div>
-      <div class="juego-info">
-        <h3>${juego.title || 'Untitled'}</h3>
-        <p>${juego.description ? juego.description.substring(0, 100) + '...' : 'No description'}</p>
-        <p class="precio-juego">
-          ${precioHTML}
-        </p>
-      </div>
-    `;
-
-    contenedor.appendChild(div);
-
-  } catch (err) {
-    console.error(`Error obteniendo precio de juego ${juego.id}:`, err);
-  }
-}
-
-
-
-      // =====================
-      // Evento favoritos (versión mejorada con API)
-      // =====================
-      document.querySelectorAll(".btn-favorito").forEach(btn => {
+      // -------------------------
+      // Evento agregar a favoritos
+      // -------------------------
+      document.querySelectorAll(".btn-favorito").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
-          e.stopPropagation(); // Evitar que se active el clic de la tarjeta
-          
-          const juegoId = btn.dataset.id;
-          if (!juegoId) return;
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          if (!id) return;
 
           try {
             const res = await fetch(`${API_BASE}/api/favoritos`, {
               method: "POST",
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ juego_id: juegoId })
+              body: JSON.stringify({ juego_id: id }),
             });
-
             const result = await res.json();
 
-            if (result.ok) {
-              alert("Juego agregado a favoritos ❤️");
-              window.location.href = "juegos favoritos.html";
-            } else {
-              alert(result.error || "No se pudo agregar a favoritos");
-            }
-          } catch (err) {
-            console.error(err);
-            alert("Error de conexión al servidor");
+            alert(result.ok ? "🎉 Juego agregado a favoritos ❤️" : result.error || "❌ No se pudo agregar a favoritos");
+          } catch {
+            alert("🔌 Error de conexión con el servidor");
           }
         });
       });
-
     } catch (err) {
-      console.error(err);
-      contenedor.innerHTML = "<p>Error de conexión con el servidor</p>";
+      console.error("❌ Error cargando juegos:", err);
+      contenedor.innerHTML = `
+        <div style="text-align:center;padding:2rem;">
+          <p>🔌 Error de conexión con el servidor</p>
+          <p style="font-size:0.9rem;color:#6b7280;">Verifica que el servidor esté funcionando en: ${API_BASE}</p>
+          <button onclick="location.reload()" style="margin-top:1rem;padding:0.5rem 1rem;background:#667eea;color:white;border:none;border-radius:5px;cursor:pointer;">
+            Reintentar
+          </button>
+        </div>
+      `;
     }
   }
 
-  // =====================
-  // Eventos de filtros
-  // =====================
+  // =============================
+  // 🎛️ EVENTOS DE FILTROS
+  // =============================
   if (form) {
-    form.addEventListener("submit", e => {
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       const filtros = {
         genre: form.genre.value,
         category: form.category.value,
         price: form.price?.value,
-        requirements: form.requirements?.value
+        requirements: form.requirements?.value,
       };
+      console.log("🔍 Aplicando filtros:", filtros);
       cargarJuegos(filtros);
     });
   }
 
   if (resetBtn) {
     resetBtn.addEventListener("click", () => {
-      if (form) form.reset();
+      form?.reset();
+      console.log("🔄 Reiniciando filtros...");
       cargarJuegos();
     });
   }
 
-  // =====================
-  // Inicialización
-  // =====================
+  // =============================
+  // 🚀 INICIALIZACIÓN
+  // =============================
+  console.log("🚀 Inicializando página de juegos...");
   await loadUser();
   await cargarJuegos();
+  console.log("✅ Página de juegos inicializada correctamente");
 });
+
+// =============================
+// 🌐 FUNCIÓN GLOBAL REINTENTAR
+// =============================
+window.cargarJuegos = async function () {
+  location.reload();
+};

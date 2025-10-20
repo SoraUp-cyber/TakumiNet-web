@@ -9,7 +9,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     searchInput.parentElement.appendChild(resultados);
   }
 
-  const API_BASE = "http://localhost:3001";
+  // =========================
+  // Detectar entorno
+  // =========================
+  const API_BASE = window.location.hostname === "localhost"
+    ? "http://localhost:3001" 
+    : "https://takumi-api-fawn.vercel.app";
+
   const token = localStorage.getItem("token");
   let juegosData = [];
 
@@ -36,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function mostrarResultados(query) {
     resultados.innerHTML = "";
     if (!query) {
-      resultados.style.display = "none"; // Ocultar lista si no hay texto
+      resultados.style.display = "none";
       return;
     }
 
@@ -61,9 +67,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         div.appendChild(img);
         div.appendChild(title);
 
-        // =========================
-        // Click para ir al perfil del juego
-        // =========================
         div.addEventListener("click", () => {
           window.location.href = `perfil-juegos.html?id=${juego.id}`;
         });
@@ -72,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }
 
-    resultados.style.display = "block"; // Mostrar lista
+    resultados.style.display = "block";
   }
 
   // =========================

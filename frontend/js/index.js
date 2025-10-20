@@ -1,7 +1,14 @@
 (async function() {
-  const API_BASE = "http://localhost:3001";
-  const $ = id => document.getElementById(id);
+  // ✅ CONFIGURACIÓN DUAL - Desarrollo y Producción
+  const API_BASE = window.location.hostname === 'localhost' || 
+                   window.location.hostname === '127.0.0.1' ||
+                   window.location.hostname.includes('192.168.')
+    ? "http://localhost:3001"  // 🛠️ Desarrollo local
+    : "https://takuminet.vercel.app"; // 🌐 Producción
 
+  console.log('🔗 Conectando a:', API_BASE);
+  
+  const $ = id => document.getElementById(id);
   // ==========================
   // Obtener ID del juego desde URL
   // ==========================
@@ -509,6 +516,7 @@
         if ($(sec)) mostrarLoading(sec);
       });
 
+      // ✅ ACTUALIZADO - Usa la URL correcta del backend
       const resp = await fetch(`${API_BASE}/api/juegos`);
       const data = await resp.json();
 

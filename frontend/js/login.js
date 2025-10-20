@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.classList.add('loading');
 
     try {
-      const res = await fetch("http://localhost:3001/api/login", {
+      const res = await fetch("https://takumi-api-fawn.vercel.app/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })

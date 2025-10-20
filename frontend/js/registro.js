@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("registerForm");
-  const backendUrl = "http://localhost:3001"; // Cambiar si es producción
+  const backendUrl = "https://takumi-api-fawn.vercel.app"; // Cambiar si es producción
 
   // =======================
   // Overlay de bienvenida
@@ -20,26 +20,34 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(welcomeOverlay);
 
   // =======================
-  // Función mostrar overlay y redirigir
-  // =======================
-  const showWelcome = (message = "Registro completado con éxito") => {
-    const subtitle = welcomeOverlay.querySelector(".welcome-subtitle");
-    const progressBar = welcomeOverlay.querySelector(".progress-bar");
-    const continueBtn = welcomeOverlay.querySelector(".continue-btn");
+// =======================
+// Función: Mostrar overlay y redirigir
+// =======================
+const showWelcome = (message = "Registro completado con éxito") => {
+  const subtitle = welcomeOverlay.querySelector(".welcome-subtitle");
+  const progressBar = welcomeOverlay.querySelector(".progress-bar");
+  const continueBtn = welcomeOverlay.querySelector(".continue-btn");
 
-    subtitle.textContent = message;
-    welcomeOverlay.style.display = "flex";
+  // Mostrar mensaje
+  subtitle.textContent = message;
+  welcomeOverlay.style.display = "flex";
 
-    // Animación barra de progreso
-    progressBar.style.width = "0";
-    setTimeout(() => progressBar.style.width = "100%", 50);
+  // Animación de barra de progreso
+  progressBar.style.width = "0";
+  setTimeout(() => {
+    progressBar.style.width = "100%";
+  }, 50);
 
-    // Redirigir automáticamente después de 2.5 segundos
-    setTimeout(() => window.location.href = "login.html", 2500);
+  // Redirigir automáticamente después de 2.5 segundos
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 2500);
 
-    // Permitir clic manual
-    continueBtn.onclick = () => window.location.href = "login.html";
+  // Permitir clic manual en el botón
+  continueBtn.onclick = () => {
+    window.location.href = "index.html";
   };
+};
 
   // =======================
   // Función mostrar errores
