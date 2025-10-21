@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: takuminet-backend
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    autoDeploy: true
+    healthCheckPath: "/status"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DB_HOST
+        value: takuminet-mariadb-julianmartinezarenas480-c704.g.aivencloud.com
+      - key: DB_USER
+        value: avnadmin
+      - key: DB_PASSWORD
+        value: AVNS_W8Jtd5VqKCChu5rHHTG
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_PORT
+        value: 25967
+      - key: JWT_SECRET
+        value: tu_secreto

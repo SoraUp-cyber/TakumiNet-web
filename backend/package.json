@@ -7,9 +7,9 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cloudinary": "^1.41.0",
-    "cookie-parser": "^1.4.6",
+    "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.8.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -19,5 +19,14 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.15.2",
     "serverless-http": "^4.0.0"
+  },
+  "overrides": {
+    "npmlog": "^7.0.0",
+    "are-we-there-yet": "^4.0.0",
+    "gauge": "^5.0.0",
+    "rimraf": "^5.0.0",
+    "glob": "^10.0.0",
+    "inflight": "^2.0.0",
+    "q": "^1.5.1"
   }
 }
