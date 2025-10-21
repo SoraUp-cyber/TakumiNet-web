@@ -34,15 +34,16 @@ cloudinary.config({
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
 
-// DETECCIÓN DE ENTORNO MEJORADA
+// DETECCIÓN DE ENTORNO MEJORADA PARA KOYEB
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+const isKoyeb = process.env.KOYEB === 'true' || process.env.NODE_ENV === 'production';
 const isProduction = process.env.NODE_ENV === 'production';
 
-console.log(`🔍 Entorno detectado: Vercel=${isVercel}, Production=${isProduction}`);
+console.log(`🔍 Entorno detectado: Koyeb=${isKoyeb}, Vercel=${isVercel}, Production=${isProduction}`);
 
-// CONFIGURACIÓN DE BASE DE DATOS DUAL
+// CONFIGURACIÓN DE BASE DE DATOS DUAL - ACTUALIZADA
 const dbConfig = isVercel || isProduction ? {
-  // ✅ CONFIGURACIÓN NUBE (Aiven) - Para Vercel y producción
+  // ✅ CONFIGURACIÓN NUBE (Aiven) - Para Koyeb y producción
   host: process.env.DB_HOST || "takuminet-mariadb-julianmartinezarenas480-c704.g.aivencloud.com",
   user: process.env.DB_USER || "avnadmin",
   password: process.env.DB_PASSWORD || "AVNS_W8Jtd5VqKCChu5rHHTG",
@@ -72,8 +73,9 @@ app.use(cors({
   origin: [
     "https://takuminet-app.netlify.app",
     "https://takumi-api-fawn.vercel.app",
-    "http://localhost:3001", // ✅ Para desarrollo local
-    "http://127.0.0.1:3000"  // ✅ Para desarrollo local
+    "https://tu-app-koyeb.app", // ✅ Agrega tu dominio de Koyeb aquí
+    "http://localhost:3001",
+    "http://127.0.0.1:3000"
   ],
   credentials: true
 }));
@@ -783,30 +785,23 @@ app.get("/", async (req, res) => {
 });
 
 
-// INICIALIZACIÓN
+// Inicializar pool de conexiones
 initializePool().then((ok) => {
-  if (!ok) console.error("❌ No se pudo conectar a la base de datos");
+  if (ok) {
+    console.log(`✅ Aplicación inicializada correctamente`);
+  } else {
+    console.error("❌ No se pudo conectar a la base de datos");
+  }
 });
 
-// ✅ DETECCIÓN AUTOMÁTICA MEJORADA - Vercel vs Local
-if (process.env.VERCEL) {
-  // Para Vercel - usa serverless
-  console.log("🚀 Configuración para VERCEL");
-  module.exports = serverless(app);
-} else {
-  // Para desarrollo local - inicia servidor normal
-  const PORT = process.env.PORT || 3001;
-  const server = app.listen(PORT, () => {
-    console.log(`🎯 Servidor local ejecutándose en puerto ${PORT}`);
+// Koyeb maneja el servidor automáticamente, solo exportamos la app
+if (require.main === module) {
+  // Solo inicia servidor si se ejecuta directamente (desarrollo local)
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🎯 Servidor ejecutándose en puerto ${PORT}`);
     console.log(`📱 URL: http://localhost:${PORT}`);
   });
-  
-  // Manejo de cierre graceful
-  process.on('SIGINT', () => {
-    console.log('🛑 Cerrando servidor...');
-    server.close(() => {
-      console.log('✅ Servidor cerrado');
-      process.exit(0);
-    });
-  });
 }
+
+// Exportamos la app para Koyeb
+module.exports = app;
