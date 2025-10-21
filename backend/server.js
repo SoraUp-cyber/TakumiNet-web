@@ -36,6 +36,8 @@ cloudinary.config({
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
 
+// ✅ Esto va antes de los middlewares
+app.set("trust proxy", 1);
 
 // DETECCIÓN DE ENTORNO MEJORADA PARA KOYEB
 const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';

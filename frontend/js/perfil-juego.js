@@ -2,7 +2,7 @@
 // PERFIL DE JUEGO - CARGAR DATOS
 // ============================
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_BASE = 'http://localhost:3001';
+  const API_BASE = 'https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app';
   const params = new URLSearchParams(window.location.search);
   const juegoId = params.get('id');
 
