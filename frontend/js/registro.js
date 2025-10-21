@@ -2,11 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("registerForm");
   const discordBtn = document.getElementById("discordBtn");
   
-  // ✅ CONFIGURACIÓN - SOLO PRODUCCIÓN
+  // ✅ CONFIGURACIÓN PRODUCCIÓN
   const API_BASE = "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app";
 
   // =======================
-  // Overlay de bienvenida
+  // OVERLAY DE BIENVENIDA
   // =======================
   const welcomeOverlay = document.createElement("div");
   welcomeOverlay.className = "welcome-overlay";
@@ -23,8 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(welcomeOverlay);
 
   // =======================
-  // Función mostrar overlay y redirigir
+  // FUNCIONES PRINCIPALES
   // =======================
+
   const showWelcome = (message = "Registro completado con éxito") => {
     const subtitle = welcomeOverlay.querySelector(".welcome-subtitle");
     const progressBar = welcomeOverlay.querySelector(".progress-bar");
@@ -33,22 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
     subtitle.textContent = message;
     welcomeOverlay.style.display = "flex";
 
-    // Animación barra de progreso
     progressBar.style.width = "0";
     setTimeout(() => progressBar.style.width = "100%", 50);
 
-    // Redirigir automáticamente después de 2.5 segundos
     setTimeout(() => window.location.href = "index.html", 2500);
-
-    // Permitir clic manual
     continueBtn.onclick = () => window.location.href = "index.html";
   };
 
-  // =======================
-  // Función mostrar errores
-  // =======================
   const showError = (msg) => {
-    // Remover errores anteriores
     const existingErrors = document.querySelectorAll('.error-box');
     existingErrors.forEach(error => error.remove());
 
@@ -63,9 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 4000);
   };
 
-  // =======================
-  // Función mostrar errores en campos específicos
-  // =======================
   const showFieldError = (fieldId, message) => {
     const errorElement = document.getElementById(fieldId);
     if (errorElement) {
@@ -74,9 +64,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // =======================
-  // Limpiar errores de campos
-  // =======================
   const clearFieldErrors = () => {
     const errorElements = document.querySelectorAll('.error-message');
     errorElements.forEach(element => {
@@ -86,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // =======================
-  // Validación en tiempo real
+  // VALIDACIÓN EN TIEMPO REAL
   // =======================
   const setupRealTimeValidation = () => {
     const usernameInput = document.getElementById('username');
@@ -94,17 +81,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirmPassword');
 
-    // Validar username
     usernameInput.addEventListener('blur', () => {
       const username = usernameInput.value.trim();
-      if (username.length > 0 && username.length < 7) {
-        showFieldError('usernameError', 'Mínimo 7 caracteres');
+      if (username.length > 0 && username.length < 3) {
+        showFieldError('usernameError', 'Mínimo 3 caracteres');
       } else {
         showFieldError('usernameError', '');
       }
     });
 
-    // Validar email
     emailInput.addEventListener('blur', () => {
       const email = emailInput.value.trim();
       if (email.length > 0 && !email.includes('@')) {
@@ -114,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Validar contraseña
     passwordInput.addEventListener('blur', () => {
       const password = passwordInput.value;
       if (password.length > 0 && password.length < 6) {
@@ -124,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Validar confirmación
     confirmPasswordInput.addEventListener('blur', () => {
       const password = passwordInput.value;
       const confirmPassword = confirmPasswordInput.value;
@@ -137,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // =======================
-  // Función: Login automático después del registro
+  // LOGIN AUTOMÁTICO
   // =======================
   const autoLogin = async (username, password) => {
     try {
@@ -145,22 +128,15 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const res = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({ 
-          username, 
-          password 
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
       });
 
       const data = await res.json();
-      console.log('📊 Respuesta login:', data);
 
       if (res.ok && data.ok) {
         console.log('✅ Login automático exitoso');
         
-        // Guardar token y datos de usuario
         localStorage.setItem("token", data.token);
         localStorage.setItem("user_id", data.user.id);
         localStorage.setItem("username", data.user.username);
@@ -181,24 +157,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // =======================
-  // Manejo del formulario MEJORADO
+  // MANEJO DEL FORMULARIO
   // =======================
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    // Limpiar errores anteriores
     clearFieldErrors();
 
     const username = document.getElementById("username").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
-    const playGames = document.getElementById("playGames")?.checked || false;
-    const distributeContent = document.getElementById("distributeContent")?.checked || false;
-    const newsletter = document.getElementById("newsletter")?.checked || false;
     const terms = document.getElementById("terms")?.checked || false;
 
-    // Validaciones
+    // VALIDACIONES
     let hasErrors = false;
 
     if (!terms) {
@@ -228,40 +199,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (hasErrors) return;
 
-    // Estado del botón
+    // ESTADO DEL BOTÓN
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
     submitBtn.disabled = true;
 
     try {
-      console.log('📤 Paso 1: Registrando usuario...');
+      console.log('📤 Registrando usuario...');
       
-      // ✅ PASO 1: Registrar usuario
+      // ✅ REGISTRO
       const res = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json" 
-        },
-        body: JSON.stringify({ 
-          username, 
-          email, 
-          password 
-          // Tu backend solo espera estos 3 campos
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password })
       });
 
-      console.log('📥 Respuesta registro:', res.status);
-
       const data = await res.json();
-      console.log('📊 Datos registro:', data);
 
       if (res.ok && data.ok) {
-        console.log('✅ Registro exitoso, procediendo a login automático...');
+        console.log('✅ Registro exitoso, procediendo a login...');
         
-        // ✅ PASO 2: Login automático
+        // ✅ LOGIN AUTOMÁTICO
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
-        
         const loginSuccess = await autoLogin(username, password);
         
         if (loginSuccess) {
@@ -276,9 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const errorMsg = data.error || "Error desconocido";
         console.error('❌ Error del servidor:', errorMsg);
         
-        if (errorMsg === "Error servidor") {
-          showError("❌ Error interno del servidor");
-        } else if (errorMsg.includes("Usuario o email ya existe")) {
+        if (errorMsg.includes("Usuario o email ya existe")) {
           showError("❌ El usuario o email ya está registrado");
         } else if (errorMsg.includes("Username corto")) {
           showError("❌ El nombre de usuario es muy corto");
@@ -286,8 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
           showError("❌ El email no es válido");
         } else if (errorMsg.includes("Contraseña corta")) {
           showError("❌ La contraseña es muy corta");
-        } else if (errorMsg.includes("Campos obligatorios")) {
-          showError("❌ Completa todos los campos");
         } else {
           showError(`❌ ${errorMsg}`);
         }
@@ -303,24 +259,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =======================
-  // Botón Discord (solo redirección)
+  // BOTÓN DISCORD
   // =======================
   if (discordBtn) {
     discordBtn.addEventListener("click", (e) => {
       e.preventDefault();
       showError("🔗 Función Discord en desarrollo");
-      // window.location.href = "discord-auth.html"; // Para futuro
     });
   }
 
   // =======================
-  // Inicializar validación en tiempo real
+  // INICIALIZACIÓN
   // =======================
   setupRealTimeValidation();
 
-  // =======================
-  // Estilos dinámicos
-  // =======================
+  // ESTILOS DINÁMICOS
   const style = document.createElement("style");
   style.textContent = `
     .welcome-overlay {
@@ -359,19 +312,13 @@ document.addEventListener("DOMContentLoaded", () => {
     @keyframes slideIn { from {transform:translateX(100%); opacity:0;} to {transform:translateX(0); opacity:1;} }
     @keyframes fadeOut { to {opacity:0; transform:translateY(-20px);} }
     button[disabled] { opacity: 0.7; cursor: not-allowed; }
-    
-    /* Estilos para errores de campos */
     .error-message {
       color: #f44336;
       font-size: 12px;
       margin-top: 5px;
       display: none;
     }
-    
-    .fa-spinner {
-      animation: spin 1s linear infinite;
-    }
-    
+    .fa-spinner { animation: spin 1s linear infinite; }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -379,6 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.head.appendChild(style);
 
-  console.log('✅ Formulario de registro inicializado correctamente');
+  console.log('✅ Formulario de registro inicializado');
   console.log('🔗 Conectando a:', API_BASE);
 });

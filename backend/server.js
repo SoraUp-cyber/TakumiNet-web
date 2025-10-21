@@ -70,19 +70,36 @@ const dbConfig = isVercel || isProduction ? {
 };
 
 // =======================
-// MIDDLEWARES
+// MIDDLEWARES ESENCIALES
 // =======================
+
+// Middleware para parsear JSON - ¡ESENCIAL!
+app.use(express.json({ limit: '10mb' })); // Añade esto
+
+// Middleware para parsear URL-encoded - RECOMENDADO
+app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Y esto
+
+// Luego los otros middlewares que ya tienes
 app.use(cors({
   origin: [
     "https://takuminet-app.netlify.app",
-    "https://takumi-api-fawn.vercel.app",
-    "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app", // ✅ Agrega tu dominio de Koyeb aquí
+    "https://takumi-api-fawn.vercel.app", 
+    "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app",
     "http://localhost:3001",
     "http://127.0.0.1:3000"
   ],
   credentials: true
 }));
-// ... el resto de middlewares se mantiene igual
+
+app.use(helmet());
+app.use(cookieParser());
+
+// Configuración de rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100 // límite de 100 solicitudes por ventana
+});
+app.use(limiter);
 
 // =======================
 // VARIABLES GLOBALES Y HELPERS
