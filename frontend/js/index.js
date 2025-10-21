@@ -1,14 +1,11 @@
 (async function() {
-  // ✅ CONFIGURACIÓN DUAL - Desarrollo y Producción
-  const API_BASE = window.location.hostname === 'localhost' || 
-                   window.location.hostname === '127.0.0.1' ||
-                   window.location.hostname.includes('192.168.')
-    ? "http://localhost:3001"  // 🛠️ Desarrollo local
-    : "https://takuminet.vercel.app"; // 🌐 Producción
+  // ✅ CONFIGURACIÓN SOLO PRODUCCIÓN - Servidor local removido
+  const API_BASE = "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app";
 
   console.log('🔗 Conectando a:', API_BASE);
   
   const $ = id => document.getElementById(id);
+  
   // ==========================
   // Obtener ID del juego desde URL
   // ==========================
@@ -106,7 +103,7 @@
   }
 
   // ==========================
-  // Formatear precio con descuento (VERSIÓN SIMPLIFICADA Y RÁPIDA)
+  // Formatear precio con descuento
   // ==========================
   function formatearPrecio(juego) {
     const precioBase = parseFloat(juego.price) || 0;
@@ -146,7 +143,7 @@
   }
 
   // ==========================
-  // Crear tarjeta de juego COMPLETA (VERSIÓN RÁPIDA)
+  // Crear tarjeta de juego
   // ==========================
   function crearJuegoHTML(juego) {
     const div = document.createElement('div');
@@ -200,7 +197,7 @@
   }
 
   // ==========================
-  // Mostrar detalle de juego COMPLETO (VERSIÓN RÁPIDA)
+  // Mostrar detalle de juego
   // ==========================
   function mostrarJuegoDetalle(juego) {
     const contenedor = $("juego-detalle");
@@ -348,7 +345,7 @@
   }
 
   // ==========================
-  // Renderizar lista de juegos (VERSIÓN RÁPIDA)
+  // Renderizar lista de juegos
   // ==========================
   function renderJuegos(juegosArray, contenedorId) {
     const contenedor = $(contenedorId);
@@ -367,7 +364,6 @@
       return;
     }
 
-    // Crear tarjetas de forma síncrona (más rápido)
     juegosArray.forEach(juego => {
       const juegoHTML = crearJuegoHTML(juego);
       contenedor.appendChild(juegoHTML);
@@ -375,7 +371,7 @@
   }
 
   // ==========================
-  // Renderizar juegos en oferta (FUNCIÓN ESPECÍFICA Y RÁPIDA)
+  // Renderizar juegos en oferta
   // ==========================
   function renderJuegosOferta(juegos) {
     const contenedor = $('#juegos-ofertas');
@@ -390,11 +386,6 @@
     });
 
     console.log('Juegos en oferta encontrados:', juegosEnOferta.length);
-    console.log('Juegos en oferta:', juegosEnOferta.map(j => ({ 
-      title: j.title, 
-      discount: j.discount_percentage,
-      price: j.price
-    })));
 
     if (juegosEnOferta.length === 0) {
       contenedor.innerHTML = `
@@ -407,10 +398,8 @@
       return;
     }
 
-    // Limitar a 8 juegos máximo
     const juegosLimitados = juegosEnOferta.slice(0, 8);
     
-    // Crear y agregar tarjetas de forma síncrona
     juegosLimitados.forEach(juego => {
       const tarjeta = crearJuegoHTML(juego);
       contenedor.appendChild(tarjeta);
@@ -421,7 +410,7 @@
   // Función para mezclar un array (Fisher-Yates shuffle)
   // ==========================
   function shuffleArray(array) {
-    const arr = array.slice(); // Crear copia
+    const arr = array.slice();
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -430,7 +419,7 @@
   }
 
   // ==========================
-  // Renderizar secciones home (VERSIÓN RÁPIDA)
+  // Renderizar secciones home
   // ==========================
   function renderSecciones(juegos) {
     if (!juegos) return;
@@ -451,7 +440,7 @@
     console.log('Juegos pagos:', pagos.length);
     renderJuegos(pagos.slice(0, 6), "juegos-pagos");
     
-    // Juegos con oferta - usar la función específica
+    // Juegos con oferta
     renderJuegosOferta(juegos);
     
     // Juegos de donación
@@ -459,12 +448,11 @@
     console.log('Juegos donación:', donaciones.length);
     renderJuegos(donaciones.slice(0, 6), "juegos-donacion");
     
-    // Más Juegos (aleatorio y diferente de destacados)
+    // Más Juegos (aleatorio)
     const juegosDestacadosIds = destacados.map(j => j.id);
     const restantes = juegos.filter(j => !juegosDestacadosIds.includes(j.id));
     const aleatorio = shuffleArray(restantes).slice(0, 6);
     renderJuegos(aleatorio, "juegos-mas");
-    console.log('Más juegos aleatorios:', aleatorio.length);
   }
 
   // ==========================
@@ -496,13 +484,13 @@
   }
 
   // ==========================
-  // Cargar juegos desde API (VERSIÓN OPTIMIZADA)
+  // Cargar juegos desde API
   // ==========================
   async function cargarJuegos() {
     try {
-      console.log('Iniciando carga de juegos...');
+      console.log('🚀 Iniciando carga de juegos desde:', API_BASE);
       
-      // Mostrar loading en todas las secciones posibles
+      // Mostrar loading en todas las secciones
       const secciones = [
         "juegos-destacados", 
         "juegos-gratis", 
@@ -516,16 +504,29 @@
         if ($(sec)) mostrarLoading(sec);
       });
 
-      // ✅ ACTUALIZADO - Usa la URL correcta del backend
-      const resp = await fetch(`${API_BASE}/api/juegos`);
+      // ✅ CARGAR DESDE EL BACKEND DE PRODUCCIÓN
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const resp = await fetch(`${API_BASE}/api/juegos`, {
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!resp.ok) {
+        throw new Error(`Error HTTP: ${resp.status} ${resp.statusText}`);
+      }
+
       const data = await resp.json();
+      console.log('📦 Respuesta del servidor:', data);
 
       if (!data.ok || !data.juegos) {
-        throw new Error("Error cargando juegos desde la API");
+        throw new Error("Estructura de datos inválida");
       }
 
       const juegos = data.juegos;
-      console.log('Juegos recibidos del API:', juegos);
+      console.log('🎮 Juegos recibidos:', juegos.length);
       
       const juegoId = getJuegoId();
 
@@ -538,10 +539,10 @@
         }
         mostrarJuegoDetalle(juego);
       } else {
-        // Modo lista de juegos - renderizar inmediatamente
+        // Modo lista de juegos
         renderSecciones(juegos);
         
-        // Ocultar loadings después de renderizar
+        // Ocultar loadings
         setTimeout(() => {
           secciones.forEach(sec => {
             if ($(sec)) ocultarLoading(sec);
@@ -550,7 +551,15 @@
       }
 
     } catch (err) {
-      console.error("Error cargando juegos:", err);
+      console.error("❌ Error cargando juegos:", err);
+      
+      // Mostrar error específico
+      let mensajeError = 'Error al conectar con el servidor';
+      if (err.name === 'AbortError') {
+        mensajeError = 'Timeout: El servidor tardó demasiado en responder';
+      } else if (err.message.includes('Failed to fetch')) {
+        mensajeError = 'No se pudo conectar con el servidor. Verifica tu conexión.';
+      }
       
       const contenedores = [
         "juegos-destacados", 
@@ -569,12 +578,15 @@
             <div class="error-state">
               <i class="fas fa-exclamation-triangle"></i>
               <h3>Error al cargar los juegos</h3>
-              <p>Intenta recargar la página</p>
-              <button onclick="location.reload()">Reintentar</button>
+              <p>${mensajeError}</p>
+              <p><small>URL intentada: ${API_BASE}/api/juegos</small></p>
+              <button onclick="location.reload()" class="btn-reintentar">Reintentar</button>
             </div>
           `;
         }
       });
+
+      mostrarNotificacion('Error de conexión con el servidor', 'error');
     }
   }
 

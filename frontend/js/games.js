@@ -10,10 +10,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const currentUsername = document.getElementById("current-username");
 
   // =============================
-  // ⚙️ CONFIGURACIÓN BASE API
+  // ⚙️ CONFIGURACIÓN BASE API - SOLO PRODUCCIÓN
   // =============================
-  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-  const API_BASE = isLocal ? "http://localhost:3001" : "https://takuminet.vercel.app";
+  const API_BASE = "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app";
   console.log(`🌐 Conectando a: ${API_BASE}`);
 
   // =============================
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Debes iniciar sesión para ver los juegos");
-    window.location.href = "login.html";
+    window.location.href = "index.html";
     return;
   }
 
@@ -158,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
           let precioHTML = "";
           if (juego.pricing === "free") {
-            precioHTML = `<strong style="color: #10b981;">🎁 Gratis</strong>`;
+            precioHTML = `<strong style="color: #10b981;">Gratis</strong>`;
           } else if (juego.pricing === "donation") {
             precioHTML = `<strong style="color: #f59e0b;">💝 Donación</strong>`;
           } else {
