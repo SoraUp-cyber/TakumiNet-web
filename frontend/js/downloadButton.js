@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function loadUser() {
     try {
-      const res = await fetch("http://localhost:3001/api/user", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // BOTÓN DESCARGAR / COMPRAR / DONAR (PAYPAL)
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_BASE = "http://localhost:3001";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
   const params = new URLSearchParams(window.location.search);
   const juegoId = params.get("id");
   if (!juegoId) return console.error("❌ No se encontró el ID del juego en la URL");

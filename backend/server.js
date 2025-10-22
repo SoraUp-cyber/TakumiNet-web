@@ -7,7 +7,6 @@ const crypto = require("crypto");
 const serverless = require("serverless-http");
 
 
-
 // Frameworks y librerías
 const express = require("express");
 const cors = require("cors");
@@ -18,6 +17,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const mysql = require("mysql2/promise");
+const paypal = require('@paypal/checkout-server-sdk'); // ✅ NUEVO: PayPal SDK
 
 // =======================
 // CONFIGURACIÓN INICIAL
@@ -35,6 +35,26 @@ cloudinary.config({
   api_key: "793396746524197",
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
+
+
+
+// =======================
+// CONFIGURACIÓN PAYPAL SDK - NUEVO
+// =======================
+const configurePayPal = () => {
+  // Tus credenciales de PayPal
+  const clientId = process.env.PAYPAL_CLIENT_ID || "ATsaHPzDdIo6G2ly-xabsrheol0k3zU0M50XO_77JZ_edi6VKzIVV1sRBFvaNadDAmrXXeJp6ISZsnTS";
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET || "EB9ris0Crb5AZ8EpxQOemKM6gg9ZtLA1q8WMKzEpxiPnXF8QbKkPjIiGAYpOV7G5fk77zr7lsGKhIUwg";
+  
+  // Usar Sandbox para pruebas, cambiar a LiveEnvironment en producción
+  const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
+  
+  return new paypal.core.PayPalHttpClient(environment);
+};
+
+const paypalClient = configurePayPal();
+console.log("✅ PayPal SDK configurado correctamente");
+
 
 // ✅ Esto va antes de los middlewares
 app.set("trust proxy", 1);
@@ -96,13 +116,6 @@ app.use(cors({
 app.use(helmet());
 app.use(cookieParser());
 
-// Configuración de rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100 // límite de 100 solicitudes por ventana
-});
-app.use(limiter);
-
 // =======================
 // VARIABLES GLOBALES Y HELPERS
 // =======================
@@ -138,6 +151,17 @@ const initializePool = async () => {
     return false;
   }
 };
+
+
+// =======================
+// TEMPORALMENTE SIN RATE LIMITING
+// =======================
+console.log("🔓 Rate limiting deshabilitado para estabilidad");
+
+// TODO: Implementar rate limiting más adelante cuando el servidor esté estable
+// const limiter = rateLimit({ ... });
+// app.use(limiter);
+
 // =======================
 // ENDPOINTS
 // =======================
@@ -244,7 +268,9 @@ app.get("/api/user", authMiddleware, async (req, res) => {
         twitter,
         instagram,
         youtube,
-        discord
+        discord,
+        paypal_email,        -- ✅ AGREGADO: campo PayPal
+        paypal_connected     -- ✅ AGREGADO: estado de conexión PayPal
       FROM usuarios 
       WHERE user_id=?`,
       [req.userId]
@@ -256,7 +282,14 @@ app.get("/api/user", authMiddleware, async (req, res) => {
         .json({ ok: false, error: "Usuario no encontrado" });
     }
 
-    res.json({ ok: true, user });
+    res.json({ 
+      ok: true, 
+      user: {
+        ...user,
+        paypalEmail: user.paypal_email,        // ✅ AGREGADO: mapear para frontend
+        paypalConnected: user.paypal_connected // ✅ AGREGADO: mapear para frontend
+      }
+    });
   } catch (err) {
     console.error("❌ Error en /api/user:", err);
     res.status(500).json({ ok: false, error: "Error interno del servidor" });
@@ -264,14 +297,12 @@ app.get("/api/user", authMiddleware, async (req, res) => {
 });
 
 
-
 // =====================
-// EDITAR USER (sin multer, con Cloudinary)
+// EDITAR USUARIO (sin multer, con Cloudinary)
 // =====================
 app.put("/api/user/editar", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-
     const {
       username,
       descripcion,
@@ -282,35 +313,21 @@ app.put("/api/user/editar", authMiddleware, async (req, res) => {
       discord,
       currentPassword,
       newPassword,
-      avatarBase64 // <-- viene en Base64 desde el frontend
+      avatarBase64
     } = req.body;
 
-    // =========================
-    // Obtener usuario actual
-    // =========================
     const user = await getAsync("SELECT * FROM usuarios WHERE user_id=?", [userId]);
-    if (!user) {
-      return res.status(404).json({ ok: false, error: "Usuario no encontrado" });
-    }
+    if (!user) return res.status(404).json({ ok: false, error: "Usuario no encontrado" });
 
-    // =========================
-    // Manejo de contraseña
-    // =========================
     let hashedPassword = user.password;
     if (newPassword) {
       if (!currentPassword)
         return res.status(400).json({ ok: false, error: "Debes enviar la contraseña actual" });
-
       const match = await bcrypt.compare(currentPassword, user.password);
-      if (!match)
-        return res.status(400).json({ ok: false, error: "Contraseña actual incorrecta" });
-
+      if (!match) return res.status(400).json({ ok: false, error: "Contraseña actual incorrecta" });
       hashedPassword = await bcrypt.hash(newPassword, 10);
     }
 
-    // =========================
-    // Manejo de avatar (Base64 → Cloudinary)
-    // =========================
     let avatarUrl = user.avatar;
     if (avatarBase64) {
       try {
@@ -325,9 +342,6 @@ app.put("/api/user/editar", authMiddleware, async (req, res) => {
       }
     }
 
-    // =========================
-    // Actualizar todos los campos
-    // =========================
     const sql = `
       UPDATE usuarios SET
         username = COALESCE(?, username),
@@ -343,23 +357,13 @@ app.put("/api/user/editar", authMiddleware, async (req, res) => {
     `;
 
     await runAsync(sql, [
-      username,
-      hashedPassword,
-      avatarUrl,
-      descripcion,
-      contacto_email,
-      twitter,
-      instagram,
-      youtube,
-      discord,
-      userId,
+      username, hashedPassword, avatarUrl,
+      descripcion, contacto_email,
+      twitter, instagram, youtube, discord,
+      userId
     ]);
 
-    res.json({
-      ok: true,
-      mensaje: "Perfil actualizado correctamente",
-      avatar: avatarUrl,
-    });
+    res.json({ ok: true, mensaje: "Perfil actualizado correctamente", avatar: avatarUrl });
 
   } catch (err) {
     console.error("❌ Error actualizando perfil:", err);
@@ -367,40 +371,29 @@ app.put("/api/user/editar", authMiddleware, async (req, res) => {
   }
 });
 
-
-
-
 // =======================
-// SUBIR AVATAR A CLOUDINARY (SIN MULTER)
+// SUBIR AVATAR DIRECTO A CLOUDINARY (Base64)
 // =======================
 app.post("/api/user/avatar", authMiddleware, async (req, res) => {
   try {
     const { avatarBase64 } = req.body;
+    if (!avatarBase64) return res.status(400).json({ ok: false, error: "No se envió ninguna imagen" });
 
-    if (!avatarBase64) {
-      return res.status(400).json({ ok: false, error: "No se envió ninguna imagen" });
-    }
-
-    // 📤 Subir a Cloudinary directamente desde Base64
     const result = await cloudinary.uploader.upload(avatarBase64, {
       folder: "takuminet/avatars",
       public_id: `avatar_${req.userId}_${Date.now()}`,
       overwrite: true,
     });
 
-    // 🧠 Guardar URL en la base de datos
-    await runAsync("UPDATE usuarios SET avatar=? WHERE user_id=?", [
-      result.secure_url,
-      req.userId,
-    ]);
+    await runAsync("UPDATE usuarios SET avatar=? WHERE user_id=?", [result.secure_url, req.userId]);
 
     res.json({ ok: true, avatar: result.secure_url });
+
   } catch (err) {
     console.error("❌ Error subiendo avatar:", err);
     res.status(500).json({ ok: false, error: "Error subiendo avatar" });
   }
 });
-
 
 // =======================
 // ENDPOINT CREAR GAME JAM
@@ -638,33 +631,49 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 
 
 // =======================
-// CREAR NUEVO FORO (sin multer)
+// CREAR NUEVO FORO (sin multer, usando Base64)
 // =======================
 app.post("/api/foros", authMiddleware, async (req, res) => {
   try {
+    // -----------------------
+    // 1. Extraer datos del body
+    // -----------------------
     const { titulo, categoria, descripcion, etiquetas, imagenBase64 } = req.body;
 
+    // -----------------------
+    // 2. Validar campos obligatorios
+    // -----------------------
     if (!titulo || !categoria || !descripcion) {
-      return res.status(400).json({ ok: false, error: "Campos obligatorios faltantes" });
+      return res.status(400).json({
+        ok: false,
+        error: "Campos obligatorios faltantes"
+      });
     }
 
+    // -----------------------
+    // 3. Inicializar variable para la URL de la imagen
+    // -----------------------
     let imagenUrl = null;
 
-    // 📤 Subir a Cloudinary si hay imagen Base64
+    // -----------------------
+    // 4. Subir imagen a Cloudinary si existe
+    // -----------------------
     if (imagenBase64) {
       const result = await cloudinary.uploader.upload(imagenBase64, {
         folder: "takuminet/foros",
-        public_id: `foro_${req.userId}_${Date.now()}`,
-        overwrite: true,
+        public_id: `foro_${req.userId}_${Date.now()}`, // ID único
+        overwrite: true
       });
       imagenUrl = result.secure_url;
     }
 
+    // -----------------------
+    // 5. Insertar foro en la base de datos
+    // -----------------------
     const sql = `
       INSERT INTO foros (user_id, titulo, categoria, descripcion, etiquetas, imagen_url)
       VALUES (?, ?, ?, ?, ?, ?)
     `;
-
     const result = await runAsync(sql, [
       req.userId,
       titulo,
@@ -674,6 +683,9 @@ app.post("/api/foros", authMiddleware, async (req, res) => {
       imagenUrl
     ]);
 
+    // -----------------------
+    // 6. Responder al cliente
+    // -----------------------
     return res.json({
       ok: true,
       id: result.insertId,
@@ -682,8 +694,14 @@ app.post("/api/foros", authMiddleware, async (req, res) => {
     });
 
   } catch (err) {
+    // -----------------------
+    // 7. Manejo de errores
+    // -----------------------
     console.error("❌ Error creando foro:", err);
-    return res.status(500).json({ ok: false, error: "Error interno del servidor" });
+    return res.status(500).json({
+      ok: false,
+      error: "Error interno del servidor"
+    });
   }
 });
 
@@ -1433,6 +1451,66 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
     res.status(500).json({ ok: false, error: "Error obteniendo votos" });
   }
 });
+
+
+
+// =======================
+// ENDPOINT CONECTAR PAYPAL - ACTUALIZADO PARA TU TABLA
+// =======================
+app.post("/api/connect-paypal", authMiddleware, async (req, res) => {
+  try {
+    const { userId, paypalEmail } = req.body;
+
+    // Validaciones
+    if (!userId || !paypalEmail) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "UserId y email de PayPal son requeridos" 
+      });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(paypalEmail)) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Formato de email de PayPal inválido" 
+      });
+    }
+
+    // Verificar que el usuario existe y coincide con el token
+    if (parseInt(userId) !== req.userId) {
+      return res.status(403).json({ 
+        ok: false, 
+        error: "No tienes permiso para modificar este usuario" 
+      });
+    }
+
+    // Actualizar la cuenta de PayPal en la base de datos
+    const updateQuery = `
+      UPDATE usuarios 
+      SET paypal_email = ?, paypal_connected = 1 
+      WHERE user_id = ?
+    `;
+
+    await runAsync(updateQuery, [paypalEmail, userId]);
+
+    res.json({ 
+      ok: true, 
+      message: "✅ Cuenta PayPal conectada exitosamente",
+      paypalEmail: paypalEmail
+    });
+
+  } catch (err) {
+    console.error("❌ Error conectando PayPal:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor al conectar PayPal" 
+    });
+  }
+});
+
+
 
 
 app.get("/", async (req, res) => {

@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // =========================
     // 1️⃣ Cargar datos del usuario
     // =========================
-    const userRes = await fetch("http://localhost:3001/api/user", {
+    const userRes = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
       headers: { Authorization: `Bearer ${token}` }
     });
     const userData = await userRes.json();
@@ -99,7 +99,7 @@ if (!user.contacto_email && !user.web) {
     // =========================
     // 2️⃣ Cargar juegos del usuario
     // =========================
-    const juegosRes = await fetch("http://localhost:3001/api/mis-juegos", {
+    const juegosRes = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/mis-juegos", {
       headers: { Authorization: `Bearer ${token}` }
     });
     const juegosData = await juegosRes.json();

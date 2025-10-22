@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ================================
   async function updateUserLanguage(lang) {
     try {
-      const res = await fetch("http://localhost:3001/api/user/language", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/language", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (token && userId) {
       try {
-        const res = await fetch("http://localhost:3001/api/user", {
+        const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
           headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();

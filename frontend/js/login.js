@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:3001/api/user", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.classList.add('loading');
 
     try {
-      const res = await fetch("https://takumi-api-fawn.vercel.app/api/login", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })

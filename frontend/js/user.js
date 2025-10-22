@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_BASE = "http://localhost:3001"; // ⚙️ tu backend
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app"; // ⚙️ tu backend
   const token = localStorage.getItem("token");
 
   const avatarCircle = document.getElementById("avatar-circle");

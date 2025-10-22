@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <link rel="icon" type="image/png" href="../assets/img/logo.png">
+   <link rel="icon" type="image/png" href="assets/img/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
    <link rel="stylesheet" href="css/footer.css">
     <link rel="stylesheet" href="css/index.css">
@@ -143,18 +143,38 @@
   <h3>PayPal</h3>
   <div class="login_with_paypal_widget base_widget">
     <p>
-      Tus ganancias pueden ser enviadas a tu cuenta de PayPal. 
-      Por favor conecta tu cuenta para recibir pagos. 
-      Se aplican tarifas de transferencia, 
-      <a href="https://www.paypal.com/us/webapps/mpp/merchant-fees#paypal-payouts" target="_blank" rel="noopener noreferrer">
-        Aprende más
-      </a>.
+      Tus ganancias se enviarán directamente a tu cuenta de PayPal.  
+      Ingresa el correo asociado a tu cuenta o conéctala automáticamente para recibir pagos reales.  
+      <br>
+      <a href="https://www.paypal.com" target="_blank" rel="noopener noreferrer">
+        Aprende más sobre comisiones y transferencias.
+      </a>
     </p>
-    <p>
-      <a id="connectPayPal" class="button" href="#">Conectar PayPal</a>
-    </p>
+
+    <!-- Botón de conexión rápida con PayPal -->
+    <button id="connectPayPalButton" class="button" style="background:#1f9900; color:white; margin:10px 0;">
+      Conectar con PayPal
+    </button>
+
+    <!-- O formulario manual -->
+    <form id="connectPayPalForm" style="display:none;">
+      <label for="paypalEmail">Correo de PayPal:</label><br>
+      <input 
+        type="email" 
+        id="paypalEmail" 
+        name="paypalEmail" 
+        placeholder="ejemplo@paypal.com" 
+        required 
+        style="padding:8px; width:80%; margin:8px 0;"
+      /><br>
+
+      <button type="submit" class="button">Guardar cuenta</button>
+    </form>
+
+    <div id="paypalStatus" style="margin-top:10px; color:green;"></div>
   </div>
 </section>
+
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script src="js/particulas.js"></script>

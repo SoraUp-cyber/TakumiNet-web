@@ -2,7 +2,7 @@
 // PERFIL DE JUEGO - CARGAR DATOS
 // ============================
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_BASE = 'https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app';
+  const API_BASE = 'https://grim-britte-takuminet-backend-c7daca2c.koyeb.app';
   const params = new URLSearchParams(window.location.search);
   const juegoId = params.get('id');
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('titulo-juego').textContent = juego.title || 'Sin título';
     document.getElementById('descripcion-juego').textContent = juego.description || 'Sin descripción';
 
-    // === Video de YouTube HD 1080p ===
+    // === Video de YouTube HD 1080p60 / 720p60 ===
     const youtube = document.getElementById('youtube-video');
     function toYouTubeEmbed(url) {
       try {
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
           return null;
         }
-        // Forzar HD 1080p
-        return `https://www.youtube.com/embed/${videoId}?vq=hd1080&rel=0&showinfo=0`;
+        // Forzar HD 1080p60 (si no disponible, baja a 720p60)
+        return `https://www.youtube.com/embed/${videoId}?vq=hd1080&autoplay=1&playsinline=1&rel=0&modestbranding=1&showinfo=0&frameborder=0&allowfullscreen=1`;
       } catch {
         return null;
       }

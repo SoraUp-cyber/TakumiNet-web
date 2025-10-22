@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
         recuperarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
 
         try {
-            const response = await fetch("http://localhost:3001/api/user/enviar-codigo", {
+            const response = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/enviar-codigo", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

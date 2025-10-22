@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return;
 
     try {
-      const res = await fetch("http://localhost:3001/api/user", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      await fetch(`http://localhost:3001/api/juegos/${juegoId}/votos`, {
+      await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos/${juegoId}/votos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
   async function cargarPromedio() {
     try {
-      const res = await fetch(`http://localhost:3001/api/juegos/${juegoId}/votos`);
+      const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos/${juegoId}/votos`);
       const data = await res.json();
 
       if (data.ok) {

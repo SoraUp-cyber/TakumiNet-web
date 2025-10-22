@@ -1,12 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
+  if (!token) return alert("No estás logueado.");
 
-  if (!token) {
-    alert("No estás logueado.");
-    return;
-  }
-
+  // =========================
   // ELEMENTOS DEL DOM
+  // =========================
   const avatarCircle = document.getElementById("avatar-circle");
   const avatarIcon = document.getElementById("avatar-icon");
   const avatarInput = document.getElementById("upload-photo");
@@ -23,15 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const guardarBtn = document.getElementById("guardar-perfil-btn");
   const menuUsername = document.getElementById("current-username");
 
-  // Guardamos la URL del avatar
-  let avatarUrl = null;
+  let avatarUrl = null; // URL actual del avatar
 
   // =========================
-  // Cargar usuario
+  // FUNCIONES AUXILIARES
   // =========================
+
+  // Cargar datos del usuario
   async function cargarUsuario() {
     try {
-      const res = await fetch(`http://localhost:3001/api/user`, {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -64,42 +63,39 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  cargarUsuario();
-
-  // =========================
-  // Subir avatar
-  // =========================
-  avatarCircle.addEventListener("click", () => avatarInput.click());
-
-  avatarInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
+  // Subir avatar a backend
+  async function subirAvatar(file) {
     if (!file || !file.type.startsWith("image/")) return;
 
-    const formData = new FormData();
-    formData.append("avatar", file);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const avatarBase64 = reader.result;
+      try {
+        const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/avatar", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ avatarBase64 })
+        });
+        const data = await res.json();
+        if (!data.ok) return alert("❌ No se pudo actualizar el avatar: " + data.error);
 
-    try {
-      const res = await fetch("http://localhost:3001/api/user/avatar", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      const data = await res.json();
-      if (!data.ok) return alert("❌ No se pudo actualizar el avatar: " + data.error);
+        avatarCircle.style.backgroundImage = `url(${data.avatar})`;
+        avatarIcon.style.display = "none";
+        avatarUrl = data.avatar;
+        alert("✅ Avatar actualizado correctamente 🎉");
+      } catch (err) {
+        console.error("❌ Error subiendo avatar:", err);
+        alert("❌ Error subiendo avatar");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 
-      avatarCircle.style.backgroundImage = `url(${data.avatar})`;
-      avatarIcon.style.display = "none";
-      avatarUrl = data.avatar;
-    } catch (err) {
-      console.error("❌ Error subiendo avatar:", err);
-      alert("✅ Avatar actualizado correctamente 🎉🖼️");
-    }
-  });
-
-  // =========================
-  // Guardar cambios
-  // =========================
-  guardarBtn.addEventListener("click", async () => {
+  // Guardar cambios de perfil
+  async function guardarPerfil() {
     if (newPassInput.value && newPassInput.value !== confirmPassInput.value) {
       return alert("Las contraseñas no coinciden");
     }
@@ -114,11 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
       discord: url4Input.value || null,
       currentPassword: currentPassInput.value || null,
       newPassword: newPassInput.value || null,
-      avatar: avatarUrl || null
+      avatarBase64: avatarUrl || null
     };
 
     try {
-      const res = await fetch(`http://localhost:3001/api/user/editar`, {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/editar", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -126,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(body)
       });
+
       const data = await res.json();
       if (!data.ok) return alert("❌ No se pudo actualizar el perfil: " + data.error);
 
@@ -136,5 +133,17 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("❌ Error actualizando perfil:", err);
       alert("❌ No se pudo actualizar el perfil");
     }
-  });
+  }
+
+  // =========================
+  // EVENTOS
+  // =========================
+  avatarCircle.addEventListener("click", () => avatarInput.click());
+  avatarInput.addEventListener("change", (e) => subirAvatar(e.target.files[0]));
+  guardarBtn.addEventListener("click", guardarPerfil);
+
+  // =========================
+  // INICIALIZACIÓN
+  // =========================
+  cargarUsuario();
 });

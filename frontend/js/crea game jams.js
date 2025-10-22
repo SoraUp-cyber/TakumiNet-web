@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const data = await obtenerDatosGameJam();
 
     try {
-      const res = await fetch("http://localhost:3001/api/game_jams", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/game_jams", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const discordBtn = document.getElementById("discordBtn");
   
   // ✅ CONFIGURACIÓN PRODUCCIÓN
-  const API_BASE = "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
 
   // =======================
   // OVERLAY DE BIENVENIDA

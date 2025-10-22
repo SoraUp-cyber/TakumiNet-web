@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadUser() {
     try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3001/api/user", {
+        const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
             headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -517,7 +517,7 @@ async function subirJuego() {
 
         // Enviar datos al servidor
         console.log("Enviando datos al servidor...", formData);
-        const response = await fetch("http://localhost:3001/api/juegos", {
+        const response = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

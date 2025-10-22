@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const contenedor = document.getElementById("gamesContainer");
-  const API_BASE = "http://localhost:3001";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
   const token = localStorage.getItem("token");
 
   if (!token) {

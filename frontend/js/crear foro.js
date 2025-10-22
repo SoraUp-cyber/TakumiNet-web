@@ -1,7 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ===========================
-  // Elementos del DOM
-  // ===========================
   const forumForm = document.getElementById("forumForm");
   const imagenInput = document.getElementById("imagen");
   const previewContainer = document.getElementById("preview-container");
@@ -11,9 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedFile = null;
   const MAX_SIZE_MB = 10;
 
-  // ===========================
-  // Vista previa de imagen y validación de tamaño
-  // ===========================
+  // Vista previa de imagen
   imagenInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -33,9 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.readAsDataURL(file);
   });
 
-  // ===========================
   // Quitar imagen
-  // ===========================
   removeImageBtn.addEventListener("click", () => {
     selectedFile = null;
     imagenInput.value = "";
@@ -43,9 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     previewContainer.style.display = "none";
   });
 
-  // ===========================
   // Enviar formulario
-  // ===========================
   forumForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -56,36 +47,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!titulo || !categoria || !descripcion) return;
 
-    const formData = new FormData();
-    formData.append("titulo", titulo);
-    formData.append("categoria", categoria);
-    formData.append("descripcion", descripcion);
-    formData.append("etiquetas", etiquetas);
-
-    if (selectedFile) formData.append("imagen", selectedFile);
+    let imagenBase64 = null;
+    if (selectedFile) {
+      imagenBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(selectedFile);
+      });
+    }
 
     try {
-      const res = await fetch("http://localhost:3001/api/foros", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros", {
         method: "POST",
-        body: formData,
         headers: {
+          "Content-Type": "application/json",
           "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-        }
+        },
+        body: JSON.stringify({
+          titulo,
+          categoria,
+          descripcion,
+          etiquetas,
+          imagenBase64
+        })
       });
 
       const data = await res.json();
 
       if (data.ok) {
-        // ✅ Mensaje de éxito y redirección
         alert("Se publicó correctamente 🎉");
         forumForm.reset();
         removeImageBtn.click();
-        // Redirigir automáticamente a comunidad.html
         window.location.href = "comunidad.html";
+      } else {
+        alert("Error: " + (data.error || "No se pudo crear el foro"));
       }
     } catch (err) {
       console.error("Error al enviar formulario:", err);
-      // No mostramos alert, solo log
+      alert("Error al crear el foro, revisa la consola");
     }
   });
 });

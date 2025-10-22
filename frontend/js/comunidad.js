@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ===========================
   async function cargarForos() {
     try {
-      const res = await fetch("http://localhost:3001/api/foros", {
+      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros", {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
         }

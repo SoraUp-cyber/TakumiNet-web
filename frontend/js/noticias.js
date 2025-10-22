@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const tbody = document.getElementById("ranking-juegos");
-  const API_BASE = "http://localhost:3001";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
   const ITEMS_PER_PAGE = 10;
   let currentPage = 1;
   let juegosConVotos = [];

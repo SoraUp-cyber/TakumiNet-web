@@ -1,6 +1,6 @@
 (async function() {
   // ✅ CONFIGURACIÓN SOLO PRODUCCIÓN - Servidor local removido
-  const API_BASE = "https://private-mellicent-takuminet-backend-d0a83edb.koyeb.app";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
 
   console.log('🔗 Conectando a:', API_BASE);
   

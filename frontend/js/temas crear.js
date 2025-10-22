@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "http://localhost:3001/api";
+  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api";
   const token = localStorage.getItem("token");
   const jamId = new URLSearchParams(window.location.search).get("id");
 

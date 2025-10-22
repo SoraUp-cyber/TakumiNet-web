@@ -152,6 +152,58 @@
   }
 }
 
+
+
+
+/* === Estilos para el botón "Subir arriba" === */
+.btn-scroll-top {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 46px;
+  height: 46px;
+  background-color: #6b6b6b; /* gris */
+  color: #ffffff; /* icono blanco */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 9999;
+}
+
+/* Mostrar cuando el usuario baja */
+.btn-scroll-top.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Hover: fondo verde suave */
+.btn-scroll-top:hover {
+  background-color: #2ecc71; /* verde */
+  transform: translateY(-4px);
+}
+
+/* Efecto de foco accesible */
+.btn-scroll-top:focus {
+  outline: 3px solid rgba(46, 204, 113, 0.4);
+  outline-offset: 3px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 480px) {
+  .btn-scroll-top {
+    right: 14px;
+    bottom: 14px;
+    width: 42px;
+    height: 42px;
+  }
+}
   </style>
 </head>
 <body>
@@ -362,6 +414,14 @@
   </div>
 </div>
 
+<!-- Botón "Subir arriba" -->
+<button id="btn-scroll-top" class="btn-scroll-top" aria-label="Volver arriba" title="Volver arriba">
+  <!-- Flecha SVG -->
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+    <path d="M12 4l-8 8h6v8h4v-8h6z" fill="currentColor"/>
+  </svg>
+</button>
+
 <script src="js/notificacion.js"></script>
 <script src="js/carrito.js"></script>
 <script src="js/user.js"></script>
@@ -372,6 +432,7 @@
 <script src="js/games.js"></script>
 <script src="js/movil.js"></script>
 <script src="js/lang.js"></script>
+<script src="js/scroll.js"></script>
 </body>
 </html>
 

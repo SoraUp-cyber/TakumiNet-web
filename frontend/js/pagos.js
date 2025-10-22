@@ -2,35 +2,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const connectPayPalBtn = document.getElementById("connectPayPal");
+  const connectPayPalBtn = document.getElementById("connectPayPalButton");
+  const connectPayPalForm = document.getElementById("connectPayPalForm");
+  const paypalInput = document.getElementById("paypalEmail");
+  const paypalStatus = document.getElementById("paypalStatus");
+
+  const BACKEND_URL = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
 
   // =========================
-  // Cargar usuario y estado PayPal
+  // Cargar usuario - ACTUALIZADO
   // =========================
   async function loadUser() {
     try {
-      const res = await fetch("http://localhost:3001/api/user", {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await fetch(`${BACKEND_URL}/api/user`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+
       const data = await res.json();
       if (!data.ok) return console.error("No se pudo cargar usuario:", data.error);
 
       const user = data.user;
+      localStorage.setItem("userId", user.user_id); // ✅ CORREGIDO: user.user_id en lugar de user.id
 
-      localStorage.setItem("userId", user.id);
-      if (user.paypalConnected) {
-        localStorage.setItem("paypalConnected", "true");
-      } else {
-        localStorage.setItem("paypalConnected", "false");
-      }
-
-      if (localStorage.getItem("paypalConnected") === "true") {
+      // PAYPAL STATUS - ACTUALIZADO
+      if (user.paypalEmail) {
+        paypalInput.value = user.paypalEmail;
+        paypalStatus.textContent = "Cuenta PayPal conectada ✅";
         connectPayPalBtn.textContent = "PayPal Conectado ✅";
-        connectPayPalBtn.classList.add("connected");
-        connectPayPalBtn.href = "#";
+        connectPayPalBtn.style.background = "#00a86b";
         connectPayPalBtn.disabled = true;
       }
-
     } catch (err) {
       console.error("Error cargando usuario:", err);
     }
@@ -39,52 +40,55 @@ document.addEventListener("DOMContentLoaded", async () => {
   await loadUser();
 
   // =========================
-  // Botón: Conectar PayPal
+  // Botón "Conectar con PayPal"
   // =========================
-  connectPayPalBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-
-    const clientId = "AW2Kw82wf0gEkP-5iMLlZUachT2-l5M9l-chRt13lPkRSzAEZL1edMRSD64O-X9rZIKCS3BM-HUQwA3_"; 
-    const redirectUri = encodeURIComponent("https://takuminet-app.netlify.app/pagos-desarrollador");
-    const scope = encodeURIComponent("openid");
-    const userId = localStorage.getItem("userId");
-
-    const paypalAuthUrl = `https://www.sandbox.paypal.com/connect?flowEntry=static&client_id=${clientId}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}&state=${userId}`;
-
-    window.location.href = paypalAuthUrl;
+  connectPayPalBtn.addEventListener("click", () => {
+    connectPayPalForm.style.display = "block"; // Mostrar formulario
   });
 
   // =========================
-  // Detectar retorno de PayPal
+  // Guardar cuenta PayPal
   // =========================
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get("code");
-  const state = params.get("state"); // userId pasado desde PayPal
+  connectPayPalForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const paypalEmail = paypalInput.value.trim();
+    const userId = localStorage.getItem("userId");
 
-  if (code && state) {
-    localStorage.setItem("paypalConnected", "true");
-    localStorage.setItem("paypalCode", code);
-    localStorage.setItem("paypalUserId", state);
+    if (!userId || !paypalEmail) {
+      paypalStatus.textContent = "Falta el ID del usuario o el correo.";
+      return;
+    }
 
-    connectPayPalBtn.textContent = "PayPal Conectado ✅";
-    connectPayPalBtn.classList.add("connected");
-    connectPayPalBtn.href = "#";
-    connectPayPalBtn.disabled = true;
+    paypalStatus.textContent = "Guardando cuenta PayPal...";
 
-    // ✅ Enviar al backend para guardar en DB
-    fetch("http://localhost:3001/api/paypal/conectar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ code }) // backend obtiene userId del token
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.ok) console.error("Error guardando PayPal:", data.error);
-      else console.log("PayPal conectado en backend ✅");
-    })
-    .catch(err => console.error("Error en fetch:", err));
-  }
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/connect-paypal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, paypalEmail }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        paypalStatus.textContent = data.message || "Cuenta PayPal guardada ✅";
+        connectPayPalBtn.textContent = "PayPal Conectado ✅";
+        connectPayPalBtn.style.background = "#00a86b";
+        connectPayPalBtn.disabled = true;
+
+        // 🔁 Redirigir después de guardar
+        setTimeout(() => {
+          window.location.href = "/frontend/pagos-desarrollador.html";
+        }, 2000);
+      } else {
+        paypalStatus.textContent = data.error || "Error al conectar cuenta PayPal ❌";
+      }
+    } catch (err) {
+      console.error("Error guardando PayPal:", err);
+      paypalStatus.textContent = "Error al conectar cuenta PayPal ❌";
+    }
+  });
 });
