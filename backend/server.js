@@ -39,22 +39,28 @@ cloudinary.config({
 
 
 // =======================
-// CONFIGURACIÓN PAYPAL SDK - NUEVO
+// CONFIGURACIÓN PAYPAL - ORGANIZADO
 // =======================
+
+// Configuración para PayPal Checkout SDK (pagos)
 const configurePayPal = () => {
-  // Tus credenciales de PayPal
   const clientId = process.env.PAYPAL_CLIENT_ID || "ATsaHPzDdIo6G2ly-xabsrheol0k3zU0M50XO_77JZ_edi6VKzIVV1sRBFvaNadDAmrXXeJp6ISZsnTS";
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET || "EB9ris0Crb5AZ8EpxQOemKM6gg9ZtLA1q8WMKzEpxiPnXF8QbKkPjIiGAYpOV7G5fk77zr7lsGKhIUwg";
   
-  // Usar Sandbox para pruebas, cambiar a LiveEnvironment en producción
   const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
-  
   return new paypal.core.PayPalHttpClient(environment);
 };
 
 const paypalClient = configurePayPal();
 console.log("✅ PayPal SDK configurado correctamente");
 
+// Configuración para PayPal OAuth (conexión de cuentas)
+const PAYPAL_CONFIG = {
+  clientId: process.env.PAYPAL_CLIENT_ID || "ATsaHPzDdIo6G2ly-xabsrheol0k3zU0M50XO_77JZ_edi6VKzIVV1sRBFvaNadDAmrXXeJp6ISZsnTS",
+  clientSecret: process.env.PAYPAL_CLIENT_SECRET || "EB9ris0Crb5AZ8EpxQOemKM6gg9ZtLA1q8WMKzEpxiPnXF8QbKkPjIiGAYpOV7G5fk77zr7lsGKhIUwg",
+  environment: process.env.PAYPAL_ENVIRONMENT || 'sandbox',
+  returnUrl: "https://takuminet-app.netlify.app/pagos-desarrollador"
+};
 
 // ✅ Esto va antes de los middlewares
 app.set("trust proxy", 1);
@@ -1454,61 +1460,264 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 
 
 
+
+
+
+
 // =======================
-// ENDPOINT CONECTAR PAYPAL - ACTUALIZADO PARA TU TABLA
+// ENDPOINT 1: GENERAR URL DE AUTORIZACIÓN PAYPAL
 // =======================
-app.post("/api/connect-paypal", authMiddleware, async (req, res) => {
+app.get("/api/paypal/auth-url", authMiddleware, async (req, res) => {
   try {
-    const { userId, paypalEmail } = req.body;
+    const userId = req.userId;
+    const redirectUrl = req.query.redirect_url || PAYPAL_CONFIG.returnUrl;
+    
+    // Parámetros para OAuth de PayPal
+    const authParams = new URLSearchParams({
+      client_id: PAYPAL_CONFIG.clientId,
+      response_type: 'code',
+      scope: 'openid email https://uri.paypal.com/services/paypalhere https://uri.paypal.com/services/payments/payment',
+      redirect_uri: redirectUrl
+    });
 
-    // Validaciones
-    if (!userId || !paypalEmail) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "UserId y email de PayPal son requeridos" 
-      });
-    }
+    const authUrl = `https://www.${PAYPAL_CONFIG.environment === 'sandbox' ? 'sandbox.' : ''}paypal.com/signin/authorize?${authParams.toString()}`;
 
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(paypalEmail)) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Formato de email de PayPal inválido" 
-      });
-    }
-
-    // Verificar que el usuario existe y coincide con el token
-    if (parseInt(userId) !== req.userId) {
-      return res.status(403).json({ 
-        ok: false, 
-        error: "No tienes permiso para modificar este usuario" 
-      });
-    }
-
-    // Actualizar la cuenta de PayPal en la base de datos
-    const updateQuery = `
-      UPDATE usuarios 
-      SET paypal_email = ?, paypal_connected = 1 
-      WHERE user_id = ?
-    `;
-
-    await runAsync(updateQuery, [paypalEmail, userId]);
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta PayPal conectada exitosamente",
-      paypalEmail: paypalEmail
+    res.json({
+      ok: true,
+      authUrl: authUrl,
+      redirectUrl: redirectUrl
     });
 
   } catch (err) {
-    console.error("❌ Error conectando PayPal:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor al conectar PayPal" 
+    console.error("❌ Error generando URL de auth PayPal:", err);
+    res.status(500).json({
+      ok: false,
+      error: "Error generando URL de autorización"
     });
   }
 });
+
+// =======================
+// ENDPOINT 2: PROCESAR CALLBACK DE PAYPAL OAUTH
+// =======================
+app.post("/api/paypal/callback", authMiddleware, async (req, res) => {
+  try {
+    const { authCode, sharedId } = req.body;
+    const userId = req.userId;
+
+    if (!authCode) {
+      return res.status(400).json({
+        ok: false,
+        error: "Código de autorización requerido"
+      });
+    }
+
+    // Intercambiar código por access token
+    const tokenResponse = await fetch(`https://api.${PAYPAL_CONFIG.environment === 'sandbox' ? 'sandbox.' : ''}paypal.com/v1/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + Buffer.from(PAYPAL_CONFIG.clientId + ':' + PAYPAL_CONFIG.clientSecret).toString('base64')
+      },
+      body: `grant_type=authorization_code&code=${authCode}&redirect_uri=${encodeURIComponent(PAYPAL_CONFIG.returnUrl)}`
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenData.access_token) {
+      throw new Error('No se pudo obtener access token: ' + (tokenData.error_description || 'Error desconocido'));
+    }
+
+    // Obtener información del usuario de PayPal
+    const userInfoResponse = await fetch(`https://api.${PAYPAL_CONFIG.environment === 'sandbox' ? 'sandbox.' : ''}paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1`, {
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const userInfo = await userInfoResponse.json();
+
+    // Guardar información en la base de datos
+    await runAsync(
+      `UPDATE usuarios 
+       SET paypal_connected = 1, 
+           paypal_email = ?,
+           paypal_code = ?,
+           paypal_access_token = ?,
+           paypal_refresh_token = ?,
+           paypal_connected_at = NOW()
+       WHERE user_id = ?`,
+      [
+        userInfo.email || userInfo.emails?.[0]?.value,
+        userInfo.user_id || sharedId,
+        tokenData.access_token,
+        tokenData.refresh_token,
+        userId
+      ]
+    );
+
+    res.json({
+      ok: true,
+      message: "✅ Cuenta PayPal conectada exitosamente",
+      userInfo: {
+        email: userInfo.email || userInfo.emails?.[0]?.value,
+        merchantId: userInfo.user_id,
+        verified: userInfo.verified_account
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error en callback PayPal:", err);
+    res.status(500).json({
+      ok: false,
+      error: "Error conectando con PayPal: " + err.message
+    });
+  }
+});
+
+// =======================
+// ENDPOINT 3: OBTENER INFORMACIÓN DE CUENTA PAYPAL
+// =======================
+app.get("/api/paypal/account-info", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // Obtener tokens guardados
+    const user = await getAsync(
+      `SELECT paypal_access_token, paypal_email, paypal_code, paypal_connected_at 
+       FROM usuarios WHERE user_id = ? AND paypal_connected = 1`,
+      [userId]
+    );
+
+    if (!user || !user.paypal_access_token) {
+      return res.json({
+        ok: false,
+        error: "PayPal no conectado"
+      });
+    }
+
+    try {
+      // Obtener información actualizada de la cuenta
+      const accountResponse = await fetch(`https://api.${PAYPAL_CONFIG.environment === 'sandbox' ? 'sandbox.' : ''}paypal.com/v1/identity/oauth2/userinfo?schema=paypalv1.1`, {
+        headers: {
+          'Authorization': `Bearer ${user.paypal_access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!accountResponse.ok) {
+        throw new Error(`HTTP ${accountResponse.status}: ${accountResponse.statusText}`);
+      }
+
+      const accountInfo = await accountResponse.json();
+
+      res.json({
+        ok: true,
+        email: accountInfo.email || user.paypal_email,
+        merchant_id: accountInfo.user_id || user.paypal_code,
+        verification_status: accountInfo.verified_account ? 'Verificado' : 'No verificado',
+        payments_receivable: true,
+        primary_currency: accountInfo.zoneinfo || 'USD',
+        connected_at: user.paypal_connected_at
+      });
+
+    } catch (apiError) {
+      // Si falla la API, devolver información básica de la base de datos
+      console.warn("⚠️ Error API PayPal, usando datos guardados:", apiError.message);
+      res.json({
+        ok: true,
+        email: user.paypal_email,
+        merchant_id: user.paypal_code,
+        verification_status: 'Verificado',
+        payments_receivable: true,
+        primary_currency: 'USD',
+        connected_at: user.paypal_connected_at
+      });
+    }
+
+  } catch (err) {
+    console.error("❌ Error obteniendo info de cuenta PayPal:", err);
+    res.json({
+      ok: false,
+      error: "Error obteniendo información de la cuenta"
+    });
+  }
+});
+
+// =======================
+// ENDPOINT 4: DESCONECTAR CUENTA PAYPAL
+// =======================
+app.post("/api/paypal-disconnect", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    await runAsync(
+      `UPDATE usuarios 
+       SET paypal_connected = 0, 
+           paypal_email = NULL,
+           paypal_code = NULL,
+           paypal_access_token = NULL,
+           paypal_refresh_token = NULL
+       WHERE user_id = ?`,
+      [userId]
+    );
+
+    res.json({ 
+      ok: true, 
+      message: "✅ Cuenta PayPal desconectada exitosamente" 
+    });
+
+  } catch (err) {
+    console.error("❌ Error desconectando PayPal:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error al desconectar PayPal" 
+    });
+  }
+});
+
+// =======================
+// ENDPOINT 5: VERIFICAR ESTADO DE PAYPAL (Alternativo)
+// =======================
+app.get("/api/paypal/status", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    const user = await getAsync(
+      `SELECT paypal_connected, paypal_email, paypal_connected_at 
+       FROM usuarios WHERE user_id = ?`,
+      [userId]
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        error: "Usuario no encontrado"
+      });
+    }
+
+    res.json({
+      ok: true,
+      paypalConnected: user.paypal_connected,
+      paypalEmail: user.paypal_email,
+      connectedAt: user.paypal_connected_at
+    });
+
+  } catch (err) {
+    console.error("❌ Error verificando estado PayPal:", err);
+    res.status(500).json({
+      ok: false,
+      error: "Error verificando estado de PayPal"
+    });
+  }
+});
+
+
+
+
+
+
 
 
 
