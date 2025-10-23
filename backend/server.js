@@ -5,9 +5,6 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const serverless = require("serverless-http");
-const mongoSanitize = require("express-mongo-sanitize");
-const hpp = require("hpp");
-const validator = require("validator");
 
 
 // Frameworks y librerías
@@ -30,7 +27,7 @@ require("dotenv").config();
 
 // Constantes de configuración
 const PORT = process.env.PORT || 3001;
-const SECRET = process.env.JWT_SECRET || "";
+const SECRET = process.env.JWT_SECRET || "clave_secreta_para_desarrollo";
 
 // Configuración de Cloudinary
 cloudinary.config({
@@ -38,128 +35,6 @@ cloudinary.config({
   api_key: "793396746524197",
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
-
-
-// =======================
-// MIDDLEWARES DE SEGURIDAD
-// =======================
-
-// 1. Sanitización contra NoSQL injection
-app.use(mongoSanitize());
-
-// 2. Protección contra Parameter Pollution
-app.use(hpp());
-
-
-
-// 4. Helmet configurado de forma más estricta
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      scriptSrc: ["'self'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.cloudinary.com", "https://api.paypal.com"]
-    }
-  },
-  crossOriginEmbedderPolicy: false
-}));
-
-
-// =======================
-// MANEJO GLOBAL DE ERRORES
-// =======================
-process.on('uncaughtException', (error) => {
-  console.error('❌ ERROR NO CAPTURADO:', error);
-  // En producción, podrías enviar una notificación aquí
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ PROMESA RECHAZADA NO MANEJADA:', reason);
-});
-
-// =======================
-// MIDDLEWARES DE VALIDACIÓN
-// =======================
-
-// Validación contra XSS e inyecciones SQL
-const securityMiddleware = (req, res, next) => {
-  // Patrones de inyección SQL
-  const sqlInjectionPatterns = [
-    /(\bUNION\b|\bSELECT\b.*\bFROM\b|\bINSERT\b.*\bINTO\b|\bDROP\b|\bDELETE\b.*\bFROM\b)/i,
-    /(\bOR\b\s*'1'='1'|\bAND\b\s*'1'='1')/i,
-    /(\bEXEC\b|\bEXECUTE\b|\bDECLARE\b)/i,
-    /;.*--/,
-    /(\bWAITFOR\b.*\bDELAY\b|\bSLEEP\b)/i
-  ];
-
-  const checkObject = (obj) => {
-    for (let key in obj) {
-      if (typeof obj[key] === 'string') {
-        // Verificar inyección SQL
-        for (let pattern of sqlInjectionPatterns) {
-          if (pattern.test(obj[key])) {
-            console.warn(`⚠️ Intento de SQL Injection detectado desde IP: ${req.ip}`);
-            return res.status(400).json({ ok: false, error: "Solicitud bloqueada por seguridad" });
-          }
-        }
-        
-        // Sanitizar contra XSS (básico)
-        if (obj[key].includes('<script>') || obj[key].includes('javascript:')) {
-          console.warn(`⚠️ Intento de XSS detectado desde IP: ${req.ip}`);
-          return res.status(400).json({ ok: false, error: "Contenido no permitido" });
-        }
-      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-        if (checkObject(obj[key])) return true;
-      }
-    }
-    return false;
-  };
-
-  if (checkObject(req.body) || checkObject(req.query) || checkObject(req.params)) {
-    return;
-  }
-  
-  next();
-};
-
-app.use(securityMiddleware);
-
-// Validación de archivos Base64
-const validateFileUpload = (req, res, next) => {
-  const fileFields = ['avatarBase64', 'imagenBase64', 'cover_base64', 'imagen_portada_base64'];
-  
-  for (let field of fileFields) {
-    if (req.body[field]) {
-      const base64Data = req.body[field];
-      
-      // Verificar tamaño máximo (5MB)
-      const base64Length = base64Data.length - (base64Data.indexOf(',') + 1);
-      const sizeInBytes = 4 * Math.ceil(base64Length / 3) * 0.5624896334383812;
-      
-      if (sizeInBytes > 5 * 1024 * 1024) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Archivo demasiado grande (máximo 5MB)" 
-        });
-      }
-
-      // Verificar tipo MIME
-      const mimeType = base64Data.match(/[^:]+\/([^;]+)/i);
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      
-      if (!mimeType || !allowedTypes.includes(mimeType[0])) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Tipo de archivo no permitido. Solo JPG, PNG, GIF y WebP" 
-        });
-      }
-    }
-  }
-  next();
-};
 
 
 
@@ -1626,30 +1501,6 @@ app.get("/", async (req, res) => {
 });
 
 
-
-
-
-
-
-// =======================
-// ENDPOINT DE ESTADO Y SEGURIDAD
-// =======================
-app.get("/api/security-status", async (req, res) => {
-  const securityInfo = {
-    rateLimiting: "ACTIVO",
-    sqlInjectionProtection: "ACTIVO", 
-    xssProtection: "ACTIVO",
-    fileValidation: "ACTIVO",
-    helmet: "ACTIVO",
-    environment: process.env.NODE_ENV || "development",
-    timestamp: new Date().toISOString()
-  };
-  
-  res.json({ ok: true, security: securityInfo });
-});
-
-
-
 // Inicializar pool de conexiones
 initializePool().then((ok) => {
   if (ok) {
@@ -1669,4 +1520,4 @@ if (require.main === module) {
 }
 
 // Exportamos la app para Koyeb
-module.exports = app;
+module.exports = app; 
