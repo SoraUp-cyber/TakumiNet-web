@@ -30,7 +30,7 @@ require("dotenv").config();
 
 // Constantes de configuración
 const PORT = process.env.PORT || 3001;
-const SECRET = process.env.JWT_SECRET || "clave_secreta_para_desarrollo";
+const SECRET = process.env.JWT_SECRET || "";
 
 // Configuración de Cloudinary
 cloudinary.config({
@@ -160,12 +160,6 @@ const validateFileUpload = (req, res, next) => {
   }
   next();
 };
-
-// Aplicar validación de archivos a rutas específicas
-app.use("/api/user/avatar", validateFileUpload);
-app.use("/api/foros", validateFileUpload);
-app.use("/api/juegos", validateFileUpload);
-app.use("/api/game_jams", validateFileUpload);
 
 
 
