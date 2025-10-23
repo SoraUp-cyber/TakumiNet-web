@@ -234,7 +234,7 @@
 
 <div class="perfil-juego">
   <!-- Título del juego -->
-  <h1 id="titulo-juego" data-i18n="gameProfile.title">Cargando...</h1>
+ <h1 id="titulo-juego">Cargando...</h1>
 
   <!-- Video del juego -->
   <h3 class="ocultar-texto" data-i18n="gameProfile.videoTitle">Video del juego:</h3>
@@ -280,9 +280,8 @@
 <!-- Contenedor del botón -->
 <div id="contenedor-boton-juego"></div>
 
-  <!-- Descripción -->
-  <h4 data-i18n="gameProfile.descriptionTitle">Descripción del juego:</h4>
-  <p id="descripcion-juego" data-i18n="gameProfile.loadingDescription">Cargando descripción...</p>
+<h4>Descripción del juego:</h4>
+<p id="descripcion-juego">Cargando descripción...</p>
 
   <!-- Capturas -->
   <div id="galeria-capturas"></div>
@@ -334,80 +333,7 @@
  <script src="js/seguir.js"></script>
  <script src="js/lang.js"></script>
  <script src="js/movil.js"></script>
-<script>
-(async function () {
-  const API_BASE = "http://localhost:3001";
-  const juegoId = new URLSearchParams(window.location.search).get("juego_id");
-  const userId = sessionStorage.getItem("userId");
-  const username = sessionStorage.getItem("username");
-
-  let valorSeleccionado = 0;
-
-  const ratingStars = document.querySelectorAll("#rating span");
-  const ratingInfo = document.getElementById("rating-info");
-
-  // Función para actualizar estrellas según valor
-  function actualizarEstrellas(valor) {
-    ratingStars.forEach(s => s.classList.remove("active"));
-    for (let i = 0; i < valor; i++) ratingStars[i].classList.add("active");
-  }
-
-  // Manejo de clic en estrellas
-  ratingStars.forEach(star => {
-    star.addEventListener("click", () => {
-      valorSeleccionado = parseInt(star.dataset.value);
-      actualizarEstrellas(valorSeleccionado);
-    });
-  });
-
-  // Función para cargar promedio y número de votos
-  async function cargarCalificaciones() {
-    try {
-      const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificaciones`);
-      const data = await res.json();
-      if (!data.ok) return;
-
-      const { promedio, total } = data;
-      ratingInfo.textContent = `Promedio: ${promedio.toFixed(1)} (${total} voto${total !== 1 ? 's' : ''})`;
-
-      // Marcar estrellas según promedio
-      actualizarEstrellas(Math.round(promedio));
-    } catch (err) {
-      console.error("Error cargando calificaciones:", err);
-    }
-  }
-
-  // Enviar calificación
-  document.getElementById("btnEnviarRating").addEventListener("click", async () => {
-    if (!userId || !username) return alert("✅ Calificación enviada con éxito");
-    if (valorSeleccionado === 0) return alert("Selecciona una calificación");
-
-    try {
-      const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificar`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId, username, valor: valorSeleccionado })
-      });
-
-      const data = await res.json();
-      if (data.ok) {
-        alert("✔ Calificación enviada");
-        cargarCalificaciones(); // actualizar promedio y votos
-      } else {
-        alert("❌ " + data.error);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error de conexión con el servidor");
-    }
-  });
-
-  // Inicializar
-  document.addEventListener("DOMContentLoaded", cargarCalificaciones);
-})();
-
-</script>
-
+ <script src="js/calificar.js"></script>
 </body>
 </html>
   

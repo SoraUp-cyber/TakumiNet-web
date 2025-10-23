@@ -110,7 +110,7 @@
 .form-legend {
   font-weight: 600;
   padding: 0 10px;
-  color: #2df105;
+  color: #23b307;
   background-color: #3d3d3d;
 }
 
@@ -159,37 +159,58 @@
   margin-right: 8px;
 }
 
-/* Términos y condiciones */
+
+
+/* Contenedor general */
 .terms-group {
   display: flex;
   align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+  color: #fff; /* texto blanco */
+  background-color: #252525; /* gris oscuro */
+  padding: 12px 15px;
+  border-radius: 8px;
 }
 
+/* Checkbox */
 .terms-group input[type="checkbox"] {
-  margin-right: 10px;
-  accent-color: #00b300;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #4CAF50; /* verde */
 }
 
+/* Label principal */
 .terms-group label {
-  margin-bottom: 0;
-  font-weight: normal;
-  color: #ecf0f1;
+  display: inline;
+  line-height: 1.4;
+  cursor: pointer;
 }
 
-.terms-group a {
-  color: #01b80a;
+/* Link dentro del label */
+.terms-group label a {
+  color: #00ff08; /* verde */
+  font-weight: bold;
   text-decoration: none;
   margin-left: 5px;
+  transition: color 0.3s;
 }
 
-.terms-group a:hover {
+.terms-group label a:hover {
+  color: #00df0b; /* verde más claro al pasar el mouse */
   text-decoration: underline;
 }
+
+
+
 
 /* Botones */
 button {
   background-color: #09eb27;
-  color: rgb(8, 8, 8);
+  color: rgb(0, 0, 0);
   border: none;
   padding: 12px 25px;
   border-radius: 6px;
@@ -200,7 +221,7 @@ button {
 }
 
 button:hover {
-  background-color: #1d9200;
+  background-color: #33ff00;
 }
 
 button i {
@@ -318,7 +339,7 @@ button i {
 }
 
 .form-file::-webkit-file-upload-button {
-  background-color: #00ff0d;
+  background-color: #03ad0c;
   color: rgb(0, 0, 0);
   border: none;
   padding: 10px 15px;
@@ -328,5 +349,10 @@ button i {
 }
 
 .form-file::-webkit-file-upload-button:hover {
-  background-color: #1b7500;
+  background-color: #3afa00;
 }
+
+
+
+
+

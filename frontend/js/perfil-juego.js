@@ -1,5 +1,5 @@
 // ============================
-// PERFIL DE JUEGO - CARGAR DATOS
+// PERFIL DE JUEGO - CARGAR DATOS OPTIMIZADO
 // ============================
 document.addEventListener('DOMContentLoaded', async () => {
   const API_BASE = 'https://grim-britte-takuminet-backend-c7daca2c.koyeb.app';
@@ -12,88 +12,104 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
+    // 🔹 Fetch principal
     const res = await fetch(`${API_BASE}/api/juegos/${juegoId}`);
+    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Error al cargar el juego');
 
     const juego = data.juego;
 
-    // === Título y descripción ===
-    document.getElementById('titulo-juego').textContent = juego.title || 'Sin título';
-    document.getElementById('descripcion-juego').textContent = juego.description || 'Sin descripción';
+    // 🔹 Mostrar título y descripción inmediatamente
+    safeUpdate('titulo-juego', juego.title || 'Sin título');
+    safeUpdate('descripcion-juego', juego.description || 'Sin descripción');
 
-    // === Video de YouTube HD 1080p60 / 720p60 ===
-    const youtube = document.getElementById('youtube-video');
-    function toYouTubeEmbed(url) {
-      try {
-        const u = new URL(url);
-        let videoId = '';
-        if (u.hostname.includes('youtube.com') && u.searchParams.get('v')) {
-          videoId = u.searchParams.get('v');
-        } else if (u.hostname.includes('youtu.be')) {
-          videoId = u.pathname.slice(1); // quitar la barra inicial
-        } else {
-          return null;
-        }
-        // Forzar HD 1080p60 (si no disponible, baja a 720p60)
-        return `https://www.youtube.com/embed/${videoId}?vq=hd1080&autoplay=1&playsinline=1&rel=0&modestbranding=1&showinfo=0&frameborder=0&allowfullscreen=1`;
-      } catch {
-        return null;
-      }
-    }
-    if (juego.youtube_url) {
-      const embedUrl = toYouTubeEmbed(juego.youtube_url);
-      if (embedUrl) youtube.src = embedUrl;
-      else youtube.style.display = 'none';
-    } else youtube.style.display = 'none';
-
-    // === Galería de capturas ===
-    const galeria = document.getElementById('galeria-capturas');
-    galeria.innerHTML = '';
-    let screenshots = juego.screenshots || [];
-    if (typeof screenshots === "string") {
-      try { screenshots = JSON.parse(screenshots); } catch { screenshots = []; }
-    }
-
-    if (Array.isArray(screenshots) && screenshots.length > 0) {
-      screenshots.forEach(src => {
-        const img = document.createElement('img');
-        // Cargar HD si existe
-        img.src = src.hd || src.thumb || src;
-        img.alt = 'Captura del juego';
-        img.className = 'captura-img';
-        galeria.appendChild(img);
-      });
-      activarZoom();
-    } else {
-      galeria.innerHTML = '<p>No hay capturas disponibles</p>';
-    }
-
-    // === Requisitos mínimos ===
-    document.getElementById('so-min').textContent = juego.min_os || 'N/A';
-    document.getElementById('procesador-min').textContent = juego.min_cpu || 'N/A';
-    document.getElementById('ram-min').textContent = juego.min_ram || 'N/A';
-    document.getElementById('gpu-min').textContent = juego.min_gpu || 'N/A';
-    document.getElementById('almacenamiento-min').textContent = juego.min_storage || 'N/A';
-
-    // === Requisitos recomendados ===
-    document.getElementById('so-rec').textContent = juego.rec_os || 'N/A';
-    document.getElementById('procesador-rec').textContent = juego.rec_cpu || 'N/A';
-    document.getElementById('ram-rec').textContent = juego.rec_ram || 'N/A';
-    document.getElementById('gpu-rec').textContent = juego.rec_gpu || 'N/A';
-    document.getElementById('almacenamiento-rec').textContent = juego.rec_storage || 'N/A';
+    // 🔹 Cargar contenido pesado en segundo plano
+    setTimeout(() => {
+      cargarVideo(juego.youtube_url);
+      cargarGaleria(juego.screenshots);
+      cargarRequisitos(juego);
+    }, 50);
 
   } catch (err) {
-    console.error('Error al cargar los datos del juego:', err);
+    console.error('Error crítico al cargar juego:', err);
+    safeUpdate('descripcion-juego', 'Error al cargar el juego');
   }
 });
 
 // ============================
-// LIGHTBOX PROFESIONAL HD
+// FUNCIONES AUXILIARES
 // ============================
+function safeUpdate(id, content) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = content || 'N/A';
+}
+
+// --------------------
+// VIDEO
+// --------------------
+function cargarVideo(url) {
+  const youtube = document.getElementById('youtube-video');
+  if (!youtube) return;
+  if (!url) return youtube.style.display = 'none';
+
+  const embedUrl = toYouTubeEmbed(url);
+  if (!embedUrl) return youtube.style.display = 'none';
+
+  youtube.src = embedUrl;
+}
+
+function toYouTubeEmbed(url) {
+  try {
+    const u = new URL(url);
+    let id = '';
+    if (u.hostname.includes('youtube.com')) id = u.searchParams.get('v');
+    else if (u.hostname.includes('youtu.be')) id = u.pathname.slice(1);
+    return id ? `https://www.youtube.com/embed/${id}?vq=hd1080&rel=0&showinfo=0` : null;
+  } catch {
+    return null;
+  }
+}
+
+// --------------------
+// GALERÍA Y LIGHTBOX
+// --------------------
 let currentIndex = 0;
 let imagenes = [];
 
+function cargarGaleria(screenshots) {
+  const galeria = document.getElementById('galeria-capturas');
+  if (!galeria) return;
+  galeria.innerHTML = '';
+
+  if (!screenshots) {
+    galeria.innerHTML = '<p>No hay capturas disponibles</p>';
+    return;
+  }
+
+  if (typeof screenshots === 'string') {
+    try { screenshots = JSON.parse(screenshots); } catch { screenshots = [screenshots]; }
+  }
+
+  if (!Array.isArray(screenshots) || screenshots.length === 0) {
+    galeria.innerHTML = '<p>No hay capturas disponibles</p>';
+    return;
+  }
+
+  screenshots.forEach((src, i) => {
+    const img = document.createElement('img');
+    img.src = src.hd || src.thumb || src;
+    img.alt = `Captura ${i+1}`;
+    img.className = 'captura-img';
+    img.loading = 'lazy';
+    img.dataset.hd = img.src;
+    galeria.appendChild(img);
+  });
+
+  activarLightbox();
+}
+
+// Lightbox
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 const loader = document.getElementById("lightbox-loader");
@@ -101,57 +117,44 @@ const closeBtn = document.querySelector(".close");
 const prevBtn = document.querySelector(".prev");
 const nextBtn = document.querySelector(".next");
 
-// Abrir Lightbox en la imagen clickeada
+function activarLightbox() {
+  imagenes = Array.from(document.querySelectorAll("#galeria-capturas img"));
+  imagenes.forEach((img, i) => {
+    img.style.cursor = "pointer";
+    img.addEventListener("click", () => openLightbox(i));
+  });
+}
+
 function openLightbox(index) {
   currentIndex = index;
   lightbox.style.display = "flex";
-  cargarImagenHD(imagenes[currentIndex].dataset.hd || imagenes[currentIndex].src);
+  cargarImagenHD(imagenes[currentIndex].dataset.hd);
 }
 
-// Cerrar Lightbox
-function closeLightbox() {
-  lightbox.style.display = "none";
-}
+function closeLightbox() { lightbox.style.display = "none"; }
 
-// Cambiar imagen
 function changeImage(step) {
   currentIndex = (currentIndex + step + imagenes.length) % imagenes.length;
-  cargarImagenHD(imagenes[currentIndex].dataset.hd || imagenes[currentIndex].src);
+  cargarImagenHD(imagenes[currentIndex].dataset.hd);
 }
 
-// Cargar imagen HD con loader
 function cargarImagenHD(src) {
   loader.style.display = "block";
   lightboxImg.style.opacity = 0;
-  const tempImg = new Image();
-  tempImg.src = src;
-  tempImg.onload = () => {
+  const temp = new Image();
+  temp.src = src;
+  temp.onload = () => {
     lightboxImg.src = src;
     loader.style.display = "none";
     lightboxImg.style.opacity = 1;
   };
 }
 
-// Activar zoom en galería
-function activarZoom() {
-  imagenes = Array.from(document.querySelectorAll("#galeria-capturas img"));
-  imagenes.forEach((img, i) => {
-    img.style.cursor = "pointer";
-    // Guardar URL HD
-    img.dataset.hd = img.src;
-    img.addEventListener("click", () => openLightbox(i));
-  });
-}
-
 // Eventos Lightbox
 closeBtn.addEventListener("click", closeLightbox);
 prevBtn.addEventListener("click", () => changeImage(-1));
 nextBtn.addEventListener("click", () => changeImage(1));
-
-lightbox.addEventListener("click", e => {
-  if (e.target === lightbox) closeLightbox();
-});
-
+lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
 document.addEventListener("keydown", e => {
   if (lightbox.style.display === "flex") {
     if (e.key === "Escape") closeLightbox();
@@ -159,3 +162,23 @@ document.addEventListener("keydown", e => {
     if (e.key === "ArrowRight") changeImage(1);
   }
 });
+
+// --------------------
+// REQUISITOS DEL SISTEMA
+// --------------------
+function cargarRequisitos(juego) {
+  const reqs = [
+    { id:'so-min', value:juego.min_os },
+    { id:'procesador-min', value:juego.min_cpu },
+    { id:'ram-min', value:juego.min_ram },
+    { id:'gpu-min', value:juego.min_gpu },
+    { id:'almacenamiento-min', value:juego.min_storage },
+    { id:'so-rec', value:juego.rec_os },
+    { id:'procesador-rec', value:juego.rec_cpu },
+    { id:'ram-rec', value:juego.rec_ram },
+    { id:'gpu-rec', value:juego.rec_gpu },
+    { id:'almacenamiento-rec', value:juego.rec_storage }
+  ];
+
+  reqs.forEach(r => safeUpdate(r.id, r.value));
+}
