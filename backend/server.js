@@ -17,7 +17,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const mysql = require("mysql2/promise");
-const paypal = require('@paypal/checkout-server-sdk'); // ✅ NUEVO: PayPal SDK
+const paypal = require('@paypal/checkout-server-sdk');
+
+// Constantes de configuración
+const PORT = process.env.PORT || 3001;
+const SECRET = process.env.JWT_SECRET || "takuminet_super_secret_key_2024_secure_jwt_token_for_development_only";
 
 // =======================
 // CONFIGURACIÓN INICIAL
@@ -25,15 +29,12 @@ const paypal = require('@paypal/checkout-server-sdk'); // ✅ NUEVO: PayPal SDK
 const app = express();
 require("dotenv").config();
 
-// Constantes de configuración
-const PORT = process.env.PORT || 3001;
-const SECRET = process.env.JWT_SECRET || "clave_secreta_para_desarrollo";
 
-// Configuración de Cloudinary
+// ✅ REEMPLAZA CON:
 cloudinary.config({
-  cloud_name: "dl5bjlhnv",
-  api_key: "793396746524197",
-  api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 
@@ -44,9 +45,10 @@ cloudinary.config({
 
 // Configuración para PayPal Checkout SDK (pagos)
 const configurePayPal = () => {
-  const clientId = process.env.PAYPAL_CLIENT_ID || "ATsaHPzDdIo6G2ly-xabsrheol0k3zU0M50XO_77JZ_edi6VKzIVV1sRBFvaNadDAmrXXeJp6ISZsnTS";
-  const clientSecret = process.env.PAYPAL_CLIENT_SECRET || "EB9ris0Crb5AZ8EpxQOemKM6gg9ZtLA1q8WMKzEpxiPnXF8QbKkPjIiGAYpOV7G5fk77zr7lsGKhIUwg";
-  
+// ✅ REEMPLAZA CON:
+const clientId = process.env.PAYPAL_CLIENT_ID;
+const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+
   const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
   return new paypal.core.PayPalHttpClient(environment);
 };
@@ -75,16 +77,18 @@ console.log(`🔍 Entorno detectado: Koyeb=${isKoyeb}, Vercel=${isVercel}, Produ
 // CONFIGURACIÓN DE BASE DE DATOS DUAL - ACTUALIZADA
 const dbConfig = isVercel || isProduction ? {
   // ✅ CONFIGURACIÓN NUBE (Aiven) - Para Koyeb y producción
-  host: process.env.DB_HOST || "takuminet-mariadb-julianmartinezarenas480-c704.g.aivencloud.com",
-  user: process.env.DB_USER || "avnadmin",
-  password: process.env.DB_PASSWORD || "AVNS_W8Jtd5VqKCChu5rHHTG",
-  database: process.env.DB_NAME || "defaultdb",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
   port: process.env.DB_PORT || 25967,
   ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-} : {
+
+} 
+: {
   // ✅ CONFIGURACIÓN LOCAL - Para desarrollo
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
