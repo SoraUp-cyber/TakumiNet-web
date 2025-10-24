@@ -1485,40 +1485,118 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 
 
 
-app.post("/api/auth/discord", async (req, res) => {
+
+
+
+// 1. Verificar si el email existe
+app.post("/api/verificar-email", async (req, res) => {
   try {
-    // ... código para obtener discordUser ...
+    const { email } = req.body;
 
-    // ✅ VERSIÓN TEMPORAL - usar email para buscar
-    let user = await getAsync("SELECT * FROM usuarios WHERE email = ?", [discordUser.email]);
-
-    if (!user) {
-      // Crear usuario sin columnas Discord
-      const insertQuery = `INSERT INTO usuarios (username, email, avatar) VALUES (?, ?, ?)`;
-      const result = await runAsync(insertQuery, [
-        discordUser.username,
-        discordUser.email || `${discordUser.username}@discord.app`,
-        avatarUrl
-      ]);
-      user = await getAsync("SELECT * FROM usuarios WHERE user_id = ?", [result.insertId]);
+    if (!email) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Email es requerido" 
+      });
     }
 
-    const token = jwt.sign({ id: user.user_id }, SECRET, { expiresIn: "7d" });
+    // Buscar usuario por email
+    const user = await getAsync("SELECT user_id, email FROM usuarios WHERE email = ?", [email]);
 
-    return res.json({
-      ok: true,
-      token: token,
-      user: {
-        id: user.user_id,
-        username: user.username,
-        avatar: user.avatar,
-        email: user.email
-      }
+    if (user) {
+      // Generar código de 6 dígitos
+      const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Guardar código en la base de datos (temporal por 10 minutos)
+      await runAsync(
+        "INSERT INTO codigos_recuperacion (user_id, email, codigo, expira_en) VALUES (?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))",
+        [user.user_id, email, codigo]
+      );
+
+      return res.json({ 
+        ok: true, 
+        existe: true,
+        message: "Email encontrado",
+        codigo: codigo // En producción, enviar por email
+      });
+    } else {
+      return res.json({ 
+        ok: true, 
+        existe: false,
+        message: "Email no registrado"
+      });
+    }
+
+  } catch (err) {
+    console.error("❌ Error verificando email:", err);
+    return res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
+  }
+});
+
+
+
+// Endpoint para cambiar contraseña
+app.post("/api/cambiar-password", authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.userId;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Contraseña actual y nueva contraseña son requeridas" 
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "La nueva contraseña debe tener al menos 6 caracteres" 
+      });
+    }
+
+    // Obtener usuario de la base de datos
+    const user = await getAsync("SELECT password FROM usuarios WHERE user_id = ?", [userId]);
+
+    if (!user) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: "Usuario no encontrado" 
+      });
+    }
+
+    // Verificar contraseña actual
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "La contraseña actual es incorrecta" 
+      });
+    }
+
+    // Hashear nueva contraseña
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar contraseña en la base de datos
+    await runAsync(
+      "UPDATE usuarios SET password = ? WHERE user_id = ?",
+      [hashedNewPassword, userId]
+    );
+
+    return res.json({ 
+      ok: true, 
+      message: "Contraseña actualizada correctamente" 
     });
 
   } catch (err) {
-    console.error("❌ Error en auth Discord:", err);
-    return res.status(500).json({ ok: false, error: "Error interno del servidor" });
+    console.error("❌ Error cambiando contraseña:", err);
+    return res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
   }
 });
 
