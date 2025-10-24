@@ -1485,39 +1485,40 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 
 
 
-// En tu backend, después de obtener datos de Discord:
 app.post("/api/auth/discord", async (req, res) => {
   try {
-    // ... código existente para obtener discordUser ...
-    
-    // ✅ CREAR/MOSTRAR USUARIO EN TU BD
-    let user = await getAsync("SELECT * FROM usuarios WHERE discord_id = ?", [discordUser.id]);
-    
+    // ... código para obtener discordUser ...
+
+    // ✅ VERSIÓN TEMPORAL - usar email para buscar
+    let user = await getAsync("SELECT * FROM usuarios WHERE email = ?", [discordUser.email]);
+
     if (!user) {
-      // Crear nuevo usuario
-      const result = await runAsync(
-        "INSERT INTO usuarios (username, email, avatar, discord_id) VALUES (?, ?, ?, ?)",
-        [discordUser.username, discordUser.email, discordUser.avatar, discordUser.id]
-      );
-      user = { user_id: result.insertId, ...discordUser };
+      // Crear usuario sin columnas Discord
+      const insertQuery = `INSERT INTO usuarios (username, email, avatar) VALUES (?, ?, ?)`;
+      const result = await runAsync(insertQuery, [
+        discordUser.username,
+        discordUser.email || `${discordUser.username}@discord.app`,
+        avatarUrl
+      ]);
+      user = await getAsync("SELECT * FROM usuarios WHERE user_id = ?", [result.insertId]);
     }
-    
-    // ✅ GENERAR JWT TOKEN
+
     const token = jwt.sign({ id: user.user_id }, SECRET, { expiresIn: "7d" });
-    
+
     return res.json({
       ok: true,
       token: token,
       user: {
         id: user.user_id,
         username: user.username,
-        avatar: user.avatar
-      },
-      discordUser: discordUser // Opcional, para mostrar inmediatamente
+        avatar: user.avatar,
+        email: user.email
+      }
     });
-    
+
   } catch (err) {
-    // ... manejo de errores ...
+    console.error("❌ Error en auth Discord:", err);
+    return res.status(500).json({ ok: false, error: "Error interno del servidor" });
   }
 });
 
