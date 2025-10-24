@@ -1483,6 +1483,109 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
   }
 });
 
+
+
+app.post("/api/auth/discord", async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    // Validación de entrada
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Código de autorización inválido" 
+      });
+    }
+
+    // Configuración
+    const clientId = process.env.DISCORD_CLIENT_ID;
+    const clientSecret = process.env.DISCORD_CLIENT_SECRET;
+    const redirectUri = process.env.DISCORD_REDIRECT_URI || 
+      "https://takuminet-app.netlify.app/discord-callback.html";
+
+    if (!clientId || !clientSecret) {
+      console.error("❌ Discord OAuth: Faltan variables de entorno");
+      return res.status(500).json({ 
+        ok: false, 
+        error: "Configuración del servidor incompleta" 
+      });
+    }
+
+    // 1. Intercambiar code por token
+    const tokenParams = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: redirectUri
+    });
+
+    const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "TakumiNet/1.0"
+      },
+      body: tokenParams
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      console.error("❌ Discord OAuth Error:", tokenResponse.status, errorText);
+      return res.status(401).json({ 
+        ok: false, 
+        error: "Error en autenticación con Discord" 
+      });
+    }
+
+    const tokenData = await tokenResponse.json();
+
+    // 2. Obtener información del usuario
+    const userResponse = await fetch("https://discord.com/api/users/@me", {
+      headers: { 
+        "Authorization": `${tokenData.token_type} ${tokenData.access_token}`,
+        "User-Agent": "TakumiNet/1.0"
+      }
+    });
+
+    if (!userResponse.ok) {
+      console.error("❌ Error obteniendo datos de usuario de Discord");
+      return res.status(401).json({ 
+        ok: false, 
+        error: "Error obteniendo información del usuario" 
+      });
+    }
+
+    const discordUser = await userResponse.json();
+
+    // 3. Construir respuesta
+    const avatarUrl = discordUser.avatar
+      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.${discordUser.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
+      : `https://cdn.discordapp.com/embed/avatars/${discordUser.discriminator % 5}.png`;
+
+    return res.json({
+      ok: true,
+      discordUser: {
+        id: discordUser.id,
+        username: discordUser.username,
+        global_name: discordUser.global_name,
+        discriminator: discordUser.discriminator,
+        avatar: avatarUrl,
+        verified: discordUser.verified,
+        email: discordUser.email
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error inesperado en autenticación Discord:", err);
+    return res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
+  }
+});
+
+
 app.get("/", async (req, res) => {
   let dbConnected = false;
 
