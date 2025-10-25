@@ -532,6 +532,8 @@ app.get("/api/game_jams/:id", async (req, res) => {
 // ==========================
 // COMENTARIOS EN GAME JAMS
 // ==========================
+
+// Crear comentario
 app.post("/api/game_jams/:id/comentarios", authMiddleware, async (req, res) => {
     try {
         const jamId = req.params.id;
@@ -554,26 +556,245 @@ app.post("/api/game_jams/:id/comentarios", authMiddleware, async (req, res) => {
     }
 });
 
+// Obtener comentarios CON likes, dislikes y reacciones del usuario
 app.get("/api/game_jams/:id/comentarios", async (req, res) => {
     try {
         const jamId = req.params.id;
+        const userId = req.userId || 0; // Si no hay usuario, usar 0
 
         const query = `
-            SELECT c.comentario_id, c.comentario, c.creado_en,
-                   u.user_id, u.username, u.avatar
+            SELECT 
+                c.comentario_id,
+                c.jam_id,
+                c.user_id,
+                c.comentario,
+                c.creado_en,
+                c.comentario_padre_id,
+                c.es_respuesta,
+                u.username,
+                u.avatar,
+                -- Contar likes
+                (SELECT COUNT(*) FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND tipo = 'like') as likes,
+                -- Contar dislikes
+                (SELECT COUNT(*) FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND tipo = 'dislike') as dislikes,
+                -- Contar reportes
+                (SELECT COUNT(*) FROM jam_comentario_reportes WHERE comentario_id = c.comentario_id) as reportes,
+                -- Verificar reacción del usuario actual
+                (SELECT tipo FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND user_id = ?) as userReaccion,
+                -- Obtener respuestas
+                (SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'respuesta_id', r.respuesta_id,
+                        'user_id', r.user_id,
+                        'respuesta', r.respuesta,
+                        'creado_en', r.creado_en,
+                        'username', ur.username,
+                        'avatar', ur.avatar
+                    )
+                ) FROM jam_comentario_respuestas r 
+                LEFT JOIN usuarios ur ON r.user_id = ur.user_id 
+                WHERE r.comentario_id = c.comentario_id) as respuestas
             FROM jam_comentarios c
             LEFT JOIN usuarios u ON c.user_id = u.user_id
             WHERE c.jam_id = ?
             ORDER BY c.creado_en DESC
         `;
-        const comentarios = await runAsync(query, [jamId]);
+        
+        const comentarios = await runAsync(query, [userId, jamId]);
 
-        res.json({ ok: true, comentarios });
+        // Parsear las respuestas JSON
+        const comentariosConRespuestas = comentarios.map(comentario => ({
+            ...comentario,
+            respuestas: comentario.respuestas ? JSON.parse(comentario.respuestas) : [],
+            likes: comentario.likes || 0,
+            dislikes: comentario.dislikes || 0,
+            reportes: comentario.reportes || 0
+        }));
+
+        res.json({ ok: true, comentarios: comentariosConRespuestas });
     } catch (err) {
         console.error(err);
         res.status(500).json({ ok: false, error: "Error al obtener comentarios" });
     }
 });
+
+// =======================
+// SISTEMA DE LIKES/DISLIKES
+// =======================
+
+// Likes/Dislikes para comentarios
+app.post("/api/game_jams/comentarios/:id/reaccion", authMiddleware, async (req, res) => {
+    try {
+        const comentarioId = req.params.id;
+        const { tipo } = req.body; // 'like' o 'dislike'
+        const userId = req.userId;
+
+        if (!tipo || !['like', 'dislike'].includes(tipo)) {
+            return res.status(400).json({ ok: false, error: "Tipo de reacción inválido" });
+        }
+
+        // Verificar si el comentario existe
+        const comentario = await getAsync(
+            "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
+            [comentarioId]
+        );
+
+        if (!comentario) {
+            return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
+        }
+
+        // Verificar si ya existe una reacción del usuario
+        const reaccionExistente = await getAsync(
+            "SELECT * FROM jam_comentario_reacciones WHERE comentario_id = ? AND user_id = ?",
+            [comentarioId, userId]
+        );
+
+        if (reaccionExistente) {
+            // Si ya existe, actualizar la reacción
+            if (reaccionExistente.tipo === tipo) {
+                // Si es la misma reacción, eliminarla (toggle)
+                await runAsync(
+                    "DELETE FROM jam_comentario_reacciones WHERE comentario_id = ? AND user_id = ?",
+                    [comentarioId, userId]
+                );
+            } else {
+                // Si es diferente reacción, actualizar
+                await runAsync(
+                    "UPDATE jam_comentario_reacciones SET tipo = ? WHERE comentario_id = ? AND user_id = ?",
+                    [tipo, comentarioId, userId]
+                );
+            }
+        } else {
+            // Si no existe, crear nueva reacción
+            await runAsync(
+                "INSERT INTO jam_comentario_reacciones (comentario_id, user_id, tipo) VALUES (?, ?, ?)",
+                [comentarioId, userId, tipo]
+            );
+        }
+
+        // Obtener conteos actualizados
+        const likes = await getAsync(
+            "SELECT COUNT(*) as count FROM jam_comentario_reacciones WHERE comentario_id = ? AND tipo = 'like'",
+            [comentarioId]
+        );
+
+        const dislikes = await getAsync(
+            "SELECT COUNT(*) as count FROM jam_comentario_reacciones WHERE comentario_id = ? AND tipo = 'dislike'",
+            [comentarioId]
+        );
+
+        res.json({ 
+            ok: true, 
+            message: "Reacción registrada",
+            likes: likes.count,
+            dislikes: dislikes.count
+        });
+
+    } catch (err) {
+        console.error("❌ Error en reacción:", err);
+        res.status(500).json({ ok: false, error: "Error al registrar reacción" });
+    }
+});
+
+// =======================
+// SISTEMA DE REPORTES
+// =======================
+
+// Reportar comentario
+app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, res) => {
+    try {
+        const comentarioId = req.params.id;
+        const { motivo } = req.body;
+        const userId = req.userId;
+
+        if (!motivo) {
+            return res.status(400).json({ ok: false, error: "Motivo es requerido" });
+        }
+
+        // Verificar si el comentario existe
+        const comentario = await getAsync(
+            "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
+            [comentarioId]
+        );
+
+        if (!comentario) {
+            return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
+        }
+
+        // Verificar si el usuario ya reportó este comentario
+        const reporteExistente = await getAsync(
+            "SELECT * FROM jam_comentario_reportes WHERE comentario_id = ? AND user_id = ?",
+            [comentarioId, userId]
+        );
+
+        if (reporteExistente) {
+            return res.status(400).json({ ok: false, error: "Ya has reportado este comentario" });
+        }
+
+        // Crear reporte
+        await runAsync(
+            "INSERT INTO jam_comentario_reportes (comentario_id, user_id, motivo) VALUES (?, ?, ?)",
+            [comentarioId, userId, motivo]
+        );
+
+        res.json({ 
+            ok: true, 
+            message: "Comentario reportado correctamente. Los moderadores lo revisarán."
+        });
+
+    } catch (err) {
+        console.error("❌ Error reportando comentario:", err);
+        res.status(500).json({ ok: false, error: "Error al reportar comentario" });
+    }
+});
+
+// =======================
+// SISTEMA DE RESPUESTAS
+// =======================
+
+// Responder a comentario
+app.post("/api/game_jams/comentarios/:id/responder", authMiddleware, async (req, res) => {
+    try {
+        const comentarioId = req.params.id;
+        const { respuesta } = req.body;
+        const userId = req.userId;
+
+        if (!respuesta || respuesta.trim() === "") {
+            return res.status(400).json({ ok: false, error: "La respuesta no puede estar vacía" });
+        }
+
+        // Verificar si el comentario existe
+        const comentario = await getAsync(
+            "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
+            [comentarioId]
+        );
+
+        if (!comentario) {
+            return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
+        }
+
+        // Insertar respuesta
+        const result = await runAsync(
+            "INSERT INTO jam_comentario_respuestas (comentario_id, user_id, respuesta) VALUES (?, ?, ?)",
+            [comentarioId, userId, respuesta]
+        );
+
+        res.json({ 
+            ok: true, 
+            message: "Respuesta enviada correctamente",
+            id: result.insertId
+        });
+
+    } catch (err) {
+        console.error("❌ Error enviando respuesta:", err);
+        res.status(500).json({ ok: false, error: "Error al enviar respuesta" });
+    }
+});
+
+
+
+
+
 
 // ==========================
 // POST: Enviar voto
