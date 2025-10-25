@@ -532,8 +532,6 @@ app.get("/api/game_jams/:id", async (req, res) => {
 // ==========================
 // COMENTARIOS EN GAME JAMS
 // ==========================
-
-// Crear comentario
 app.post("/api/game_jams/:id/comentarios", authMiddleware, async (req, res) => {
     try {
         const jamId = req.params.id;
@@ -556,68 +554,26 @@ app.post("/api/game_jams/:id/comentarios", authMiddleware, async (req, res) => {
     }
 });
 
-// Obtener comentarios CON likes, dislikes y reacciones del usuario
 app.get("/api/game_jams/:id/comentarios", async (req, res) => {
     try {
         const jamId = req.params.id;
-        const userId = req.userId || 0; // Si no hay usuario, usar 0
 
         const query = `
-            SELECT 
-                c.comentario_id,
-                c.jam_id,
-                c.user_id,
-                c.comentario,
-                c.creado_en,
-                c.comentario_padre_id,
-                c.es_respuesta,
-                u.username,
-                u.avatar,
-                -- Contar likes
-                (SELECT COUNT(*) FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND tipo = 'like') as likes,
-                -- Contar dislikes
-                (SELECT COUNT(*) FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND tipo = 'dislike') as dislikes,
-                -- Contar reportes
-                (SELECT COUNT(*) FROM jam_comentario_reportes WHERE comentario_id = c.comentario_id) as reportes,
-                -- Verificar reacción del usuario actual
-                (SELECT tipo FROM jam_comentario_reacciones WHERE comentario_id = c.comentario_id AND user_id = ?) as userReaccion,
-                -- Obtener respuestas
-                (SELECT JSON_ARRAYAGG(
-                    JSON_OBJECT(
-                        'respuesta_id', r.respuesta_id,
-                        'user_id', r.user_id,
-                        'respuesta', r.respuesta,
-                        'creado_en', r.creado_en,
-                        'username', ur.username,
-                        'avatar', ur.avatar
-                    )
-                ) FROM jam_comentario_respuestas r 
-                LEFT JOIN usuarios ur ON r.user_id = ur.user_id 
-                WHERE r.comentario_id = c.comentario_id) as respuestas
+            SELECT c.comentario_id, c.comentario, c.creado_en,
+                   u.user_id, u.username, u.avatar
             FROM jam_comentarios c
             LEFT JOIN usuarios u ON c.user_id = u.user_id
             WHERE c.jam_id = ?
             ORDER BY c.creado_en DESC
         `;
-        
-        const comentarios = await runAsync(query, [userId, jamId]);
+        const comentarios = await runAsync(query, [jamId]);
 
-        // Parsear las respuestas JSON
-        const comentariosConRespuestas = comentarios.map(comentario => ({
-            ...comentario,
-            respuestas: comentario.respuestas ? JSON.parse(comentario.respuestas) : [],
-            likes: comentario.likes || 0,
-            dislikes: comentario.dislikes || 0,
-            reportes: comentario.reportes || 0
-        }));
-
-        res.json({ ok: true, comentarios: comentariosConRespuestas });
+        res.json({ ok: true, comentarios });
     } catch (err) {
         console.error(err);
         res.status(500).json({ ok: false, error: "Error al obtener comentarios" });
     }
 });
-
 // =======================
 // SISTEMA DE LIKES/DISLIKES
 // =======================
