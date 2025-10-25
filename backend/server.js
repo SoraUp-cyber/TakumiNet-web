@@ -578,18 +578,16 @@ app.get("/api/game_jams/:id/comentarios", async (req, res) => {
 // SISTEMA DE LIKES/DISLIKES
 // =======================
 
-// Likes/Dislikes para comentarios
 app.post("/api/game_jams/comentarios/:id/reaccion", authMiddleware, async (req, res) => {
     try {
         const comentarioId = req.params.id;
-        const { tipo } = req.body; // 'like' o 'dislike'
+        const { tipo } = req.body;
         const userId = req.userId;
 
         if (!tipo || !['like', 'dislike'].includes(tipo)) {
             return res.status(400).json({ ok: false, error: "Tipo de reacción inválido" });
         }
 
-        // Verificar si el comentario existe
         const comentario = await getAsync(
             "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
             [comentarioId]
@@ -599,36 +597,30 @@ app.post("/api/game_jams/comentarios/:id/reaccion", authMiddleware, async (req, 
             return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
         }
 
-        // Verificar si ya existe una reacción del usuario
         const reaccionExistente = await getAsync(
             "SELECT * FROM jam_comentario_reacciones WHERE comentario_id = ? AND user_id = ?",
             [comentarioId, userId]
         );
 
         if (reaccionExistente) {
-            // Si ya existe, actualizar la reacción
             if (reaccionExistente.tipo === tipo) {
-                // Si es la misma reacción, eliminarla (toggle)
                 await runAsync(
                     "DELETE FROM jam_comentario_reacciones WHERE comentario_id = ? AND user_id = ?",
                     [comentarioId, userId]
                 );
             } else {
-                // Si es diferente reacción, actualizar
                 await runAsync(
                     "UPDATE jam_comentario_reacciones SET tipo = ? WHERE comentario_id = ? AND user_id = ?",
                     [tipo, comentarioId, userId]
                 );
             }
         } else {
-            // Si no existe, crear nueva reacción
             await runAsync(
                 "INSERT INTO jam_comentario_reacciones (comentario_id, user_id, tipo) VALUES (?, ?, ?)",
                 [comentarioId, userId, tipo]
             );
         }
 
-        // Obtener conteos actualizados
         const likes = await getAsync(
             "SELECT COUNT(*) as count FROM jam_comentario_reacciones WHERE comentario_id = ? AND tipo = 'like'",
             [comentarioId]
@@ -656,7 +648,6 @@ app.post("/api/game_jams/comentarios/:id/reaccion", authMiddleware, async (req, 
 // SISTEMA DE REPORTES
 // =======================
 
-// Reportar comentario
 app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, res) => {
     try {
         const comentarioId = req.params.id;
@@ -667,7 +658,6 @@ app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, 
             return res.status(400).json({ ok: false, error: "Motivo es requerido" });
         }
 
-        // Verificar si el comentario existe
         const comentario = await getAsync(
             "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
             [comentarioId]
@@ -677,7 +667,6 @@ app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, 
             return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
         }
 
-        // Verificar si el usuario ya reportó este comentario
         const reporteExistente = await getAsync(
             "SELECT * FROM jam_comentario_reportes WHERE comentario_id = ? AND user_id = ?",
             [comentarioId, userId]
@@ -687,7 +676,6 @@ app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, 
             return res.status(400).json({ ok: false, error: "Ya has reportado este comentario" });
         }
 
-        // Crear reporte
         await runAsync(
             "INSERT INTO jam_comentario_reportes (comentario_id, user_id, motivo) VALUES (?, ?, ?)",
             [comentarioId, userId, motivo]
@@ -708,7 +696,6 @@ app.post("/api/game_jams/comentarios/:id/reportar", authMiddleware, async (req, 
 // SISTEMA DE RESPUESTAS
 // =======================
 
-// Responder a comentario
 app.post("/api/game_jams/comentarios/:id/responder", authMiddleware, async (req, res) => {
     try {
         const comentarioId = req.params.id;
@@ -719,7 +706,6 @@ app.post("/api/game_jams/comentarios/:id/responder", authMiddleware, async (req,
             return res.status(400).json({ ok: false, error: "La respuesta no puede estar vacía" });
         }
 
-        // Verificar si el comentario existe
         const comentario = await getAsync(
             "SELECT * FROM jam_comentarios WHERE comentario_id = ?",
             [comentarioId]
@@ -729,7 +715,6 @@ app.post("/api/game_jams/comentarios/:id/responder", authMiddleware, async (req,
             return res.status(404).json({ ok: false, error: "Comentario no encontrado" });
         }
 
-        // Insertar respuesta
         const result = await runAsync(
             "INSERT INTO jam_comentario_respuestas (comentario_id, user_id, respuesta) VALUES (?, ?, ?)",
             [comentarioId, userId, respuesta]
@@ -746,7 +731,6 @@ app.post("/api/game_jams/comentarios/:id/responder", authMiddleware, async (req,
         res.status(500).json({ ok: false, error: "Error al enviar respuesta" });
     }
 });
-
 
 
 
