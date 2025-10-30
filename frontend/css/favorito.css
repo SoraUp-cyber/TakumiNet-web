@@ -1,69 +1,160 @@
-/* Contenedor principal de favoritos */
-#favoritesContainer {
+/* 🎮 Contenedor principal */
+.favoritos-main {
+  background-color: #121212;
+  color: #fff;
+  min-height: 100vh;
+  padding: 60px 15px;
   display: flex;
-  flex-direction: column; /* Lista vertical */
-  gap: 20px;
-  margin-top: 20px;
+  justify-content: center;
 }
 
+.favoritos-section {
+  width: 100%;
+  max-width: 1100px;
+}
+
+/* 📋 Mensaje cuando no hay favoritos */
+.no-favoritos {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #999;
+  margin-top: 50px;
+  font-weight: 400;
+}
+
+/* 🧩 Lista de juegos favoritos */
+.favoritos-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 25px;
+}
+
+/* 🎮 Tarjeta tipo lista */
 .juego-card {
   display: flex;
-  flex-direction: row;       
   align-items: center;
-  background-color: #121212; 
-  padding: 16px 24px;       /* Un poco más de espacio interno */
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  max-width: 800px;         /* Un poco más ancho */
-  width: 90%;               
-  margin: 0 auto;           
+  background: linear-gradient(145deg, #1a1a1a, #181818);
+  border: 1px solid #2a2a2a;
+  border-left: 6px solid #00ff66;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+  padding: 15px 20px;
+  transition: all 0.3s ease;
 }
-
-
 
 .juego-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.6);
+  transform: translateY(-4px);
+  border-left-color: #00cc55;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
-/* Imagen del juego */
+/* 🖼️ Imagen del juego (315x250 adaptable) */
+.juego-cover {
+  flex-shrink: 0;
+  width: 315px;
+  height: 250px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #2a2a2a;
+  transition: all 0.3s ease;
+}
+
 .juego-cover img {
-  width: 200px;        /* Imagen un poco más grande */
-  height: 150px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
-  margin-right: 20px;
+  display: block;
+  transition: transform 0.3s ease;
 }
 
-/* Información del juego */
+.juego-card:hover .juego-cover img {
+  transform: scale(1.08);
+}
+
+/* ℹ️ Información del juego */
+.juego-info {
+  flex: 1;
+  margin-left: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
 .juego-info h3 {
   margin: 0;
-  font-size: 1.4rem;
-  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.juego-info h3 a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.juego-info h3 a:hover {
+  color: #00ff66;
 }
 
 .juego-info p {
-  margin: 5px 0;
-  color: #cccccc;
+  margin: 0;
+  color: #ccc;
   font-size: 1rem;
 }
 
-/* Botón quitar favorito */
+/* ❌ Botón de eliminar */
 .btn-remove-fav {
-  margin-top: 10px;
-  padding: 6px 12px;
-  background-color: #ff4d4d;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  align-self: flex-start;
+  background-color: transparent;
+  color: #00ff66;
+  border: 1px solid #00ff66;
+  font-size: 1rem;
+  padding: 8px 16px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: all 0.25s ease;
 }
 
 .btn-remove-fav:hover {
-  background-color: #e60000;
-  transform: scale(1.05);
+  background-color: #00ff66;
+  color: #121212;
+  border-color: #00ff66;
+}
+
+/* 📱 Móvil: tarjetas verticales grandes y adaptadas */
+@media (max-width: 600px) {
+  .juego-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px;
+  }
+
+  .juego-cover {
+    width: 100%;              /* Ocupa todo el ancho */
+    height: auto;             /* Ajuste automático */
+    aspect-ratio: 315 / 250;  /* Mantiene proporción exacta */
+    border-radius: 12px;
+  }
+
+  .juego-info {
+    margin-left: 0;
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .juego-info h3 {
+    font-size: 1.2rem;
+  }
+
+  .juego-info p {
+    font-size: 0.95rem;
+  }
+
+  .btn-remove-fav {
+    align-self: flex-end;
+  }
 }

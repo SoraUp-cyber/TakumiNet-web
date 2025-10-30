@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api";
+  const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
+  const API = `${API_BASE}/api`;
   const token = localStorage.getItem("token");
   const jamId = new URLSearchParams(window.location.search).get("id");
 
@@ -18,15 +19,24 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentUser = { username: "Invitado", avatar: null };
 
   // ========================
-  // Cargar usuario
+  // Cargar usuario actual
   // ========================
   async function loadUser() {
     if (!token) return;
     try {
-      const res = await fetch(`${API_BASE}/user`, {
+      const res = await fetch(`${API}/user`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Respuesta no JSON al cargar usuario:", text);
+        return;
+      }
+
       if (data.ok) currentUser = data.user;
     } catch (err) {
       console.error("Error cargando usuario:", err);
@@ -34,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ========================
-  // Comentarios
+  // Mostrar comentario en DOM
   // ========================
   function agregarComentarioDOM(c) {
     if (!listaComentarios) return;
@@ -43,36 +53,40 @@ document.addEventListener("DOMContentLoaded", () => {
     li.classList.add("comentario-item");
     const avatarURL = c.avatar || "https://via.placeholder.com/40";
 
-    const denuncias = JSON.parse(localStorage.getItem("denuncias") || "{}");
-    const ahora = Date.now();
-    const denunciado = denuncias[c._id] && ahora - denuncias[c._id] < 24 * 60 * 60 * 1000;
-
     li.innerHTML = `
-      <img src="${avatarURL}" alt="avatar" class="avatar">
+      <img src="${avatarURL}" alt="avatar" class="avatar comentario-avatar">
       <div class="comentario-contenido">
         <div class="comentario-header">
           <strong>${c.username}</strong>
-          <span class="comentario-fecha">${new Date(c.creado_en || Date.now()).toLocaleString()}</span>
+          <span class="comentario-fecha">
+            ${new Date(c.creado_en || Date.now()).toLocaleString()}
+          </span>
         </div>
         <div class="comentario-texto">${c.comentario}</div>
-        <button class="denunciar-btn" data-id="${c._id}" title="Reportar comentario"
-          style="${denunciado ? 'background:#aaa; cursor:not-allowed;' : ''}">${denunciado ? 'Denunciado' : 'Reporta'}</button>
       </div>
     `;
-    listaComentarios.appendChild(li);
 
-    const btnDenunciar = li.querySelector(".denunciar-btn");
-    if (!denunciado && btnDenunciar) {
-      btnDenunciar.addEventListener("click", () => denunciarComentario(c._id, btnDenunciar));
-    }
+    listaComentarios.appendChild(li);
   }
 
+  // ========================
+  // Cargar comentarios
+  // ========================
   async function cargarComentarios() {
     if (!listaComentarios) return;
 
     try {
-      const res = await fetch(`${API_BASE}/game_jams/${jamId}/comentarios`);
-      const data = await res.json();
+      const res = await fetch(`${API}/game_jams/${jamId}/comentarios`);
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Respuesta no JSON al cargar comentarios:", text);
+        listaComentarios.innerHTML = "<li>Error cargando comentarios</li>";
+        return;
+      }
+
       listaComentarios.innerHTML = "";
 
       if (data.ok && data.comentarios.length) {
@@ -86,6 +100,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ========================
+  // Enviar nuevo comentario
+  // ========================
   async function enviarComentario() {
     if (!inputComentario) return;
     const comentario = inputComentario.value.trim();
@@ -93,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return alert("Debes iniciar sesión para comentar");
 
     try {
-      const res = await fetch(`${API_BASE}/game_jams/${jamId}/comentarios`, {
+      const res = await fetch(`${API}/game_jams/${jamId}/comentarios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,11 +118,21 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify({ comentario }),
       });
-      const data = await res.json();
+
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Respuesta no JSON al enviar comentario:", text);
+        return alert("Error inesperado del servidor");
+      }
+
       if (data.ok) {
         inputComentario.value = "";
         agregarComentarioDOM({
           username: currentUser.username,
+          avatar: currentUser.avatar,
           comentario,
           creado_en: new Date(),
         });
@@ -114,33 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error("Error enviando comentario:", err);
-    }
-  }
-
-  async function denunciarComentario(idComentario, btnDenunciar) {
-    if (!token) return alert("Debes iniciar sesión para denunciar");
-    if (!confirm("¿Seguro que deseas reportar este comentario?")) return;
-
-    try {
-      const res = await fetch(`${API_BASE}/comentarios/${idComentario}/reportar`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.ok) {
-        const denuncias = JSON.parse(localStorage.getItem("denuncias") || "{}");
-        denuncias[idComentario] = Date.now();
-        localStorage.setItem("denuncias", JSON.stringify(denuncias));
-
-        btnDenunciar.textContent = "Denunciado";
-        btnDenunciar.style.background = "#aaa";
-        btnDenunciar.style.cursor = "not-allowed";
-
-        alert("Comentario reportado con éxito 🚩 (válido por 1 día)");
-      } else alert(data.error || "Error al reportar comentario");
-    } catch (err) {
-      console.error("Error al reportar comentario:", err);
-      alert("Error al reportar comentario");
+      alert("Error enviando comentario");
     }
   }
 
@@ -154,8 +155,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function cargarVotos() {
     try {
-      const res = await fetch(`${API_BASE}/game_jams/${jamId}/votos`);
-      const data = await res.json();
+      const res = await fetch(`${API}/game_jams/${jamId}/votos`);
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Respuesta no JSON al cargar votos:", text);
+        ratingInfo.textContent = "Promedio: 0 (0 votos)";
+        return;
+      }
 
       if (data.ok) {
         ratingInfo.textContent = `Promedio: ${data.promedio.toFixed(1)} (${data.totalVotos} votos)`;
@@ -163,7 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ratingInfo.textContent = "Promedio: 0 (0 votos)";
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error cargando votos:", err);
       ratingInfo.textContent = "Promedio: 0 (0 votos)";
     }
   }
@@ -174,7 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return alert("Debes iniciar sesión para votar");
 
     try {
-      const res = await fetch(`${API_BASE}/game_jams/${jamId}/votos`, {
+      const res = await fetch(`${API}/game_jams/${jamId}/votos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -183,7 +192,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ puntuacion: valor }),
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("Respuesta no JSON al enviar voto:", text);
+        return alert("Error inesperado del servidor");
+      }
+
       if (res.ok && data.ok) {
         estadoVoto.textContent = data.mensaje || "✅ Voto registrado";
         estadoVoto.className = "mensaje-voto correcto";
@@ -197,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(data.error || "Error enviando voto");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error enviando voto:", err);
       alert("Error enviando voto");
     }
   }

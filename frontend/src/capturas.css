@@ -1,0 +1,201 @@
+/* ==========================
+   LIGHTBOX CSS - TAMAÑO GRANDE MEJORADO
+========================== */
+#lightbox {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.466); /* Fondo más oscuro */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  cursor: pointer;
+  overflow: hidden;
+  flex-direction: column;
+  backdrop-filter: blur(10px); /* Efecto blur de fondo */
+}
+
+#lightbox img {
+  width: 85vw;           /* 85% del ancho de la ventana - MÁS GRANDE */
+  height: 85vh;          /* 85% de la altura de la ventana - MÁS GRANDE */
+  max-width: 1200px;     /* Máximo ancho */
+  max-height: 800px;     /* Máximo alto */
+  object-fit: contain;   /* mantiene la proporción de la imagen */
+  border-radius: 12px;
+  transition: all 0.4s ease;
+}
+
+#lightbox img:hover {
+  transform: scale(1.02); /* Efecto hover sutil */
+}
+
+#lightbox-loader {
+  border: 6px solid #f3f3f3; /* Más grueso */
+  border-top: 6px solid #0c6600; /* Más grueso */
+  border-radius: 50%;
+  width: 70px;  /* Más grande */
+  height: 70px; /* Más grande */
+  animation: spin 1s linear infinite;
+  position: absolute;
+  z-index: 10000;
+  display: none;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Botón cerrar - MÁS GRANDE */
+#lightbox .close {
+  position: absolute;
+  top: 30px;    /* Más separado del borde */
+  right: 40px;  /* Más separado del borde */
+  color: #fff;
+  font-size: 60px; /* Más grande */
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10000;
+  background: rgba(0,0,0,0.5);
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+}
+
+#lightbox .close:hover {
+  color: #ff4444;
+  background: rgba(255,255,255,0.1);
+  transform: scale(1.1);
+}
+
+/* Botones prev/next - MÁS GRANDES */
+#lightbox .prev,
+#lightbox .next {
+  position: absolute;
+  top: 50%;
+  font-size: 70px; /* Más grande */
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transform: translateY(-50%);
+  padding: 20px; /* Más padding */
+  transition: all 0.3s ease;
+  z-index: 10000;
+  background: rgba(0,0,0,0.3);
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#lightbox .prev:hover,
+#lightbox .next:hover {
+  color: #5cfa00;
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+#lightbox .prev { 
+  left: 40px; /* Más separado del borde */
+}
+
+#lightbox .next { 
+  right: 40px; /* Más separado del borde */
+}
+
+/* Contador de imágenes */
+#lightbox-counter {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  color: #fff;
+  font-size: 18px;
+  background: rgba(0,0,0,0.5);
+  padding: 10px 20px;
+  border-radius: 20px;
+  z-index: 10000;
+  font-family: Arial, sans-serif;
+}
+
+/* Efectos hover para las miniaturas */
+#galeria-capturas img {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#galeria-capturas img:hover {
+  transform: scale(1.08); /* Efecto más pronunciado */
+  box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+  filter: brightness(1.1);
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  #lightbox img {
+    width: 95vw;    /* Casi todo el ancho en móviles */
+    height: 70vh;   /* Un poco menos de alto */
+    max-width: none;
+    max-height: none;
+  }
+  
+  #lightbox .close {
+    top: 15px;
+    right: 20px;
+    font-size: 40px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  #lightbox .prev,
+  #lightbox .next {
+    font-size: 40px;
+    width: 50px;
+    height: 50px;
+    padding: 10px;
+  }
+  
+  #lightbox .prev { left: 15px; }
+  #lightbox .next { right: 15px; }
+  
+  #lightbox-counter {
+    top: 15px;
+    left: 20px;
+    font-size: 14px;
+    padding: 8px 15px;
+  }
+}
+
+/* Animación de entrada */
+@keyframes lightboxEnter {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#lightbox.show {
+  animation: lightboxEnter 0.3s ease-out;
+}
+
+/* Efecto de carga mejorado */
+#lightbox-loading {
+  color: white;
+  font-size: 18px;
+  margin-top: 20px;
+  text-align: center;
+}

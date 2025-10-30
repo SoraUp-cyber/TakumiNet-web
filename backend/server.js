@@ -5,9 +5,6 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const serverless = require("serverless-http");
-const mongoSanitize = require("express-mongo-sanitize");
-const hpp = require("hpp");
-const validator = require("validator");
 
 
 // Frameworks y librerías
@@ -21,6 +18,32 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
 const mysql = require("mysql2/promise");
 const paypal = require('@paypal/checkout-server-sdk'); // ✅ NUEVO: PayPal SDK
+
+
+// =======================
+// MERCADO PAGO SIMPLIFICADO
+// =======================
+let mercadopago;
+
+try {
+  mercadopago = require('mercadopago');
+  console.log("✅ Mercado Pago cargado");
+  mercadopago.configure({
+    access_token: "APP_USR-2794725193382250-103011-9a3f5cfa029a24e8debf31adbf03b5a9-2669472141"
+  });
+} catch (error) {
+  console.log("❌ Mercado Pago no disponible");
+  mercadopago = null;
+}
+
+
+
+// =======================
+// CONFIGURACIÓN MERCADO PAGO PARA WEBHOOK
+// =======================
+const MERCADO_PAGO_CONFIG = {
+  API_BASE: process.env.API_BASE_URL || "https://distinct-oralla-takumi-net-0d317399.koyeb.app"
+};
 
 // =======================
 // CONFIGURACIÓN INICIAL
@@ -38,134 +61,6 @@ cloudinary.config({
   api_key: "793396746524197",
   api_secret: "dSNF4TYc93A_mHFb7teDrKSUmq0",
 });
-
-
-// =======================
-// MIDDLEWARES DE SEGURIDAD
-// =======================
-
-// 1. Sanitización contra NoSQL injection
-app.use(mongoSanitize());
-
-// 2. Protección contra Parameter Pollution
-app.use(hpp());
-
-
-
-// 4. Helmet configurado de forma más estricta
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      scriptSrc: ["'self'"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.cloudinary.com", "https://api.paypal.com"]
-    }
-  },
-  crossOriginEmbedderPolicy: false
-}));
-
-
-// =======================
-// MANEJO GLOBAL DE ERRORES
-// =======================
-process.on('uncaughtException', (error) => {
-  console.error('❌ ERROR NO CAPTURADO:', error);
-  // En producción, podrías enviar una notificación aquí
-});
-
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ PROMESA RECHAZADA NO MANEJADA:', reason);
-});
-
-// =======================
-// MIDDLEWARES DE VALIDACIÓN
-// =======================
-
-// Validación contra XSS e inyecciones SQL
-const securityMiddleware = (req, res, next) => {
-  // Patrones de inyección SQL
-  const sqlInjectionPatterns = [
-    /(\bUNION\b|\bSELECT\b.*\bFROM\b|\bINSERT\b.*\bINTO\b|\bDROP\b|\bDELETE\b.*\bFROM\b)/i,
-    /(\bOR\b\s*'1'='1'|\bAND\b\s*'1'='1')/i,
-    /(\bEXEC\b|\bEXECUTE\b|\bDECLARE\b)/i,
-    /;.*--/,
-    /(\bWAITFOR\b.*\bDELAY\b|\bSLEEP\b)/i
-  ];
-
-  const checkObject = (obj) => {
-    for (let key in obj) {
-      if (typeof obj[key] === 'string') {
-        // Verificar inyección SQL
-        for (let pattern of sqlInjectionPatterns) {
-          if (pattern.test(obj[key])) {
-            console.warn(`⚠️ Intento de SQL Injection detectado desde IP: ${req.ip}`);
-            return res.status(400).json({ ok: false, error: "Solicitud bloqueada por seguridad" });
-          }
-        }
-        
-        // Sanitizar contra XSS (básico)
-        if (obj[key].includes('<script>') || obj[key].includes('javascript:')) {
-          console.warn(`⚠️ Intento de XSS detectado desde IP: ${req.ip}`);
-          return res.status(400).json({ ok: false, error: "Contenido no permitido" });
-        }
-      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-        if (checkObject(obj[key])) return true;
-      }
-    }
-    return false;
-  };
-
-  if (checkObject(req.body) || checkObject(req.query) || checkObject(req.params)) {
-    return;
-  }
-  
-  next();
-};
-
-app.use(securityMiddleware);
-
-// Validación de archivos Base64
-const validateFileUpload = (req, res, next) => {
-  const fileFields = ['avatarBase64', 'imagenBase64', 'cover_base64', 'imagen_portada_base64'];
-  
-  for (let field of fileFields) {
-    if (req.body[field]) {
-      const base64Data = req.body[field];
-      
-      // Verificar tamaño máximo (5MB)
-      const base64Length = base64Data.length - (base64Data.indexOf(',') + 1);
-      const sizeInBytes = 4 * Math.ceil(base64Length / 3) * 0.5624896334383812;
-      
-      if (sizeInBytes > 5 * 1024 * 1024) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Archivo demasiado grande (máximo 5MB)" 
-        });
-      }
-
-      // Verificar tipo MIME
-      const mimeType = base64Data.match(/[^:]+\/([^;]+)/i);
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      
-      if (!mimeType || !allowedTypes.includes(mimeType[0])) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Tipo de archivo no permitido. Solo JPG, PNG, GIF y WebP" 
-        });
-      }
-    }
-  }
-  next();
-};
-
-// Aplicar validación de archivos a rutas específicas
-app.use("/api/user/avatar", validateFileUpload);
-app.use("/api/foros", validateFileUpload);
-app.use("/api/juegos", validateFileUpload);
-app.use("/api/game_jams", validateFileUpload);
 
 
 
@@ -203,20 +98,18 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 console.log(`🔍 Entorno detectado: Koyeb=${isKoyeb}, Vercel=${isVercel}, Production=${isProduction}`);
 
-// CONFIGURACIÓN DE BASE DE DATOS DUAL - ACTUALIZADA
+
 const dbConfig = isVercel || isProduction ? {
-  // ✅ CONFIGURACIÓN NUBE (Aiven) - Para Koyeb y producción
-  host: process.env.DB_HOST || "takuminet-mariadb-julianmartinezarenas480-c704.g.aivencloud.com",
-  user: process.env.DB_USER || "avnadmin",
-  password: process.env.DB_PASSWORD || "AVNS_W8Jtd5VqKCChu5rHHTG",
-  database: process.env.DB_NAME || "defaultdb",
-  port: process.env.DB_PORT || 25967,
-  ssl: { rejectUnauthorized: false },
+  host: process.env.DB_HOST || "serverless-eastus.sysp0000.db3.skysql.com",
+  user: process.env.DB_USER || "dbpbf41588767",
+  password: process.env.DB_PASSWORD || "h8fH7R-26c6DQ7J~S7wRh",
+  database: process.env.DB_NAME || "takuminet_db", // o tu nombre de DB real
+  port: process.env.DB_PORT || 4108,
+  ssl: { rejectUnauthorized: false }, // necesario para SkySQL
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 } : {
-  // ✅ CONFIGURACIÓN LOCAL - Para desarrollo
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "2001",
@@ -228,29 +121,48 @@ const dbConfig = isVercel || isProduction ? {
   queueLimit: 0
 };
 
+
 // =======================
-// MIDDLEWARES ESENCIALES
+// MIDDLEWARES ESENCIALES - ACTUALIZADOS PARA 25MB
 // =======================
 
-// Middleware para parsear JSON - ¡ESENCIAL!
-app.use(express.json({ limit: '10mb' })); // Añade esto
+// ✅ AUMENTAR LÍMITE A 25MB PARA IMÁGENES Y ARCHIVOS
+app.use(express.json({ 
+  limit: '50mb', // Aumentado de 10MB a 50MB
+  verify: (req, res, buf) => {
+    try {
+      JSON.parse(buf);
+    } catch (e) {
+      res.status(400).json({ ok: false, error: "JSON inválido" });
+    }
+  }
+}));
 
-// Middleware para parsear URL-encoded - RECOMENDADO
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Y esto
+app.use(express.urlencoded({ 
+  extended: true, 
+  limit: '50mb' // Aumentado de 10MB a 50MB
+}));
 
-// ✅ TE RECOMIENDO ESTA - CONFIGURACIÓN MÍNIMA Y RÁPIDA
+// ✅ CONFIGURACIÓN CORS MEJORADA
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         "https://takuminet-app.netlify.app",
-        "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app"
+        "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app",
+        "http://localhost:3000"
       ]
-    : true, // En desarrollo permitir todos los orígenes
-  credentials: true
+    : ["http://localhost:3000", "http://127.0.0.1:3000"],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  maxAge: 86400 // 24 horas
 }));
 
-app.use(helmet());
-app.use(cookieParser());
+// ✅ HEADERS DE SEGURIDAD PERMITIENDO ARCHIVOS GRANDES
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  contentSecurityPolicy: false // Temporal para desarrollo
+}));
 
 // =======================
 // VARIABLES GLOBALES Y HELPERS
@@ -938,66 +850,133 @@ app.get("/api/foros/:id/comentarios", async (req, res) => {
 
 
 // =======================
-// ENDPOINT SUBIR JUEGO (ACTUALIZADO)
+// ENDPOINT SUBIR JUEGO - ACTUALIZADO PARA 25MB
 // =======================
 app.post("/api/juegos", authMiddleware, async (req, res) => {
   try {
     const data = req.body;
+    
+    console.log("📥 Recibiendo solicitud para subir juego...");
+    console.log("📊 Tamaño de datos recibidos:", JSON.stringify(data).length, "bytes");
 
-    // Validación básica
+    // ✅ Validación mejorada con mensajes más claros
     if (!data.title || !data.description) {
-      return res.status(400).json({ ok: false, error: "Título y descripción obligatorios" });
+      return res.status(400).json({ 
+        ok: false, 
+        error: "❌ Título y descripción son obligatorios" 
+      });
+    }
+
+    // ✅ Validar tamaño de imágenes base64
+    if (data.cover_base64 && data.cover_base64.length > 30 * 1024 * 1024) { // ~30MB en base64
+      return res.status(400).json({
+        ok: false,
+        error: "❌ La portada es demasiado grande. Máximo 25MB."
+      });
     }
 
     let coverUrl = null;
     let screenshotsUrls = [];
 
-    // 📤 Subir portada (base64)
+    // 📤 SUBIR PORTADA - CON MANEJO DE ERRORES MEJORADO
     if (data.cover_base64) {
       try {
-        const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${data.cover_base64}`, {
-          folder: "takuminet/games/cover",
-          public_id: `cover_${Date.now()}`,
-          overwrite: true,
-        });
+        console.log("🖼️ Subiendo portada a Cloudinary...");
+        console.log("📸 Tamaño base64 portada:", data.cover_base64.length, "caracteres");
+        
+        const imageFormat = detectImageFormat(data.cover_base64);
+        console.log("🎨 Formato detectado para portada:", imageFormat);
+        
+        const result = await cloudinary.uploader.upload(
+          `data:image/${imageFormat};base64,${data.cover_base64}`, 
+          {
+            folder: "takuminet/games/cover",
+            public_id: `cover_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            overwrite: true,
+            timeout: 60000, // 60 segundos timeout
+            chunk_size: 20 * 1024 * 1024 // 20MB chunks
+          }
+        );
+        
         coverUrl = result.secure_url;
         console.log("✅ Portada subida a Cloudinary:", coverUrl);
+        
       } catch (cloudinaryError) {
-        console.error("❌ Error subiendo portada a Cloudinary:", cloudinaryError);
-        return res.status(500).json({ ok: false, error: "Error al subir la portada" });
+        console.error("❌ Error detallado subiendo portada:", {
+          message: cloudinaryError.message,
+          code: cloudinaryError.code,
+          http_code: cloudinaryError.http_code
+        });
+        
+        return res.status(500).json({ 
+          ok: false, 
+          error: "Error al subir la portada: " + cloudinaryError.message 
+        });
       }
     }
 
-    // 📤 Subir capturas (array base64)
+    // 📤 SUBIR CAPTURAS - CON LÍMITE DE 25MB
     if (data.screenshots_base64 && data.screenshots_base64.length > 0) {
       try {
-        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
-          const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${ssBase64}`, {
-            folder: "takuminet/games/screenshots",
-            public_id: `ss_${Date.now()}_${i}`,
-            overwrite: true,
+        console.log("🖼️ Subiendo", data.screenshots_base64.length, "capturas...");
+        
+        // ✅ Validar número de capturas
+        if (data.screenshots_base64.length < 5) {
+          return res.status(400).json({
+            ok: false,
+            error: "❌ Debes subir al menos 5 capturas del juego"
           });
-          screenshotsUrls.push(result.secure_url);
         }
-        console.log("✅ Capturas subidas a Cloudinary:", screenshotsUrls.length);
+
+        // ✅ Validar tamaño de cada captura
+        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
+          if (ssBase64.length > 30 * 1024 * 1024) { // ~30MB en base64
+            return res.status(400).json({
+              ok: false,
+              error: `❌ La captura ${i + 1} es demasiado grande. Máximo 25MB por imagen.`
+            });
+          }
+        }
+
+        // ✅ Subir capturas en serie (más estable que en paralelo)
+        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
+          console.log(`📤 Subiendo captura ${i + 1}/${data.screenshots_base64.length}...`);
+          
+          const imageFormat = detectImageFormat(ssBase64);
+          const result = await cloudinary.uploader.upload(
+            `data:image/${imageFormat};base64,${ssBase64}`,
+            {
+              folder: "takuminet/games/screenshots",
+              public_id: `ss_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 9)}`,
+              overwrite: true,
+              timeout: 60000,
+              chunk_size: 20 * 1024 * 1024
+            }
+          );
+          
+          screenshotsUrls.push(result.secure_url);
+          console.log(`✅ Captura ${i + 1} subida (${imageFormat.toUpperCase()})`);
+        }
+        
+        console.log("🎉 Todas las capturas subidas:", screenshotsUrls.length);
+        
       } catch (cloudinaryError) {
-        console.error("❌ Error subiendo capturas a Cloudinary:", cloudinaryError);
-        return res.status(500).json({ ok: false, error: "Error al subir las capturas" });
+        console.error("❌ Error subiendo capturas:", cloudinaryError);
+        return res.status(500).json({ 
+          ok: false, 
+          error: "Error al subir las capturas: " + cloudinaryError.message 
+        });
       }
     }
 
+    // 🎯 CONTINÚA CON EL RESTO DEL CÓDIGO ORIGINAL...
     const screenshotsJSON = JSON.stringify(screenshotsUrls);
 
-    // Mapear pricing values a inglés para la base de datos
+    // Mapear pricing values
     const pricingMap = {
-      'free': 'free',
-      'paid': 'paid', 
-      'donation': 'donation',
-      'gratis': 'free',
-      'pago': 'paid',
-      'donacion': 'donation'
+      'free': 'free', 'paid': 'paid', 'donation': 'donation',
+      'gratis': 'free', 'pago': 'paid', 'donacion': 'donation'
     };
-
     const mappedPricing = pricingMap[data.pricing] || 'free';
 
     // Guardar en MariaDB
@@ -1013,7 +992,7 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
     `;
 
     const values = [
-      req.userId, // ID usuario del token
+      req.userId,
       data.title,
       data.description,
       data.category || "other",
@@ -1039,25 +1018,50 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
       data.terms_accepted ? 1 : 0
     ];
 
-    console.log("📝 Valores para INSERT:", values);
-
+    console.log("💾 Guardando en base de datos...");
     const result = await runAsync(query, values);
+    console.log("✅ Juego guardado en BD con ID:", result.insertId);
 
     res.json({
       ok: true,
-      message: "Juego publicado con éxito 🎮",
+      message: "🎮 ¡Juego publicado con éxito!",
       id: result.insertId,
       cover: coverUrl,
       screenshots: screenshotsUrls,
     });
 
   } catch (err) {
-    console.error("❌ Error subiendo juego:", err);
-    res.status(500).json({ ok: false, error: "Error al subir juego: " + err.message });
+    console.error("💥 ERROR CRÍTICO subiendo juego:", {
+      message: err.message,
+      stack: err.stack,
+      code: err.code
+    });
+    
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor: " + err.message 
+    });
   }
 });
 
-
+// =======================
+// FUNCIÓN PARA DETECTAR FORMATO DE IMAGEN
+// =======================
+function detectImageFormat(base64String) {
+  // Los primeros caracteres del base64 indican el formato
+  const signature = base64String.substring(0, 20);
+  
+  if (signature.startsWith('/9j/')) {
+    return 'jpeg'; // JPEG
+  } else if (signature.startsWith('iVBORw0KGgo')) {
+    return 'png'; // PNG
+  } else if (signature.startsWith('R0lGODlh')) {
+    return 'gif'; // GIF
+  } else {
+    console.log("⚠️ Formato no detectado, usando PNG por defecto. Signature:", signature);
+    return 'png'; // Por defecto
+  }
+}
 
 
 // =======================
@@ -1610,6 +1614,306 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
   }
 });
 
+
+
+// =====================
+// VERIFICAR SI UN EMAIL EXISTE (para recuperación)
+// =====================
+app.get("/api/verificar-email", async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ ok: false, error: "Falta el parámetro 'email'" });
+
+  try {
+    const [rows] = await pool.query("SELECT user_id FROM usuarios WHERE email = ?", [email]);
+    const existe = rows.length > 0;
+    res.json({ ok: true, existe });
+  } catch (err) {
+    console.error("❌ Error verificando email:", err);
+    res.status(500).json({ ok: false, error: "Error interno del servidor" });
+  }
+});
+
+
+
+
+
+
+// =======================
+// ENDPOINTS MERCADO PAGO CORREGIDOS
+// =======================
+
+// =======================
+// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
+// =======================
+
+// Conectar cuenta de Mercado Pago
+app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
+  try {
+    const { mp_email, mp_user_id } = req.body;
+
+    if (!mp_email || !mp_user_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Email y User ID de Mercado Pago son requeridos" 
+      });
+    }
+
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(mp_email)) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "Formato de email inválido" 
+      });
+    }
+
+    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
+    await runAsync(
+      `UPDATE usuarios 
+       SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
+       WHERE user_id = ?`,
+      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
+    );
+
+    res.json({ 
+      ok: true, 
+      message: "✅ Cuenta de Mercado Pago conectada correctamente",
+      data: {
+        email: mp_email,
+        user_id: mp_user_id,
+        connected_at: new Date().toISOString()
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error conectando Mercado Pago:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
+  }
+});
+
+// Obtener estado de Mercado Pago - ✅ CORREGIDO
+app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
+  try {
+    // ✅ CORREGIDO: Usando SOLO las columnas que existen
+    const user = await getAsync(
+      `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
+       FROM usuarios WHERE user_id = ?`,
+      [req.userId]
+    );
+
+    if (!user) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: "Usuario no encontrado" 
+      });
+    }
+
+    const isConnected = !!user.mp_email;
+    
+    res.json({
+      ok: true,
+      connected: isConnected,
+      data: {
+        user_id: user.user_id,
+        username: user.username,
+        email: user.mp_email,
+        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
+        connected_at: user.mp_connected_at
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error verificando estado de Mercado Pago:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
+  }
+});
+
+// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
+app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
+  try {
+    // ✅ CORREGIDO: Usando las columnas correctas
+    await runAsync(
+      `UPDATE usuarios 
+       SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
+       WHERE user_id = ?`,
+      [req.userId]
+    );
+
+    res.json({ 
+      ok: true, 
+      message: "✅ Cuenta de Mercado Pago desconectada correctamente" 
+    });
+
+  } catch (err) {
+    console.error("❌ Error desconectando Mercado Pago:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
+  }
+});
+app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
+  try {
+    const { juego_id, amount, is_donation = false } = req.body;
+
+    console.log("💰 Creando preferencia de Marketplace para juego:", juego_id);
+
+    // 1. Obtener información del juego y desarrollador
+    const juegoQuery = `
+      SELECT j.*, u.mp_id, u.username, u.mp_email
+      FROM juegos j 
+      LEFT JOIN usuarios u ON j.user_id = u.user_id 
+      WHERE j.id = ?
+    `;
+    const juego = await getAsync(juegoQuery, [juego_id]);
+
+    if (!juego) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: "Juego no encontrado" 
+      });
+    }
+
+    // 2. Verificar que el desarrollador tenga cuenta de Mercado Pago conectada
+    if (!juego.mp_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "El desarrollador no tiene cuenta de Mercado Pago conectada" 
+      });
+    }
+
+    // 3. Calcular comisiones
+    const totalAmount = parseFloat(amount);
+    const comisionTakumi = totalAmount * 0.30; // 30% para TakumiNet
+    const pagoDesarrollador = totalAmount * 0.70; // 70% para el desarrollador
+
+    console.log(`💰 Distribución: $${totalAmount} = TakumiNet ($${comisionTakumi}) + Dev ($${pagoDesarrollador})`);
+
+    // 4. Crear preferencia de Marketplace
+    const preference = {
+      items: [
+        {
+          title: is_donation ? `Donación para ${juego.title}` : juego.title,
+          description: juego.description || "Juego en TakumiNet",
+          quantity: 1,
+          currency_id: "USD",
+          unit_price: totalAmount
+        }
+      ],
+      marketplace: "TakumiNet",
+      marketplace_fee: comisionTakumi, // 30% para TakumiNet
+      disbursements: [
+        {
+          amount: pagoDesarrollador, // 70% para el desarrollador
+          collector_id: parseInt(juego.mp_id) // User ID MP del desarrollador
+        }
+      ],
+      back_urls: {
+        success: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/success.html?juego_id=${juego_id}`,
+        failure: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/failure.html`,
+        pending: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/pending.html`
+      },
+      auto_return: "approved",
+      external_reference: `takumi_${juego_id}_${Date.now()}`,
+      notification_url: `${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/notifications`
+    };
+
+    console.log("🔄 Creando preferencia en Mercado Pago...", preference);
+
+    const result = await mercadopago.preferences.create(preference);
+    
+    console.log("✅ Preferencia de Marketplace creada:", result.body.id);
+
+    res.json({
+      ok: true,
+      preferenceId: result.body.id,
+      init_point: result.body.init_point,
+      distribution: {
+        total: totalAmount,
+        takumi_commission: comisionTakumi,
+        developer_payment: pagoDesarrollador,
+        developer_mp_id: juego.mp_id
+      }
+    });
+
+  } catch (err) {
+    console.error("❌ Error creando preferencia de Marketplace:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error al crear preferencia de pago: " + err.message 
+    });
+  }
+});
+
+// ============================
+// WEBHOOK PARA NOTIFICACIONES DE PAGO
+// ============================
+app.post('/api/mercadopago/notifications', async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    
+    if (type === "payment") {
+      const paymentId = data.id;
+      
+      // Obtener detalles del pago
+      const payment = await mercadopago.payment.get(paymentId);
+      const paymentData = payment.body;
+      
+      console.log("💰 Notificación de pago recibida:", {
+        id: paymentData.id,
+        status: paymentData.status,
+        amount: paymentData.transaction_amount,
+        external_reference: paymentData.external_reference
+      });
+
+      // Aquí puedes guardar en tu base de datos el registro del pago
+      if (paymentData.status === "approved") {
+        console.log("✅ Pago aprobado - Guardando en base de datos...");
+        
+        // Extraer información del external_reference
+        const reference = paymentData.external_reference;
+        if (reference && reference.startsWith('takumi_')) {
+          const parts = reference.split('_');
+          const juegoId = parts[1];
+          
+          // Guardar registro de venta
+          await runAsync(
+            `INSERT INTO ventas_juegos 
+             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              juegoId,
+              paymentData.id,
+              paymentData.transaction_amount,
+              paymentData.transaction_amount * 0.30, // 30% comisión
+              paymentData.transaction_amount * 0.70, // 70% desarrollador
+              'completed'
+            ]
+          );
+          
+          console.log("📊 Venta registrada en base de datos");
+        }
+      }
+    }
+    
+    res.status(200).send("OK");
+  } catch (err) {
+    console.error("❌ Error en webhook:", err);
+    res.status(500).send("Error");
+  }
+});
+
+
+
+
+
+
 app.get("/", async (req, res) => {
   let dbConnected = false;
 
@@ -1632,30 +1936,6 @@ app.get("/", async (req, res) => {
 });
 
 
-
-
-
-
-
-// =======================
-// ENDPOINT DE ESTADO Y SEGURIDAD
-// =======================
-app.get("/api/security-status", async (req, res) => {
-  const securityInfo = {
-    rateLimiting: "ACTIVO",
-    sqlInjectionProtection: "ACTIVO", 
-    xssProtection: "ACTIVO",
-    fileValidation: "ACTIVO",
-    helmet: "ACTIVO",
-    environment: process.env.NODE_ENV || "development",
-    timestamp: new Date().toISOString()
-  };
-  
-  res.json({ ok: true, security: securityInfo });
-});
-
-
-
 // Inicializar pool de conexiones
 initializePool().then((ok) => {
   if (ok) {
@@ -1675,4 +1955,4 @@ if (require.main === module) {
 }
 
 // Exportamos la app para Koyeb
-module.exports = app;
+module.exports = app; 

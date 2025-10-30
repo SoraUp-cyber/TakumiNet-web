@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // =========================
   const API_BASE = window.location.hostname === "localhost"
     ? "http://localhost:3001" 
-    : "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
+    : "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
 
   const token = localStorage.getItem("token");
   let juegosData = [];

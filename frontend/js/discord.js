@@ -1,15 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const discordBtn = document.getElementById("discordBtn");
-
-  discordBtn.addEventListener("click", () => {
-    const CLIENT_ID = "1397287228744532162"; // tu client ID real
-    const REDIRECT_URI = "https://takuminet-app.netlify.app/discord-callback.html"; // la página de callback
-    const SCOPES = "identify email";
-
-    const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
-    )}&response_type=code&scope=${encodeURIComponent(SCOPES)}`;
-
-    window.location.href = DISCORD_AUTH_URL;
-  });
+    const discordBtn = document.getElementById("discordBtn");
+    
+    if (discordBtn) {
+        discordBtn.addEventListener("click", () => {
+            // Crear mensaje flotante
+            const message = document.createElement('div');
+            message.textContent = '🚧 Todavía no disponible - Próximamente';
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ff9800;
+                color: white;
+                padding: 15px;
+                border-radius: 5px;
+                z-index: 1000;
+                font-weight: bold;
+            `;
+            document.body.appendChild(message);
+            
+            // Quitar mensaje después de 3 segundos
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        });
+    }
 });

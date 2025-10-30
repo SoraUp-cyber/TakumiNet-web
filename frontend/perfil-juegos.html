@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="../css/footer.css">
+    <link rel="stylesheet" href="css/footer.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/nav.css">
@@ -99,7 +99,6 @@
 
 #galeria-capturas img:hover {
   transform: scale(1.03);
-  box-shadow: 0 6px 15px rgba(51, 255, 0, 0.3);
 }
 
 </style>
@@ -280,6 +279,38 @@
 <!-- Contenedor del botón -->
 <div id="contenedor-boton-juego"></div>
 
+<!-- ============================ -->
+<!-- MODAL DE AVISO DE SEGURIDAD -->
+<!-- ============================ -->
+<div id="modal-aviso" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:9999; font-family:'Poppins', sans-serif;">
+  <div style="background:#2b2b2b; color:#fff; padding:25px; border-radius:12px; max-width:520px; text-align:left; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+    <h3 style="color:#4caf50; margin-bottom:12px;">⚠️ Aviso importante antes de descargar</h3>
+
+    <p>Antes de abrir el archivo, <b>analízalo con tu antivirus</b> o en 
+       <a href="https://www.virustotal.com" target="_blank" style="color:#4caf50; text-decoration:none;">VirusTotal</a>.</p>
+
+    <p>Descarga y ejecuta los archivos <b>bajo tu propia responsabilidad</b>.</p>
+
+    <p>Si detectas un archivo peligroso, <b>repórtalo de inmediato</b> para revisión o eliminación.</p>
+
+    <p>En el caso de <b>juegos de pago</b>, si el archivo es malicioso o corrupto, podrás 
+       <b>solicitar revisión o reembolso</b> mostrando evidencia (captura del antivirus o reporte).</p>
+
+    <p style="color:#9ef59e;">✅ Al continuar con la descarga, confirmas que has leído y aceptado estas condiciones.</p>
+
+    <div style="text-align:center; margin-top:20px;">
+      <button id="btnAceptarAviso" style="background:#4caf50; color:white; padding:10px 20px; border:none;
+        border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">Aceptar y continuar</button>
+
+      <button id="btnCancelarAviso" style="margin-left:12px; background:#dc3545; color:white; padding:10px 20px;
+        border:none; border-radius:8px; cursor:pointer; font-weight:bold; transition:0.3s;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+
+  
 <h4>Descripción del juego:</h4>
 <p id="descripcion-juego">Cargando descripción...</p>
 

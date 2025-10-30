@@ -81,7 +81,7 @@ async function cargarDetallesGameJam() {
   }
 
   try {
-    const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/game_jams/${jamId}`);
+    const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/game_jams/${jamId}`);
     
     if (!res.ok) {
       console.error('Error HTTP:', res.status, res.statusText);

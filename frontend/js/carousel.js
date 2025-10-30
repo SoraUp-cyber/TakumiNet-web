@@ -1,5 +1,5 @@
 (async function() {
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
+  const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
 
   // ==========================
   // Normalizar portada del juego

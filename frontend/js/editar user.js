@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cargar datos del usuario
   async function cargarUsuario() {
     try {
-      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reader.onload = async () => {
       const avatarBase64 = reader.result;
       try {
-        const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/avatar", {
+        const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user/avatar", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user/editar", {
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user/editar", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

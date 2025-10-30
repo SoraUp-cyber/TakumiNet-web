@@ -1,230 +1,518 @@
+// =========================
+// SISTEMA DE CONEXIÓN MERCADO PAGO MEJORADO
+// =========================
 document.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+  const connectButton = document.getElementById("connectMPButton");
+  const statusDiv = document.getElementById("mpStatus");
+  const dataDiv = document.getElementById("mpData");
 
-  const connectPayPalBtn = document.getElementById("connectPayPalButton");
-  const paypalStatus = document.getElementById("paypalStatus");
-  const paypalData = document.getElementById("paypalData");
+  // Verificar si estamos en una página con elementos de Mercado Pago
+  if (!connectButton || !statusDiv || !dataDiv) {
+    return;
+  }
 
-  const BACKEND_URL = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
-  const PAYPAL_PARTNER_URL = "https://www.paypal.com/bizsignup/partner/entry?referralToken=YmIxMjkyNjctOTU0Ny00ZTZlLWIxZjgtZWQ0NDBmZGZhNDk5VkFld0Vla211QjBCME44VEwzNjFEaVVjMzhtRGhWcnRaNUR3d1lyNm9ZTT12Mg==";
-  const REDIRECT_URL = "https://takuminet-app.netlify.app/pagos-desarrollador";
+  let token = localStorage.getItem("token");
+  let currentUser = null;
 
-  // =========================
-  // Cargar usuario y estado de PayPal
-  // =========================
-  async function loadUser() {
+  // Función para mostrar mensajes
+  function showStatus(message, color = "#33fc0b") {
+    statusDiv.textContent = message;
+    statusDiv.style.color = color;
+    statusDiv.style.fontWeight = "bold";
+  }
+
+  // Función para mostrar loading
+  function showLoading(message = "Cargando...") {
+    showStatus(message, "#33fc0b");
+    connectButton.disabled = true;
+  }
+
+  // Función para habilitar botón
+  function enableButton() {
+    connectButton.disabled = false;
+  }
+
+  // Verificar si el usuario está autenticado
+  if (!token) {
+    showStatus("🔒 Inicia sesión para conectar Mercado Pago", "#ff4444");
+    connectButton.disabled = true;
+    connectButton.textContent = "Inicia sesión primero";
+    return;
+  }
+
+  // Cargar información del usuario actual
+  async function loadCurrentUser() {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/user`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user", {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
+      
       const data = await res.json();
-      if (!data.ok) return console.error("No se pudo cargar usuario:", data.error);
-
-      const user = data.user;
-
-      // Estado de PayPal
-      if (user.paypalConnected) {
-        paypalStatus.textContent = "Cuenta PayPal conectada ✅";
-        connectPayPalBtn.textContent = "PayPal Conectado ✅";
-        connectPayPalBtn.style.background = "#00a86b";
-        connectPayPalBtn.disabled = true;
-
-        // Mostrar datos reales de la cuenta
-        loadPayPalData();
+      
+      if (data.ok && data.user) {
+        currentUser = data.user;
+        console.log("👤 Usuario cargado:", currentUser.username, "ID:", currentUser.user_id);
+        return true;
       } else {
-        paypalStatus.textContent = "Conecta tu cuenta PayPal para recibir pagos";
-        connectPayPalBtn.textContent = "Conectar con PayPal";
-        connectPayPalBtn.style.background = "#1f9900";
-        connectPayPalBtn.disabled = false;
+        console.error("❌ Error cargando usuario:", data.error);
+        return false;
       }
     } catch (err) {
-      console.error("Error cargando usuario:", err);
+      console.error("❌ Error en carga de usuario:", err);
+      return false;
     }
   }
 
-  await loadUser();
+  // Verificar estado actual de Mercado Pago
+  async function checkMPStatus() {
+    showLoading("Verificando estado de Mercado Pago...");
 
-  // =========================
-  // Botón "Conectar con PayPal" - Redirección real a PayPal Partners
-  // =========================
-  connectPayPalBtn.addEventListener("click", async () => {
     try {
-      paypalStatus.textContent = "Iniciando conexión con PayPal...";
-      
-      // 1. Obtener URL de autorización del backend con la URL de retorno correcta
-      const authRes = await fetch(`${BACKEND_URL}/api/paypal/auth-url?redirect_url=${encodeURIComponent(REDIRECT_URL)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const authData = await authRes.json();
-      
-      if (authData.ok && authData.authUrl) {
-        // 2. Redirigir a la URL de autorización de PayPal
-        window.location.href = authData.authUrl;
-      } else {
-        // 3. Fallback: Redirigir al registro de partners
-        paypalStatus.textContent = "Redirigiendo a PayPal Partners...";
-        setTimeout(() => {
-          window.open(PAYPAL_PARTNER_URL, '_blank');
-        }, 1000);
-      }
-    } catch (err) {
-      console.error("Error iniciando conexión PayPal:", err);
-      // Fallback al registro directo
-      paypalStatus.textContent = "Redirigiendo a PayPal Partners...";
-      setTimeout(() => {
-        window.open(PAYPAL_PARTNER_URL, '_blank');
-      }, 1000);
-    }
-  });
-
-  // =========================
-  // Cargar datos reales de PayPal
-  // =========================
-  async function loadPayPalData() {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/paypal/account-info`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      const data = await res.json();
-      
-      if (!data.ok) {
-        paypalData.innerHTML = `
-          <div style="color:orange; background:#fff8e6; padding:10px; border-radius:5px;">
-            ⚠️ Información de cuenta no disponible
-          </div>
-        `;
+      // Primero cargar el usuario actual
+      const userLoaded = await loadCurrentUser();
+      if (!userLoaded) {
+        showStatus("❌ Error al cargar usuario", "#ff4444");
+        enableButton();
         return;
       }
 
-      // Mostrar información real de la cuenta PayPal con botón de desconexión
-      paypalData.innerHTML = `
-        <div style="background:#f0f8f0; padding:15px; border-radius:8px; margin-top:10px;">
-          <h4 style="margin-top:0; color:#2d5016;">✅ Cuenta PayPal Conectada</h4>
-          <p><strong>Email de la cuenta:</strong> ${data.email || 'No disponible'}</p>
-          <p><strong>ID de comerciante:</strong> ${data.merchant_id || 'No disponible'}</p>
-          <p><strong>Estado de verificación:</strong> ${data.verification_status || 'No disponible'}</p>
-          <p><strong>Capacidad de recibir pagos:</strong> ${data.payments_receivable ? '✅ Sí' : '❌ No'}</p>
-          ${data.primary_currency ? `<p><strong>Moneda principal:</strong> ${data.primary_currency}</p>` : ''}
-          <p><strong>Conectado desde:</strong> ${data.connected_at ? new Date(data.connected_at).toLocaleDateString() : 'Recientemente'}</p>
-          
-          <!-- Botón para desconectar PayPal -->
-          <button id="disconnectPayPalBtn" class="button" style="background:#dc3545; color:white; margin-top:10px;">
-            🚫 Desconectar Cuenta PayPal
-          </button>
-        </div>
-      `;
-
-      // Agregar evento al botón de desconexión
-      const disconnectBtn = document.getElementById("disconnectPayPalBtn");
-      if (disconnectBtn) {
-        disconnectBtn.addEventListener("click", disconnectPayPal);
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/status", {
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      
+      const data = await res.json();
+      
+      if (data.ok && data.connected) {
+        showStatus("✅ Cuenta de Mercado Pago conectada", "#33fc0b");
+        dataDiv.innerHTML = `
+          <div style="margin-bottom: 15px; color: #ffffff;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <strong>👤 Usuario TakumiNet:</strong> ${currentUser.username} (ID: ${currentUser.user_id})<br>
+                <strong>📧 Email MP:</strong> ${data.data.email}<br>
+                <strong>🆔 ID de Cuenta MP:</strong> ${data.data.account_id}<br>
+                <strong>📅 Conectado:</strong> ${new Date(data.data.connected_at).toLocaleDateString('es-ES', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </div>
+              <div style="text-align: right;">
+                <span style="background: #33fc0b; color: black; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                  ✅ Conectado
+                </span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button id="disconnectMPButton" class="button" style="background:#ff4444; color:white; padding:8px 15px; flex:1; border: none; border-radius: 5px; cursor: pointer;">
+              🚫 Desconectar
+            </button>
+            <button id="refreshMPButton" class="button" style="background:#008cba; color:white; padding:8px 15px; flex:1; border: none; border-radius: 5px; cursor: pointer;">
+              🔄 Actualizar
+            </button>
+          </div>
+        `;
+        connectButton.textContent = "🔄 Cambiar cuenta";
+        
+        // Agregar eventos a los botones
+        document.getElementById("disconnectMPButton").addEventListener("click", disconnectMercadoPago);
+        document.getElementById("refreshMPButton").addEventListener("click", checkMPStatus);
+        
+      } else {
+        showStatus(`Conecta tu cuenta de Mercado Pago para recibir pagos 💰`, "#33fc0b");
+        dataDiv.innerHTML = `
+          <div style="background: #1d1d1d; border: 1px solid #33fc0b; padding: 10px; border-radius: 5px; margin-bottom: 10px; color: #ffffff;">
+            <strong>👤 Usuario actual:</strong> ${currentUser.username} (ID: ${currentUser.user_id})<br>
+            <strong>💡 ¿Por qué conectar Mercado Pago?</strong><br>
+            - Recibe pagos por tus juegos<br>
+            - Cobros automáticos y seguros<br>
+            - Retiros inmediatos a tu cuenta
+          </div>
+        `;
+        connectButton.textContent = "🔗 Conectar con Mercado Pago";
       }
-
+      enableButton();
     } catch (err) {
-      console.error("Error al cargar datos PayPal:", err);
-      paypalData.innerHTML = `
-        <div style="color:orange; background:#fff8e6; padding:10px; border-radius:5px;">
-          ⚠️ Error cargando información de la cuenta
-        </div>
-      `;
+      console.error("Error verificando estado:", err);
+      showStatus("❌ Error al verificar estado de Mercado Pago", "#ff4444");
+      enableButton();
     }
   }
 
-  // =========================
-  // Función para desconectar PayPal
-  // =========================
-  async function disconnectPayPal() {
-    if (!confirm("¿Estás seguro de que quieres desconectar tu cuenta de PayPal?\n\n⚠️ No podrás recibir pagos hasta que reconectes tu cuenta.")) {
+  // Función para conectar Mercado Pago
+  async function connectMercadoPago() {
+    showLoading("Conectando con Mercado Pago...");
+
+    try {
+      // Primero cargar el usuario actual
+      const userLoaded = await loadCurrentUser();
+      if (!userLoaded) {
+        showStatus("❌ Error al cargar usuario", "#ff4444");
+        enableButton();
+        return;
+      }
+
+      // Mostrar información del usuario actual
+      const userInfo = `
+        <div style="background: #2a2a2a; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 3px solid #33fc0b;">
+          <strong>👤 Conectando para:</strong> ${currentUser.username}<br>
+          <strong>🆔 ID Usuario:</strong> ${currentUser.user_id}<br>
+          <strong>📧 Email TakumiNet:</strong> ${currentUser.email}
+        </div>
+      `;
+
+      // Pedir email de Mercado Pago
+      const mpEmail = await showEmailModal(userInfo);
+      if (!mpEmail) {
+        showStatus("Conexión cancelada por el usuario", "#ffa500");
+        enableButton();
+        return;
+      }
+
+      // Validación básica de email
+      if (!isValidEmail(mpEmail)) {
+        showStatus("❌ Formato de email inválido", "#ff4444");
+        enableButton();
+        return;
+      }
+
+      // Pedir User ID de Mercado Pago
+      const mpUserId = await showUserIdModal();
+      if (!mpUserId) {
+        showStatus("Conexión cancelada por el usuario", "#ffa500");
+        enableButton();
+        return;
+      }
+
+      // Enviar datos al servidor
+      const response = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/connect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          mp_email: mpEmail.trim(),
+          mp_user_id: mpUserId.trim()
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.ok) {
+        showStatus("✅ Cuenta de Mercado Pago conectada correctamente", "#33fc0b");
+        
+        // Mostrar resumen de la conexión
+        dataDiv.innerHTML += `
+          <div style="background: #1d3b1d; border: 1px solid #33fc0b; padding: 10px; border-radius: 5px; margin-top: 10px; color: #ffffff;">
+            <strong>🎉 ¡Conectado exitosamente!</strong><br>
+            Ahora puedes recibir pagos en: <strong>${result.data.email}</strong><br>
+            Tu User ID: <strong>${result.data.user_id}</strong>
+          </div>
+        `;
+        
+        await checkMPStatus(); // Actualizar la interfaz
+        
+      } else {
+        showStatus(`❌ Error: ${result.error}`, "#ff4444");
+        enableButton();
+      }
+    } catch (err) {
+      console.error(err);
+      showStatus("❌ Error de conexión al servidor", "#ff4444");
+      enableButton();
+    }
+  }
+
+  // Función para desconectar Mercado Pago
+  async function disconnectMercadoPago() {
+    if (!confirm("¿Estás seguro de que quieres desconectar tu cuenta de Mercado Pago?\n\n⚠️ No podrás recibir pagos hasta que conectes una cuenta nuevamente.")) {
       return;
     }
 
+    showLoading("Desconectando cuenta...");
+
     try {
-      paypalStatus.textContent = "Desconectando cuenta PayPal...";
-      
-      const res = await fetch(`${BACKEND_URL}/api/paypal-disconnect`, {
-        method: "POST",
+      const response = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/disconnect", {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
         }
       });
 
-      const data = await res.json();
-      
-      if (res.ok && data.ok) {
-        paypalStatus.textContent = "✅ Cuenta PayPal desconectada correctamente";
-        
-        // Resetear interfaz
-        connectPayPalBtn.textContent = "Conectar con PayPal";
-        connectPayPalBtn.style.background = "#1f9900";
-        connectPayPalBtn.disabled = false;
-        
-        // Limpiar datos mostrados
-        paypalData.innerHTML = "";
-        
-        // Recargar después de 2 segundos
+      const result = await response.json();
+
+      if (result.ok) {
+        showStatus("✅ Cuenta de Mercado Pago desconectada", "#33fc0b");
         setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+          checkMPStatus(); // Actualizar la interfaz
+        }, 1500);
       } else {
-        paypalStatus.textContent = "❌ Error al desconectar PayPal: " + (data.error || 'Error desconocido');
+        showStatus(`❌ Error: ${result.error}`, "#ff4444");
+        enableButton();
       }
     } catch (err) {
-      console.error("Error desconectando PayPal:", err);
-      paypalStatus.textContent = "❌ Error al desconectar la cuenta PayPal";
+      console.error(err);
+      showStatus("❌ Error al desconectar cuenta", "#ff4444");
+      enableButton();
     }
   }
 
-  // Verificar si hay código de autorización en la URL (callback de PayPal)
-  const urlParams = new URLSearchParams(window.location.search);
-  const authCode = urlParams.get('code');
-  const sharedId = urlParams.get('shared_id');
-
-  if (authCode && sharedId) {
-    processPayPalCallback(authCode, sharedId);
+  // Helper: Validar email
+  function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
-  // =========================
-  // Procesar callback de PayPal OAuth
-  // =========================
-  async function processPayPalCallback(authCode, sharedId) {
-    try {
-      paypalStatus.textContent = "Procesando autorización de PayPal...";
+  // Helper: Modal para email
+  function showEmailModal(userInfo = "") {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      `;
       
-      const res = await fetch(`${BACKEND_URL}/api/paypal/callback`, {
+      modal.innerHTML = `
+        <div style="background: #2e2e2e; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; border: 2px solid #33fc0b; color: white;">
+          <h3 style="margin-top: 0; color: #33fc0b;">🔗 Conectar Mercado Pago</h3>
+          ${userInfo}
+          <p>Ingresa el email de tu cuenta real de Mercado Pago:</p>
+          <input type="email" id="mpEmailInput" 
+                 placeholder="tu-email@mercadopago.com" 
+                 style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #555; border-radius: 5px; background: #1d1d1d; color: white;">
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="confirmEmail" style="background: #33fc0b; color: black; border: none; padding: 12px 20px; border-radius: 5px; flex: 1; font-weight: bold; cursor: pointer;">✅ Continuar</button>
+            <button id="cancelEmail" style="background: #ff4444; color: white; border: none; padding: 12px 20px; border-radius: 5px; flex: 1; cursor: pointer;">❌ Cancelar</button>
+          </div>
+          <div style="margin-top: 15px; padding: 10px; background: #1d1d1d; border-radius: 5px; font-size: 12px; border-left: 3px solid #33fc0b;">
+            <strong>💡 Importante:</strong> Usa el mismo email de tu cuenta real de Mercado Pago donde quieres recibir los pagos.
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      const input = document.getElementById('mpEmailInput');
+      input.focus();
+      
+      document.getElementById('confirmEmail').onclick = () => {
+        const email = input.value.trim();
+        document.body.removeChild(modal);
+        resolve(email);
+      };
+      
+      document.getElementById('cancelEmail').onclick = () => {
+        document.body.removeChild(modal);
+        resolve(null);
+      };
+
+      // Cerrar modal al hacer click fuera
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+          resolve(null);
+        }
+      };
+    });
+  }
+
+  // Helper: Modal para User ID
+  function showUserIdModal() {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      `;
+      
+      modal.innerHTML = `
+        <div style="background: #2e2e2e; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; border: 2px solid #33fc0b; color: white;">
+          <h3 style="margin-top: 0; color: #33fc0b;">🆔 User ID de Mercado Pago</h3>
+          <p>Ingresa tu <strong>User ID</strong> de Mercado Pago:</p>
+          <input type="text" id="mpUserIdInput" 
+                 placeholder="Ej: 2669472141" 
+                 style="width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #555; border-radius: 5px; background: #1d1d1d; color: white;">
+          
+          <div style="background: #1d1d1d; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 12px; border-left: 3px solid #008cba;">
+            <strong>📌 ¿Dónde encuentro mi User ID?</strong><br>
+            1. Ve a <a href="https://www.mercadopago.com.co" target="_blank" style="color: #33fc0b;">MercadoPago.com.co</a><br>
+            2. Inicia sesión en tu cuenta<br>
+            3. Ve a tu perfil → Configuración<br>
+            4. Busca "Tu número de usuario" o "User ID"
+          </div>
+          
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="confirmUserId" style="background: #33fc0b; color: black; border: none; padding: 12px 20px; border-radius: 5px; flex: 1; font-weight: bold; cursor: pointer;">✅ Conectar</button>
+            <button id="cancelUserId" style="background: #ff4444; color: white; border: none; padding: 12px 20px; border-radius: 5px; flex: 1; cursor: pointer;">❌ Cancelar</button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      const input = document.getElementById('mpUserIdInput');
+      input.focus();
+      
+      document.getElementById('confirmUserId').onclick = () => {
+        const userId = input.value.trim();
+        document.body.removeChild(modal);
+        resolve(userId);
+      };
+      
+      document.getElementById('cancelUserId').onclick = () => {
+        document.body.removeChild(modal);
+        resolve(null);
+      };
+
+      // Cerrar modal al hacer click fuera
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          document.body.removeChild(modal);
+          resolve(null);
+        }
+      };
+    });
+  }
+
+  // Inicializar el sistema
+  connectButton.addEventListener("click", connectMercadoPago);
+  await checkMPStatus();
+});
+
+// =========================
+// SISTEMA DE AVATAR Y USUARIO
+// =========================
+document.addEventListener("DOMContentLoaded", async () => {
+  const avatarCircle = document.getElementById("avatar-circle");
+  const avatarIcon = document.getElementById("avatar-icon");
+  const currentUsername = document.getElementById("current-username");
+
+  let token = localStorage.getItem("token");
+
+  // =========================
+  // 1️⃣ DETECTAR Y PROCESAR LOGIN CON DISCORD
+  // =========================
+  const params = new URLSearchParams(window.location.search);
+  const discordCode = params.get("code");
+
+  if (discordCode) {
+    console.log("🔐 Código OAuth de Discord detectado:", discordCode);
+
+    try {
+      currentUsername.textContent = "Conectando con Discord...";
+      
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/auth/discord", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ authCode, sharedId })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: discordCode })
       });
 
       const data = await res.json();
-      
-      if (res.ok && data.ok) {
-        paypalStatus.textContent = "✅ Cuenta PayPal conectada exitosamente";
-        connectPayPalBtn.textContent = "PayPal Conectado ✅";
-        connectPayPalBtn.style.background = "#00a86b";
-        connectPayPalBtn.disabled = true;
+      console.log("📨 Respuesta del backend:", data);
+
+      if (data.ok) {
+        // ✅ MOSTRAR DATOS DE DISCORD INMEDIATAMENTE
+        if (data.discordUser) {
+          const discordUser = data.discordUser;
+          currentUsername.textContent = discordUser.global_name || discordUser.username;
+          
+          if (discordUser.avatar) {
+            avatarCircle.style.backgroundImage = `url(${discordUser.avatar})`;
+            avatarCircle.style.backgroundSize = "cover";
+            avatarCircle.style.backgroundPosition = "center";
+            avatarIcon.style.display = "none";
+          }
+        }
+
+        // ✅ GUARDAR TOKEN SI EXISTE
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          token = data.token;
+          console.log("✅ Token guardado");
+        }
+
+        // Limpiar URL
+        window.history.replaceState({}, document.title, window.location.pathname);
         
-        // Limpiar URL pero mantenernos en la misma página
-        window.history.replaceState({}, document.title, "/pagos-desarrollador");
+        console.log("✅ Login con Discord exitoso");
         
-        // Cargar datos de la cuenta
-        setTimeout(() => {
-          loadPayPalData();
-        }, 1000);
       } else {
-        paypalStatus.textContent = "❌ Error conectando con PayPal: " + (data.error || 'Error desconocido');
+        console.error("❌ Error en autenticación Discord:", data.error);
+        currentUsername.textContent = "Error en login";
       }
     } catch (err) {
-      console.error("Error procesando callback PayPal:", err);
-      paypalStatus.textContent = "❌ Error procesando la autorización de PayPal";
+      console.error("❌ Error de conexión:", err);
+      currentUsername.textContent = "Error de conexión";
     }
+  }
+
+  // =========================
+  // 2️⃣ CARGAR USUARIO (NORMAL O DISCORD)
+  // =========================
+  if (token) {
+    await loadUser(token);
+  } else {
+    currentUsername.textContent = "Iniciar Sesión";
+    resetAvatar();
+  }
+
+  async function loadUser(userToken) {
+    try {
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user", {
+        headers: { Authorization: `Bearer ${userToken}` }
+      });
+      
+      const data = await res.json();
+
+      if (data.ok && data.user) {
+        const user = data.user;
+        currentUsername.textContent = user.username || "Usuario";
+        
+        if (user.avatar) {
+          avatarCircle.style.backgroundImage = `url(${user.avatar})`;
+          avatarCircle.style.backgroundSize = "cover";
+          avatarCircle.style.backgroundPosition = "center";
+          avatarIcon.style.display = "none";
+        } else {
+          resetAvatar();
+        }
+      } else {
+        console.error("❌ Error cargando usuario:", data.error);
+        localStorage.removeItem("token");
+        currentUsername.textContent = "Iniciar Sesión";
+        resetAvatar();
+      }
+    } catch (err) {
+      console.error("❌ Error en carga de usuario:", err);
+    }
+  }
+
+  function resetAvatar() {
+    avatarCircle.style.backgroundImage = "none";
+    avatarIcon.style.display = "block";
   }
 });

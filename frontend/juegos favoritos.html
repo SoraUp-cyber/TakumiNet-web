@@ -13,32 +13,77 @@
   <link rel="stylesheet" href="css/buscador.css">
 
 <style>
-/* Estilo para el título de la sección de favoritos */
-.favorite-games h2 {
-  text-align: center;       
-  font-size: 2rem;          
-  font-weight: bold;        
-  color: #ffffff;           
-  margin-top: 40px;         /* Nuevo margen superior para bajarlo */
-  margin-bottom: 15px;      
-  letter-spacing: 1px;      
-  font-family: Georgia, 'Times New Roman', Times, serif;
+/* 🎮 Encabezado Favoritos */
+.favoritos-header {
+  background-color: #2b2b2b; /* gris oscuro */
+  color: #ffffff; /* texto blanco */
+  padding: 30px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-bottom: 3px solid #00ff66; /* verde */
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-
-/* Estilo para el mensaje de "sin favoritos" */
-#noFavoritesMessage {
-  text-align: center;           /* Centrar el texto */
-  font-size: 1.2rem;            /* Tamaño de fuente legible */
-  color: #cccccc;               /* Color gris claro */
-  margin-top: 20px;             /* Espacio arriba */
-  margin-bottom: 20px;          /* Espacio abajo */
-  font-style: italic;           /* Cursiva para dar énfasis */
-  padding: 10px 20px;           /* Espaciado interno */
-  border-radius: 8px;           /* Bordes redondeados */
-  font-family: 'Times New Roman', Times, serif;
+.favoritos-header .container {
+  max-width: 1100px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.titulo-favoritos {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  position: relative;
+}
+
+/* 💚 Línea verde bajo el texto */
+.titulo-favoritos::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background-color: #00ff66;
+  margin: 10px auto 0;
+  border-radius: 4px;
+}
+
+/* 💻 PC */
+@media (min-width: 769px) {
+  .favoritos-header {
+    padding: 40px 0;
+  }
+  .titulo-favoritos {
+    font-size: 2.5rem;
+  }
+}
+
+/* 📱 Móvil */
+@media (max-width: 768px) {
+  .favoritos-header {
+    padding: 20px 10px;
+  }
+  .titulo-favoritos {
+    font-size: 1.8rem;
+  }
+}
+
+/* 📱 Extra pequeño */
+@media (max-width: 480px) {
+  .titulo-favoritos {
+    font-size: 1.4rem;
+  }
+}
 
 </style>
 </head>
@@ -167,19 +212,20 @@
 
 
 
-<!-- Galería de Juegos Favoritos -->
-<section class="favorite-games">
-  <h2 data-i18n="favorites.title">Juegos Favoritos</h2>
-  <div class="game-gallery" id="favoriteGames">
-    <p id="noFavoritesMessage" data-i18n="favorites.noFavorites">Aún no has agregado juegos a favoritos. ¡Explora y añade tus favoritos!</p>
-    
-    <!-- Aquí se agregarán los juegos favoritos dinámicamente -->
-    <div id="favoritesContainer" data-i18n="favorites.container">
-      <!-- Juegos favoritos se insertarán aquí con JavaScript -->
-    </div>
-
+<header class="favoritos-header">
+  <div class="container">
+    <h1 class="titulo-favoritos">Mis Juegos Favoritos</h1>
   </div>
-</section>
+</header>
+
+<main class="favoritos-main">
+  <section class="favoritos-section container">
+    <p id="noFavoritesMessage" class="no-favoritos">No tienes favoritos aún.</p>
+    <div id="favoritesContainer" class="favoritos-grid"></div>
+  </section>
+</main>
+
+
 
 <script src="js/notificacion.js"></script>
 <script src="js/carrito.js"></script>

@@ -1,14 +1,16 @@
 (async function () {
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
-  const juegoId = new URLSearchParams(window.location.search).get("juego_id") || 
-                  new URLSearchParams(window.location.search).get("id");
+  const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
+  const juegoId = new URLSearchParams(window.location.search).get("juego_id");
   const userId = sessionStorage.getItem("userId");
   const username = sessionStorage.getItem("username");
 
   let valorSeleccionado = 0;
-
   const ratingStars = document.querySelectorAll("#rating span");
   const ratingInfo = document.getElementById("rating-info");
+  const btnEnviar = document.getElementById("btnEnviarRating");
+
+  // ✅ Clave única por usuario y juego
+  const claveVoto = `votado_${juegoId}_${userId}`;
 
   // Función para actualizar estrellas según valor
   function actualizarEstrellas(valor) {
@@ -19,58 +21,44 @@
   // Manejo de clic en estrellas
   ratingStars.forEach(star => {
     star.addEventListener("click", () => {
+      if (localStorage.getItem(claveVoto)) {
+        alert("Ya calificaste este juego ⭐");
+        return;
+      }
       valorSeleccionado = parseInt(star.dataset.value);
       actualizarEstrellas(valorSeleccionado);
     });
   });
 
-  // Función para cargar promedio y número de votos - CORREGIDA
+  // Función para cargar promedio y número de votos
   async function cargarCalificaciones() {
     try {
       const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificaciones`);
-      
-      // Verificar si la respuesta es OK
-      if (!res.ok) {
-        console.warn("Error HTTP:", res.status, res.statusText);
-        ratingInfo.textContent = "No hay calificaciones aún";
-        return;
-      }
-
-      // Verificar que el contenido sea JSON
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        console.warn("La respuesta no es JSON:", contentType);
-        ratingInfo.textContent = "No hay calificaciones aún";
-        return;
-      }
-
       const data = await res.json();
-      
-      if (!data.ok) {
-        ratingInfo.textContent = "No hay calificaciones aún";
-        return;
-      }
+      if (!data.ok) return;
 
       const { promedio, total } = data;
       ratingInfo.textContent = `Promedio: ${promedio.toFixed(1)} (${total} voto${total !== 1 ? 's' : ''})`;
-
-      // Marcar estrellas según promedio
       actualizarEstrellas(Math.round(promedio));
     } catch (err) {
       console.error("Error cargando calificaciones:", err);
-      ratingInfo.textContent = "Error cargando calificaciones";
     }
   }
 
-  // Enviar calificación - CORREGIDA
-  document.getElementById("btnEnviarRating").addEventListener("click", async () => {
-    if (!userId || !username) {
-      alert("Debes iniciar sesión para calificar");
+  // ✅ Enviar calificación solo una vez
+  btnEnviar.addEventListener("click", async () => {
+    if (localStorage.getItem(claveVoto)) {
+      alert("Ya calificaste este juego anteriormente ⭐");
       return;
     }
-    
+
+    if (!userId || !username) {
+      alert("⭐ Ya calificaste este juego.");
+      return;
+    }
+
     if (valorSeleccionado === 0) {
-      alert("Selecciona una calificación");
+      alert("Selecciona una calificación antes de enviar");
       return;
     }
 
@@ -78,44 +66,30 @@
       const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          user_id: userId, 
-          username: username, 
-          valor: valorSeleccionado 
-        })
+        body: JSON.stringify({ user_id: userId, username, valor: valorSeleccionado })
       });
 
-      // Verificar si la respuesta es OK
-      if (!res.ok) {
-        throw new Error(`Error HTTP: ${res.status}`);
-      }
-
-      // Verificar que el contenido sea JSON
-      const contentType = res.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('La respuesta del servidor no es JSON');
-      }
-
       const data = await res.json();
-      
+
       if (data.ok) {
-        alert("✅ Calificación enviada con éxito");
-        cargarCalificaciones(); // actualizar promedio y votos
-        valorSeleccionado = 0; // resetear selección
-        actualizarEstrellas(0); // resetear estrellas
+        alert("✔ Calificación enviada correctamente");
+        localStorage.setItem(claveVoto, "true"); // ✅ Guardar bloqueo local
+        btnEnviar.disabled = true;
+        cargarCalificaciones();
       } else {
-        alert("❌ " + (data.error || "Error al enviar calificación"));
+        alert("❌ " + data.error);
       }
     } catch (err) {
-      console.error("Error:", err);
+      console.error(err);
       alert("Error de conexión con el servidor");
     }
   });
 
-  // Inicializar - CORREGIDO
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', cargarCalificaciones);
-  } else {
-    cargarCalificaciones();
+  // Desactivar botón si ya votó
+  if (localStorage.getItem(claveVoto)) {
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = "⭐ Ya calificaste este juego";
   }
+
+  document.addEventListener("DOMContentLoaded", cargarCalificaciones);
 })();

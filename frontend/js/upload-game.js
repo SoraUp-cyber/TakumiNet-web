@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (!token) {
         alert("Debes iniciar sesión para subir un juego");
-        window.location.href = "login.html";
+        window.location.href = "index.html";
         return;
     }
 
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadUser() {
     try {
         const token = localStorage.getItem("token");
-        const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
+        const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user", {
             headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -127,10 +127,10 @@ function handleCoverPreview(event) {
     videoPreview.style.display = "none";
     removeBtn.style.display = "none";
 
-    // Validar tamaño máximo (100MB)
-    const maxSize = 100 * 1024 * 1024;
+    // Validar tamaño máximo (25MB)
+    const maxSize = 25 * 1024 * 1024;
     if (file.size > maxSize) {
-        alert("El archivo es demasiado grande. Máximo 100MB permitidos.");
+        alert("El archivo es demasiado grande. Máximo 25MB permitidos.");
         event.target.value = "";
         return;
     }
@@ -179,7 +179,7 @@ function removeCover() {
 }
 
 // =========================
-// PREVIEW DE CAPTURAS
+// PREVIEW DE CAPTURAS - ACTUALIZADO PARA 25MB
 // =========================
 function handleScreenshotsPreview(event) {
     const files = event.target.files;
@@ -193,13 +193,15 @@ function handleScreenshotsPreview(event) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
+        // Validar que sea imagen
         if (!file.type.startsWith("image/")) {
             alert(`El archivo "${file.name}" no es una imagen válida. Se omitirá.`);
             continue;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            alert(`La imagen "${file.name}" es demasiado grande. Máximo 10MB.`);
+        // Validar tamaño máximo (25MB)
+        if (file.size > 25 * 1024 * 1024) {
+            alert(`La imagen "${file.name}" es demasiado grande. Máximo 25MB por imagen.`);
             continue;
         }
 
@@ -213,6 +215,12 @@ function handleScreenshotsPreview(event) {
             
             const container = document.createElement("div");
             container.classList.add("screenshot-item");
+            
+            // Mostrar información de tamaño
+            const sizeInfo = document.createElement("div");
+            sizeInfo.classList.add("screenshot-size");
+            sizeInfo.textContent = formatFileSize(file.size);
+            container.appendChild(sizeInfo);
             
             const indexSpan = document.createElement("span");
             indexSpan.textContent = validFiles;
@@ -239,6 +247,17 @@ function handleScreenshotsPreview(event) {
     counter.textContent = `Capturas seleccionadas: ${validFiles}/5 mínimo`;
     counter.classList.add("screenshot-counter");
     previewContainer.appendChild(counter);
+}
+
+// =========================
+// FORMATEAR TAMAÑO DE ARCHIVO
+// =========================
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // =========================
@@ -356,7 +375,7 @@ function fileToBase64(file) {
 }
 
 // =========================
-// VALIDAR FORMULARIO
+// VALIDAR FORMULARIO - ACTUALIZADO PARA 25MB
 // =========================
 function validarFormulario() {
     const title = document.getElementById("title").value.trim();
@@ -381,8 +400,23 @@ function validarFormulario() {
         throw new Error("Debes subir al menos 5 capturas del juego");
     }
 
+    // Validar tamaño de cada captura (25MB máximo)
+    if (screenshotsInput.files) {
+        for (let i = 0; i < screenshotsInput.files.length; i++) {
+            const file = screenshotsInput.files[i];
+            if (file.size > 25 * 1024 * 1024) {
+                throw new Error(`La captura "${file.name}" es demasiado grande. Máximo 25MB por imagen.`);
+            }
+        }
+    }
+
     if (!coverInput.files || coverInput.files.length === 0) {
         throw new Error("Debes subir una portada para el juego");
+    }
+
+    // Validar tamaño de portada (25MB máximo)
+    if (coverInput.files[0].size > 25 * 1024 * 1024) {
+        throw new Error("La portada es demasiado grande. Máximo 25MB permitidos.");
     }
 
     if (!storageService && !mediafireUrl) {
@@ -432,14 +466,14 @@ function mapearValoresAlIngles(valor) {
 }
 
 // =========================
-// SUBIR JUEGO - FUNCIÓN PRINCIPAL
+// SUBIR JUEGO - FUNCIÓN PRINCIPAL ACTUALIZADA
 // =========================
 async function subirJuego() {
     try {
         const token = localStorage.getItem("token");
         if (!token) {
             alert("Debes iniciar sesión para subir un juego");
-            window.location.href = "index.html";
+            window.location.href = "login.html";
             return;
         }
 
@@ -492,32 +526,48 @@ async function subirJuego() {
 
         console.log("Datos del formulario mapeados:", formData);
 
-        // Convertir archivos a base64
-        const coverInput = document.getElementById("cover");
-        if (coverInput.files[0]) {
-            console.log("Convirtiendo portada a base64...");
-            formData.cover_base64 = await fileToBase64(coverInput.files[0]);
-        }
-
-        const screenshotsInput = document.getElementById("screenshots");
-        if (screenshotsInput.files && screenshotsInput.files.length > 0) {
-            console.log("Convirtiendo capturas a base64...");
-            formData.screenshots_base64 = [];
-            for (let i = 0; i < screenshotsInput.files.length; i++) {
-                const base64 = await fileToBase64(screenshotsInput.files[i]);
-                formData.screenshots_base64.push(base64);
-            }
-        }
-
         // Mostrar loading
         const submitBtn = document.querySelector('button[onclick="subirJuego()"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
         submitBtn.disabled = true;
 
+        // Convertir archivos a base64 (con manejo de errores mejorado)
+        const coverInput = document.getElementById("cover");
+        if (coverInput.files[0]) {
+            console.log("Convirtiendo portada a base64...");
+            console.log("Tamaño portada:", formatFileSize(coverInput.files[0].size));
+            try {
+                formData.cover_base64 = await fileToBase64(coverInput.files[0]);
+                console.log("Portada convertida correctamente");
+            } catch (error) {
+                throw new Error("Error al procesar la portada: " + error.message);
+            }
+        }
+
+        const screenshotsInput = document.getElementById("screenshots");
+        if (screenshotsInput.files && screenshotsInput.files.length > 0) {
+            console.log("Convirtiendo", screenshotsInput.files.length, "capturas a base64...");
+            formData.screenshots_base64 = [];
+            
+            for (let i = 0; i < screenshotsInput.files.length; i++) {
+                const file = screenshotsInput.files[i];
+                console.log(`Procesando captura ${i + 1}:`, formatFileSize(file.size));
+                
+                try {
+                    const base64 = await fileToBase64(file);
+                    formData.screenshots_base64.push(base64);
+                    console.log(`✅ Captura ${i + 1} convertida`);
+                } catch (error) {
+                    throw new Error(`Error al procesar la captura ${i + 1}: ${error.message}`);
+                }
+            }
+            console.log("Todas las capturas convertidas correctamente");
+        }
+
         // Enviar datos al servidor
-        console.log("Enviando datos al servidor...", formData);
-        const response = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos", {
+        console.log("Enviando datos al servidor...");
+        const response = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/juegos", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -537,6 +587,9 @@ async function subirJuego() {
             alert("¡Juego publicado con éxito! 🎮\nID del juego: " + result.id);
             // Limpiar formulario
             document.getElementById("upload-form").reset();
+            // Limpiar previews
+            removeCover();
+            document.getElementById("screenshots-preview").innerHTML = "";
             // Redirigir a la página de mis juegos
             window.location.href = "marketplace.html";
         } else {
@@ -562,3 +615,51 @@ async function subirJuego() {
 window.addEventListener("error", function(e) {
     console.error("Error global:", e.error);
 });
+
+// =========================
+// ESTILOS CSS DINÁMICOS PARA MEJOR VISUALIZACIÓN
+// =========================
+const dynamicStyles = `
+.screenshot-size {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    z-index: 2;
+}
+
+.screenshot-item {
+    position: relative;
+}
+
+.screenshot-preview {
+    max-width: 150px;
+    max-height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.upload-progress {
+    margin: 10px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    display: none;
+}
+
+.progress-bar {
+    height: 20px;
+    background: #007bff;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+`;
+
+// Inject styles
+const styleSheet = document.createElement("style");
+styleSheet.textContent = dynamicStyles;
+document.head.appendChild(styleSheet);

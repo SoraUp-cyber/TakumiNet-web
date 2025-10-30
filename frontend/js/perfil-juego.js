@@ -2,7 +2,7 @@
 // PERFIL DE JUEGO - CARGAR DATOS OPTIMIZADO
 // ============================
 document.addEventListener('DOMContentLoaded', async () => {
-  const API_BASE = 'https://grim-britte-takuminet-backend-c7daca2c.koyeb.app';
+  const API_BASE = 'https://distinct-oralla-takumi-net-0d317399.koyeb.app';
   const params = new URLSearchParams(window.location.search);
   const juegoId = params.get('id');
 

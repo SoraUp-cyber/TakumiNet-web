@@ -1,29 +1,56 @@
-/* Sección de la jam */
+/* ============================= */
+/*  SECCIÓN DE INTERACCIÓN JAM   */
+/* ============================= */
 .jam-interaccion {
-  max-width: 1900px;          /* súper ancha */
-  width: 99%;                 /* ocupa casi todo */
-  margin: 40px auto;
-  background: #1e1e1e;        /* gris más elegante */
-  padding: 60px;              /* espacio generoso */
-  border-radius: 8px;         /* esquinas suaves (ya no cuadradas) */
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75); /* sombra fuerte */
-  border: 1px solid #3a3a3a;  /* borde un poco más fino */
+  background: #1e1e1e; /* Fondo gris oscuro */
+  border-radius: 20px;
+  padding: 40px;
+  margin: 30px auto;
+  width: 99.5%;              /* ✅ Super ancho (pantalla casi completa) */
+  max-width: 1800px;         /* ✅ Ideal para monitores grandes */
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  color: #ffffff;
 }
 
-/* Títulos */
-.jam-interaccion h2,
-.jam-interaccion h3,
-.jam-interaccion h4 {
-  color: #4caf50; /* verde acento */
-  margin-bottom: 15px;
+.jam-interaccion h2 {
+  font-size: 2rem;
+  color: #00ff80; /* Verde neón */
+  margin-bottom: 12px;
+  text-align: center;
 }
 
-/* Votación de estrellas */
+.jam-interaccion p {
+  color: #e0e0e0;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+/* ============================= */
+/*         VOTACIÓN              */
+/* ============================= */
+.votacion-jam {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.juego h4 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.calificacion-container {
+  margin-top: 15px;
+}
+
+/* ======== Estrellas ======== */
 .rating {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-start;
-  gap: 5px;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0;
 }
 
 .rating input {
@@ -31,262 +58,224 @@
 }
 
 .rating label {
-  font-size: 2rem;
-  color: #555; /* estrellas apagadas (gris) */
+  font-size: 3rem;
+  color: #666;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.25s ease, transform 0.2s ease;
 }
 
-/* Cuando paso el mouse */
 .rating label:hover,
-.rating label:hover ~ label {
-  color: #4caf50; /* verde al pasar */
-}
-
-/* Cuando está seleccionado */
+.rating label:hover ~ label,
 .rating input:checked ~ label {
-  color: #4caf50;
+  color: #00ff80;
+  transform: scale(1.15);
 }
 
-/* Texto del resultado */
-#resultado-voto {
-  font-weight: bold;
-  color: #4caf50;
-}
-
-/* Caja de comentarios */
-.comentarios-jam textarea {
-  width: 100%;
-  height: 100px;
-  padding: 10px;
-  background: #1c1c1c;
-  border: 1px solid #444;
-  border-radius: 8px;
-  color: #fff;
-  resize: none;
-  margin-bottom: 10px;
-}
-
-/* Botón enviar */
-#btn-enviar-comentario {
-  background: #4caf50;
-  color: #fff;
+/* ============================= */
+/*       BOTÓN CALIFICAR         */
+/* ============================= */
+.btn-calificar {
+  background: #00ff80;
+  color: #000;
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  border-radius: 14px;
+  padding: 16px 35px;
   cursor: pointer;
+  font-weight: 700;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.btn-calificar:hover {
+  background: #00cc66;
+  transform: scale(1.05);
+}
+
+.mensaje-voto {
+  margin-top: 15px;
   font-size: 1rem;
-  transition: background 0.3s;
+  color: #b5b5b5;
 }
 
-#btn-enviar-comentario:hover {
-  background: #43a047; /* verde más oscuro */
+.mensaje-voto.correcto {
+  color: #00ff80;
+  font-weight: 600;
 }
 
-/* Lista de comentarios */
+.rating-info {
+  font-size: 1.05rem;
+  color: #ffffff;
+  margin-top: 12px;
+}
+
+/* ============================= */
+/*        COMENTARIOS            */
+/* ============================= */
+.comentarios-jam {
+  margin-top: 40px;
+}
+
+.comentarios-jam h3 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
+  color: #00ff80;
+}
+
+/* Caja de texto */
+#nuevo-comentario {
+  width: 100%;
+  min-height: 120px;
+  border-radius: 14px;
+  border: 1px solid #444;
+  padding: 14px;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+  background: #2a2a2a;
+  color: #fff;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+#nuevo-comentario:focus {
+  border-color: #00ff80;
+  box-shadow: 0 0 10px rgba(0, 255, 128, 0.4);
+}
+
+/* ============================= */
+/*      BOTÓN COMENTAR           */
+/* ============================= */
+.btn-comentar {
+  display: inline-block;
+  margin-top: 15px;
+  background: #00ff80;
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 30px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.btn-comentar:hover {
+  background: #00cc66;
+  transform: scale(1.05);
+}
+
+/* ============================= */
+/*     LISTA DE COMENTARIOS      */
+/* ============================= */
 #lista-comentarios {
   list-style: none;
+  margin-top: 30px;
   padding: 0;
-  margin-top: 15px;
 }
 
-#lista-comentarios li {
-  background: #333;
-  padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-
-
-
-
-/* =========================
-   Cada comentario
-========================= */
 .comentario-item {
   display: flex;
   align-items: flex-start;
-  background-color: #2c2c2c; /* Gris oscuro de fondo */
-  padding: 12px 16px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3); /* sombra sutil */
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #2b2b2b;
+  width: 100%;
+  border-left: 4px solid #00ff80;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .comentario-item:hover {
+  background: #353535;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
-/* Avatar */
-.comentario-item .avatar {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+/* ✅ Avatar */
+.comentario-avatar {
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 12px;
-  border: 2px solid #4caf50; /* borde verde */
+  border: 2px solid #00ff80;
+  margin-right: 15px;
+  flex-shrink: 0;
 }
 
-/* Contenido del comentario */
 .comentario-contenido {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  word-wrap: break-word;
 }
 
-/* Header: nombre y fecha */
 .comentario-header {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
-  color: #ffffff; /* letra blanca */
+  align-items: center;
 }
 
 .comentario-header strong {
-  color: #4caf50; /* nombre en verde */
-  font-weight: 600;
+  font-size: 1rem;
+  color: #00ff80;
 }
 
 .comentario-fecha {
-  font-size: 0.8rem;
-  color: #81c784; /* fecha verde más suave */
+  font-size: 0.9rem;
+  color: #aaa;
 }
 
-/* Texto del comentario */
 .comentario-texto {
-  font-size: 0.95rem;
-  color: #e0e0e0; /* letra blanca suave */
-  line-height: 1.4;
-}
-
-
-
-
-
-
-
-
-
-
-
-/* Mensaje de voto */
-#estado-voto {
-  margin-top: 8px;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 6px 10px;
-  border-radius: 5px;
-  display: inline-block;
-  transition: opacity 0.3s ease;
-}
-
-/* Voto nuevo */
-.mensaje-voto.correcto {
-  color: #155724;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-}
-
-/* Voto actualizado */
-.mensaje-voto.actualizado {
-  color: #856404;
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-}
-/* Botón de enviar calificación */
-.btn-calificar {
-  background-color: #4caf50;   /* verde agradable */
-  color: white;                /* texto blanco */
-  border: none;
-  padding: 6px 12px;           /* pequeño y cómodo */
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;                    /* espacio entre icono y texto */
-}
-
-/* Hover: cambia ligeramente el color */
-.btn-calificar:hover {
-  background-color: #45a049;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* Focus: borde de enfoque */
-.btn-calificar:focus {
-  outline: 2px solid #2e7d32;
-  outline-offset: 2px;
-}
-
-/* Botón deshabilitado */
-.btn-calificar:disabled {
-  background-color: #a5d6a7;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-
-
-
-
-
-
-
-
-/* =============================
-   BOTÓN "DENUNCIAR" PROFESIONAL
-   ============================= */
-.denunciar-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #ff4d4d, #d93535);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 4px 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  width: auto;
-  max-width: fit-content;
-  transition: all 0.25s ease;
-  box-shadow: 0 2px 6px rgba(255, 77, 77, 0.3);
   margin-top: 6px;
+  font-size: 1.05rem;
+  color: #f0f0f0;
+  line-height: 1.6;
 }
 
-/* Efecto hover elegante */
-.denunciar-btn:hover {
-  background: linear-gradient(135deg, #ff5f5f, #e64545);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(255, 77, 77, 0.4);
+/* ============================= */
+/*          RESPONSIVE           */
+/* ============================= */
+@media (max-width: 1024px) {
+  .jam-interaccion {
+    width: 98%;
+    padding: 30px;
+  }
+
+  .rating label {
+    font-size: 2.5rem;
+  }
 }
 
-/* Efecto clic */
-.denunciar-btn:active {
-  transform: scale(0.96);
-  background: linear-gradient(135deg, #d93535, #b82a2a);
-  box-shadow: 0 1px 4px rgba(255, 77, 77, 0.2);
+@media (max-width: 768px) {
+  .jam-interaccion {
+    width: 99%;
+    padding: 25px;
+  }
+
+  .btn-calificar,
+  .btn-comentar {
+    width: 100%;
+  }
+
+  .comentario-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comentario-avatar {
+    margin-bottom: 10px;
+  }
 }
 
-/* Ícono 🚩 */
-.denunciar-btn::before {
-  font-size: 14px;
-  margin-right: 4px;
-}
+@media (max-width: 480px) {
+  .jam-interaccion {
+    padding: 15px;
+    width: 99%;
+  }
 
-/* Versión compacta (por si la usas en móviles o listas) */
-.denunciar-btn.compacto {
-  padding: 2px 6px;
-  font-size: 12px;
-  border-radius: 6px;
+  .rating label {
+    font-size: 2rem;
+  }
+
+  .comentario-avatar {
+    width: 50px;
+    height: 50px;
+  }
 }

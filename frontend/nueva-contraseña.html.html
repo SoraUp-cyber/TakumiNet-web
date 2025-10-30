@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/index.css">
+   <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <title>Nueva Contraseña - TakumiNet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    /* ============================ */
+/* CONTENEDOR PRINCIPAL */
+/* ============================ */
+.nueva-password-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(56, 56, 56, 0.25);
+  padding: 35px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 500px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+/* ============================ */
+/* TÍTULO */
+/* ============================ */
+.nueva-password-container h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+/* ============================ */
+/* TEXTO INFORMATIVO */
+/* ============================ */
+.nueva-password-container p {
+  font-size: 14px;
+  color: #00ff2a;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+/* ============================ */
+/* FORMULARIO */
+/* ============================ */
+.nueva-password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* GRUPO DE INPUT */
+.input-group {
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 14px;
+  color: #ffffff;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+/* WRAPPER DE CONTRASEÑA */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding: 12px 40px 12px 14px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.password-wrapper input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+/* ICONO DE OJO */
+.toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: #0a0a0a;
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #4CAF50;
+}
+
+/* TEXTO PEQUEÑO */
+.input-group small {
+  display: block;
+  font-size: 12px;
+  color: #00ff2a;
+  margin-top: 5px;
+}
+
+/* ============================ */
+/* BOTÓN */
+/* ============================ */
+.submit-btn {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn i {
+  margin-right: 8px;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
+/* ============================ */
+/* ENLACE VOLVER */
+/* ============================ */
+.volver-login a {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #00ff22;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.volver-login a i {
+  margin-right: 5px;
+}
+
+.volver-login a:hover {
+  color: #fcfcfc;
+  text-decoration: underline;
+}
+
+/* ============================ */
+/* 📱 ADAPTACIÓN A MÓVILES */
+/* ============================ */
+@media (max-width: 768px) {
+  .nueva-password-container {
+    width: 90%;
+    padding: 25px 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .nueva-password-container h2 {
+    font-size: 22px;
+  }
+
+  .nueva-password-container p {
+    font-size: 13px;
+  }
+
+  .submit-btn {
+    font-size: 15px;
+  }
+
+  .password-wrapper input {
+    font-size: 13px;
+    padding: 10px 35px 10px 12px;
+  }
+}
+
+/* ============================ */
+/* 📱 PANTALLAS MUY PEQUEÑAS */
+/* ============================ */
+@media (max-width: 480px) {
+  .nueva-password-container {
+    width: 95%;
+    padding: 20px 15px;
+  }
+
+  .nueva-password-container h2 {
+    font-size: 20px;
+  }
+
+  .nueva-password-container p {
+    font-size: 12px;
+  }
+
+  .submit-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .password-wrapper input {
+    font-size: 12px;
+    padding: 8px 30px 8px 10px;
+  }
+
+  .input-group label {
+    font-size: 13px;
+  }
+
+  .input-group small {
+    font-size: 11px;
+  }
+}
+
+
+
+    </style>
+</head>
+<body>
+
+      <!-- Fondo de partículas -->
+  <div id="particles-js"></div>
+
+    <div class="nueva-password-container">
+        <h2><i class="fas fa-key"></i> Nueva Contraseña</h2>
+        <p>Crea una nueva contraseña para tu cuenta</p>
+        
+        <form id="nueva-password-form" class="nueva-password-form">
+            <div class="input-group">
+                <label for="vieja-password">Contraseña Actual:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="vieja-password" placeholder="Ingresa tu contraseña actual" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="nueva-password">Nueva Contraseña:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="nueva-password" placeholder="Ingresa nueva contraseña" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+                <small>Mínimo 6 caracteres</small>
+            </div>
+
+            <div class="input-group">
+                <label for="confirmar-password">Confirmar Nueva Contraseña:</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmar-password" placeholder="Repite la nueva contraseña" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i> Guardar Nueva Contraseña
+            </button>
+        </form>
+
+        <div class="volver-login">
+            <a href="login.html"><i class="fas fa-arrow-left"></i> Volver al login</a>
+        </div>
+    </div>
+
+
+      <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="js/particulas.js"></script>
+  <script src="js/nueva-password.js"></script>
+</body>
+</html>

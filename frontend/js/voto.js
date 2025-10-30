@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token"); // Token guardado al login
+  const token = localStorage.getItem("token");
   const params = new URLSearchParams(window.location.search);
-  const juegoId = params.get("id"); // ID del juego desde la URL
+  const juegoId = params.get("id");
 
   // Elementos UI
   const avatarCircle = document.getElementById("avatar-circle");
@@ -11,22 +11,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const ratingStars = document.querySelectorAll("#rating span");
   const ratingInfo = document.getElementById("rating-info");
   const btnEnviar = document.getElementById("btnEnviarRating");
-  const mensajeBox = document.getElementById("mensaje-box"); // div para mensajes
+  const mensajeBox = document.getElementById("mensaje-box");
 
   let currentRating = 0;
   let currentUser = null;
+
+  // ✅ Clave única por usuario y juego
+  function obtenerClaveVoto() {
+    const userKey = currentUser ? currentUser.id : "anonimo";
+    return `votado_${juegoId}_${userKey}`;
+  }
 
   // =========================
   // Mostrar mensaje flotante
   // =========================
   function mostrarMensaje(texto, tipo = "success") {
     mensajeBox.textContent = texto;
-    mensajeBox.className = tipo; // success o error
+    mensajeBox.className = tipo;
     mensajeBox.style.display = "block";
-
-    setTimeout(() => {
-      mensajeBox.style.display = "none";
-    }, 3000);
+    setTimeout(() => (mensajeBox.style.display = "none"), 3000);
   }
 
   // =========================
@@ -36,13 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!token) return;
 
     try {
-      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/user", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
 
       if (data.ok) {
-        currentUser = data.user; // <- { id, username, avatar }
+        currentUser = data.user;
         currentUsername.textContent = currentUser.username || "Invitado";
 
         if (currentUser.avatar) {
@@ -53,6 +56,9 @@ document.addEventListener("DOMContentLoaded", () => {
           avatarCircle.style.backgroundImage = "none";
           avatarIcon.style.display = "block";
         }
+
+        // ✅ Desactivar si ya votó
+        verificarVotoPrevio();
       }
     } catch (err) {
       console.error("Error cargando usuario:", err);
@@ -64,8 +70,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
   ratingStars.forEach(star => {
     star.addEventListener("click", () => {
-      currentRating = parseInt(star.dataset.value);
+      const clave = obtenerClaveVoto();
+      if (localStorage.getItem(clave)) {
+        mostrarMensaje("⭐ Ya calificaste este juego", "error");
+        return;
+      }
 
+      currentRating = parseInt(star.dataset.value);
       ratingStars.forEach(s => {
         s.style.color = parseInt(s.dataset.value) <= currentRating ? "gold" : "gray";
       });
@@ -76,13 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
   // Enviar calificación
   // =========================
   btnEnviar.addEventListener("click", async () => {
+    const clave = obtenerClaveVoto();
+
+    if (localStorage.getItem(clave)) {
+      mostrarMensaje("⭐ Ya calificaste este juego anteriormente", "error");
+      return;
+    }
+
     if (!currentRating) {
       mostrarMensaje("Selecciona una puntuación antes de enviar.", "error");
       return;
     }
 
     try {
-      await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos/${juegoId}/votos`, {
+      const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/juegos/${juegoId}/votos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,8 +113,17 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       });
 
-      mostrarMensaje("✅ Tu voto ha sido publicado", "success");
-      cargarPromedio();
+      const data = await res.json();
+
+      if (data.ok) {
+        mostrarMensaje("✅ Tu voto ha sido publicado", "success");
+        localStorage.setItem(clave, "true"); // ✅ Bloquear nuevo voto
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = "⭐ Ya calificaste";
+        cargarPromedio();
+      } else {
+        mostrarMensaje("❌ " + data.error, "error");
+      }
     } catch (err) {
       console.error(err);
       mostrarMensaje("❌ Error al enviar tu voto", "error");
@@ -104,11 +131,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =========================
+  // Verificar voto previo
+  // =========================
+  function verificarVotoPrevio() {
+    const clave = obtenerClaveVoto();
+    if (localStorage.getItem(clave)) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = "⭐ Ya calificaste este juego";
+    }
+  }
+
+  // =========================
   // Cargar promedio y votos
   // =========================
   async function cargarPromedio() {
     try {
-      const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/juegos/${juegoId}/votos`);
+      const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/juegos/${juegoId}/votos`);
       const data = await res.json();
 
       if (data.ok) {

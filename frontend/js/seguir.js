@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const btnInfo = document.getElementById("btnInfo");
   const infoUsuario = document.getElementById("infoUsuario");
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
+  const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
   const token = localStorage.getItem("token");
 
   const params = new URLSearchParams(window.location.search);

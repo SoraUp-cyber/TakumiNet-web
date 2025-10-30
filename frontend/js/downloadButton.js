@@ -1,79 +1,48 @@
 // ============================
-// CARGAR DATOS DEL USUARIO
+// CONFIGURACIÓN MERCADO PAGO
 // ============================
-document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
-  if (!token) return;
-
-  const avatarCircle = document.getElementById("avatar-circle");
-  const avatarIcon = document.getElementById("avatar-icon");
-  const currentUsername = document.getElementById("current-username");
-
-  async function loadUser() {
-    try {
-      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-
-      if (!data.ok) return console.error("❌ No se pudo cargar usuario:", data.error);
-
-      const user = data.user;
-      currentUsername.textContent = user.username || "Invitado";
-
-      if (user.avatar) {
-        avatarCircle.style.backgroundImage = `url(${user.avatar})`;
-        avatarCircle.style.backgroundSize = "cover";
-        avatarIcon.style.display = "none";
-      } else {
-        avatarCircle.style.backgroundImage = "none";
-        avatarIcon.style.display = "block";
-      }
-    } catch (err) {
-      console.error("❌ Error cargando usuario:", err);
-    }
-  }
-
-  loadUser();
-});
+const MERCADO_PAGO_CONFIG = {
+  PUBLIC_KEY: "APP_USR-ddfbdc07-b2fb-4188-8aca-eb40a90ee910",
+  ACCESS_TOKEN: "APP_USR-2794725193382250-103011-9a3f5cfa029a24e8debf31adbf03b5a9-2669472141",
+  API_BASE: "https://distinct-oralla-takumi-net-0d317399.koyeb.app"
+};
 
 // ============================
-// BOTÓN DESCARGAR / COMPRAR / DONAR (PAYPAL)
+// BOTÓN DESCARGAR / COMPRAR / DONAR (MERCADO PAGO)
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
   const params = new URLSearchParams(window.location.search);
   const juegoId = params.get("id");
   if (!juegoId) return console.error("❌ No se encontró el ID del juego en la URL");
 
-  // Esperar a que el SDK de PayPal esté cargado
-  async function waitForPayPal(timeout = 5000) {
+  // Cargar SDK de Mercado Pago
+  function loadMercadoPagoSDK() {
     return new Promise((resolve, reject) => {
-      const start = Date.now();
-      (function check() {
-        if (window.paypal) return resolve();
-        if (Date.now() - start > timeout)
-          return reject(new Error("PayPal SDK no cargó"));
-        setTimeout(check, 50);
-      })();
+      if (window.MercadoPago) return resolve();
+      
+      const script = document.createElement('script');
+      script.src = 'https://sdk.mercadopago.com/js/v2';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Error cargando SDK de Mercado Pago'));
+      document.head.appendChild(script);
     });
   }
 
   try {
-    await waitForPayPal();
+    await loadMercadoPagoSDK();
+    console.log("✅ SDK Mercado Pago cargado");
   } catch (err) {
-    console.error("❌ SDK PayPal no cargó:", err);
+    console.error("❌ SDK Mercado Pago no cargó:", err);
     return;
   }
 
   try {
-    const res = await fetch(`${API_BASE}/api/juegos/${juegoId}`);
+    const res = await fetch(`${MERCADO_PAGO_CONFIG.API_BASE}/api/juegos/${juegoId}`);
     const data = await res.json();
     if (!data.ok) return console.error("❌ Error al cargar el juego:", data.error);
 
     const juego = data.juego;
     const cont = document.getElementById("contenedor-boton-juego");
-    if (!cont) return;
     cont.innerHTML = "";
 
     // ============================
@@ -88,55 +57,111 @@ document.addEventListener("DOMContentLoaded", async () => {
              alt="descargar" style="vertical-align:middle; margin-right:6px;">
         Descargar Gratis
       `;
-      btn.onclick = () => (window.location.href = `descarga.html?id=${juegoId}`);
+      btn.onclick = () => mostrarAviso(() => {
+        window.location.href = `descarga.html?id=${juegoId}`;
+      });
       cont.appendChild(btn);
       return;
     }
 
     // ============================
-    // JUEGO DE PAGO (SANDBOX)
+    // JUEGO DE PAGO (MERCADO PAGO)
     // ============================
     if (juego.pricing === "paid") {
-      const divPayPal = document.createElement("div");
-      divPayPal.id = "paypal-button-container";
-      cont.appendChild(divPayPal);
+      const price = parseFloat(juego.price) || 1.0;
+      
+      // ✅ NUEVO: Información del desarrollador
+      const infoDesarrollador = juego.username ? `
+        <div style="text-align: center; margin-bottom: 10px; color: #fff; background: #2a2a2a; padding: 10px; border-radius: 8px; border: 1px solid #555;">
+          <small>💼 Desarrollador: <strong>${juego.username}</strong></small>
+        </div>
+      ` : '';
+      
+      const infoDiv = document.createElement("div");
+      infoDiv.innerHTML = `
+        ${infoDesarrollador}
+        <div style="text-align: center; margin-bottom: 15px; color: #fff; background: #1e3a1e; padding: 15px; border-radius: 10px; border: 1px solid #00ff00;">
+          <strong style="font-size: 18px; color: #00ff00;">💰 $${price.toFixed(2)} USD</strong><br>
+          <small>Pago seguro con Mercado Pago</small>
+          <br><small style="color: #ffa500;">💸 Distribución: 70% ${juego.username || 'desarrollador'} + 30% TakumiNet</small>
+        </div>
+      `;
+      cont.appendChild(infoDiv);
 
-      paypal
-        .Buttons({
-          style: {
-            color: "gold",
-            shape: "pill",
-            label: "paypal",
-            layout: "vertical",
-          },
-          createOrder: (data, actions) => {
-            const price = parseFloat(juego.price) || 1.0; // Precio de prueba si no hay
-            return actions.order.create({
-              purchase_units: [
-                {
-                  description: juego.nombre || "Juego",
-                  amount: { currency_code: "USD", value: price.toFixed(2) },
-                },
-              ],
-            });
-          },
-          onApprove: async (data, actions) => {
-            const details = await actions.order.capture();
-            alert(`✅ Pago completado por ${details.payer.name.given_name} (Sandbox)`);
-            window.location.href = `descarga.html?id=${juegoId}`;
-          },
-          onError: (err) => {
-            console.error("❌ Error en el pago:", err);
-            alert("❌ Error al procesar el pago (modo Sandbox).");
-          },
-        })
-        .render("#paypal-button-container");
+      const mpContainer = document.createElement("div");
+      mpContainer.id = "mercadopago-button-container";
+      cont.appendChild(mpContainer);
 
+      // Inicializar Mercado Pago
+      const mp = new MercadoPago(MERCADO_PAGO_CONFIG.PUBLIC_KEY, {
+        locale: 'es-CO'
+      });
+
+      // Crear preferencia de pago
+      const preferenceData = {
+        items: [
+          {
+            title: juego.nombre || "Juego TakumiNet",
+            unit_price: parseFloat(price),
+            quantity: 1,
+            currency_id: "USD"
+          }
+        ],
+        back_urls: {
+          success: `${window.location.origin}/descarga.html?id=${juegoId}&status=success`,
+          failure: `${window.location.origin}/descarga.html?id=${juegoId}&status=failure`,
+          pending: `${window.location.origin}/descarga.html?id=${juegoId}&status=pending`
+        },
+        auto_return: "approved",
+        notification_url: `${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/notifications`
+      };
+
+      try {
+        // Crear preferencia en el backend
+        const preferenceResponse = await fetch(`${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/create-preference`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          },
+          body: JSON.stringify(preferenceData)
+        });
+
+        const preferenceResult = await preferenceResponse.json();
+        
+        if (preferenceResult.ok && preferenceResult.preferenceId) {
+          // Inicializar botón de Mercado Pago
+          mp.bricks().create("wallet", "mercadopago-button-container", {
+            initialization: {
+              preferenceId: preferenceResult.preferenceId,
+            },
+            customization: {
+              texts: {
+                action: "pay",
+                valueProp: "security_safety"
+              }
+            }
+          });
+        } else {
+          throw new Error("No se pudo crear la preferencia de pago");
+        }
+      } catch (error) {
+        console.error("❌ Error creando preferencia:", error);
+        // Fallback: botón simple que redirige a Mercado Pago
+        const fallbackBtn = document.createElement("button");
+        fallbackBtn.innerHTML = "💳 Pagar con Mercado Pago";
+        fallbackBtn.classList.add("boton-descargar");
+        fallbackBtn.style.background = "#009ee3";
+        fallbackBtn.onclick = () => {
+          alert("🔧 Función en desarrollo - Pronto podrás pagar con Mercado Pago");
+        };
+        cont.appendChild(fallbackBtn);
+      }
       return;
     }
 
     // ============================
-    // DONACIÓN OPCIONAL
+    // DONACIÓN (MERCADO PAGO)
     // ============================
     if (juego.pricing === "donation") {
       const wrapper = document.createElement("div");
@@ -145,71 +170,108 @@ document.addEventListener("DOMContentLoaded", async () => {
       wrapper.style.alignItems = "center";
       wrapper.style.gap = "10px";
 
+      // ✅ NUEVO: Información del desarrollador para donaciones
+      const infoDesarrollador = juego.username ? `
+        <div style="text-align: center; color: #fff; background: #2a2a2a; padding: 8px; border-radius: 8px; border: 1px solid #555; width: 100%;">
+          <small>💼 Apoyar a: <strong>${juego.username}</strong></small>
+        </div>
+      ` : '';
+
       const input = document.createElement("input");
       input.type = "number";
-      input.min = "0";
+      input.min = "1";
       input.step = "0.01";
       input.placeholder = "Monto a donar (USD)";
-      input.style.padding = "8px";
+      input.value = "5.00";
+      input.style.padding = "10px";
       input.style.width = "240px";
       input.style.borderRadius = "8px";
       input.style.border = "1px solid #ccc";
       input.style.textAlign = "center";
+      input.style.background = "#1d1d1d";
+      input.style.color = "white";
 
-      const btn = document.createElement("button");
-      btn.classList.add("boton-descargar");
-      btn.textContent = "Donar o Descargar";
+      const btnDonar = document.createElement("button");
+      btnDonar.classList.add("boton-descargar");
+      btnDonar.innerHTML = `💝 Donar a ${juego.username || 'Desarrollador'}`;
+      btnDonar.style.background = "#009ee3";
+      btnDonar.style.color = "white";
+      btnDonar.style.border = "none";
+      btnDonar.style.padding = "12px 20px";
+      btnDonar.style.borderRadius = "8px";
+      btnDonar.style.cursor = "pointer";
+      btnDonar.style.fontWeight = "bold";
 
-      const divPayPal = document.createElement("div");
-      divPayPal.id = "paypal-donation-container";
-      divPayPal.style.marginTop = "10px";
+      const btnDescargarGratis = document.createElement("button");
+      btnDescargarGratis.classList.add("boton-descargar");
+      btnDescargarGratis.textContent = "📥 Descargar Gratis";
+      btnDescargarGratis.style.background = "#666";
+      btnDescargarGratis.style.color = "white";
+      btnDescargarGratis.style.border = "none";
+      btnDescargarGratis.style.padding = "10px 15px";
+      btnDescargarGratis.style.borderRadius = "8px";
+      btnDescargarGratis.style.cursor = "pointer";
+      btnDescargarGratis.style.marginTop = "5px";
 
+      wrapper.innerHTML = infoDesarrollador;
       wrapper.appendChild(input);
-      wrapper.appendChild(btn);
-      wrapper.appendChild(divPayPal);
+      wrapper.appendChild(btnDonar);
+      wrapper.appendChild(btnDescargarGratis);
       cont.appendChild(wrapper);
 
-      btn.onclick = () => {
+      btnDonar.onclick = async () => {
         const amount = parseFloat(input.value);
         if (!amount || amount <= 0) {
-          alert("🎮 Gracias, puedes descargar el juego gratis.");
-          window.location.href = `descarga.html?id=${juegoId}`;
+          alert("❌ Ingresa un monto válido para donar");
           return;
         }
 
-        divPayPal.innerHTML = "";
+        try {
+          const preferenceData = {
+            items: [
+              {
+                title: `Donación para ${juego.username || 'el desarrollador'}`,
+                unit_price: parseFloat(amount),
+                quantity: 1,
+                currency_id: "USD"
+              }
+            ],
+            back_urls: {
+              success: `${window.location.origin}/descarga.html?id=${juegoId}&status=success`,
+              failure: `${window.location.origin}/descarga.html?id=${juegoId}&status=failure`,
+              pending: `${window.location.origin}/descarga.html?id=${juegoId}&status=pending`
+            },
+            auto_return: "approved"
+          };
 
-        paypal
-          .Buttons({
-            style: {
-              color: "blue",
-              shape: "rect",
-              label: "donate",
-              layout: "vertical",
+          const preferenceResponse = await fetch(`${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/create-preference`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${localStorage.getItem("token")}`
             },
-            createOrder: (data, actions) => {
-              return actions.order.create({
-                purchase_units: [
-                  {
-                    description: `Donación para ${juego.nombre || "Juego"}`,
-                    amount: { currency_code: "USD", value: amount.toFixed(2) },
-                  },
-                ],
-              });
-            },
-            onApprove: async (data, actions) => {
-              const details = await actions.order.capture();
-              alert(`🙏 Gracias ${details.payer.name.given_name} por donar $${amount.toFixed(2)} ❤️`);
-              window.location.href = `descarga.html?id=${juegoId}`;
-            },
-            onError: (err) => {
-              console.error("❌ Error en la donación:", err);
-              alert("❌ Error al procesar la donación (modo Sandbox).");
-            },
-          })
-          .render("#paypal-donation-container");
+            body: JSON.stringify(preferenceData)
+          });
+
+          const preferenceResult = await preferenceResponse.json();
+          
+          if (preferenceResult.ok && preferenceResult.preferenceId) {
+            // Redirigir al checkout de Mercado Pago
+            window.location.href = `https://www.mercadopago.com.co/checkout/v1/redirect?pref_id=${preferenceResult.preferenceId}`;
+          } else {
+            throw new Error("No se pudo crear la preferencia de donación");
+          }
+        } catch (error) {
+          console.error("❌ Error en donación:", error);
+          alert("❌ Error al procesar la donación. Intenta nuevamente.");
+        }
       };
 
+      btnDescargarGratis.onclick = () => {
+        mostrarAviso(() => {
+          window.location.href = `descarga.html?id=${juegoId}`;
+        });
+      };
       return;
     }
 

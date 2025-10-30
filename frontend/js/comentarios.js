@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================
   async function cargarForo(id) {
     try {
-      const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros/${id}`, {
+      const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/foros/${id}`, {
         headers: {
           "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
         }
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ======================
   async function cargarComentarios() {
     try {
-      const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros/${foroId}/comentarios`);
+      const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/foros/${foroId}/comentarios`);
       const data = await res.json();
 
       comentariosList.innerHTML = "";
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!texto) return;
 
       try {
-        const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros/${foroId}/comentarios`, {
+        const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/foros/${foroId}/comentarios`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

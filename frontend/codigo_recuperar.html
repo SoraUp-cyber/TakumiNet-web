@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/index.css">
+   <link rel="icon" type="image/png" href="assets/img/logo.png">
+    <title>Verificar Código - TakumiNet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ============================ */
+/* CONTENEDOR PRINCIPAL */
+/* ============================ */
+.verificar-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(56, 56, 56, 0.25);
+  padding: 35px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  width: 500px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  z-index: 10;
+  backdrop-filter: blur(5px);
+}
+
+/* ============================ */
+/* TÍTULO */
+/* ============================ */
+.verificar-container h2 {
+  font-size: 26px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+/* ============================ */
+/* TEXTO INFORMATIVO */
+/* ============================ */
+.verificar-container p {
+  font-size: 14px;
+  color: #00ff2a;
+  margin-bottom: 15px;
+  line-height: 1.5;
+}
+
+.verificar-container p strong {
+  color: #ffffff;
+}
+
+/* ============================ */
+/* FORMULARIO */
+/* ============================ */
+.verificar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.verificar-form input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 18px;
+  text-align: center;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.3s, box-shadow 0.3s;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.verificar-form input:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+.verificar-form button {
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.verificar-form button:hover {
+  background-color: #45a049;
+}
+
+/* ============================ */
+/* TEMPORIZADOR */
+/* ============================ */
+.timer-section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 8px;
+}
+
+.timer-section p {
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+#timer {
+  font-weight: bold;
+  color: #00ff2a;
+  font-size: 18px;
+}
+
+#reenviar-btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #ff9800;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#reenviar-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+#reenviar-btn:not(:disabled):hover {
+  background-color: #f57c00;
+}
+
+#reenviar-btn i {
+  margin-right: 5px;
+}
+
+/* ============================ */
+/* ENLACE VOLVER */
+/* ============================ */
+.volver-recuperar a {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 14px;
+  color: #00ff22;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.volver-recuperar a i {
+  margin-right: 5px;
+}
+
+.volver-recuperar a:hover {
+  color: #fcfcfc;
+  text-decoration: underline;
+}
+
+/* ============================ */
+/* 📱 ADAPTACIÓN A MÓVILES */
+/* ============================ */
+@media (max-width: 768px) {
+  .verificar-container {
+    width: 90%;
+    padding: 25px 20px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .verificar-container h2 {
+    font-size: 22px;
+  }
+
+  .verificar-container p {
+    font-size: 13px;
+  }
+
+  .verificar-form button {
+    font-size: 15px;
+  }
+
+  .verificar-form input {
+    font-size: 16px;
+    padding: 10px;
+  }
+}
+
+/* ============================ */
+/* 📱 PANTALLAS MUY PEQUEÑAS */
+/* ============================ */
+@media (max-width: 480px) {
+  .verificar-container {
+    width: 95%;
+    padding: 20px 15px;
+  }
+
+  .verificar-container h2 {
+    font-size: 20px;
+  }
+
+  .verificar-container p {
+    font-size: 12px;
+  }
+
+  .verificar-form button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .verificar-form input {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  #reenviar-btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+    </style>
+
+</head>
+<body>
+      <!-- Fondo de partículas -->
+  <div id="particles-js"></div>
+    <div class="verificar-container">
+        <h2><i class="fas fa-shield-alt"></i> Verificar Código</h2>
+        <p>Ingresa el código de 6 dígitos que enviamos a tu correo</p>
+        <p><strong>Tienes 10 segundos para memorizar el código</strong></p>
+        
+        <form id="verificar-form" class="verificar-form">
+            <input type="text" id="codigo-input" maxlength="6" placeholder="000000" required>
+            <button type="submit">Verificar Código</button>
+        </form>
+        
+        <div class="timer-section">
+            <p>Tiempo restante: <span id="timer">10</span> segundos</p>
+            <button id="reenviar-btn" disabled>
+                <i class="fas fa-redo"></i> Reenviar código
+            </button>
+        </div>
+
+        <div class="volver-recuperar">
+            <a href="recuperar-password.html"><i class="fas fa-arrow-left"></i> Volver atrás</a>
+        </div>
+    </div>
+      <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script src="js/particulas.js"></script>
+  <script src="js/codigo recuperar.js"></script>
+</body>
+</html>

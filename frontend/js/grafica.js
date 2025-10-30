@@ -6,7 +6,7 @@
   // ======================
   async function obtenerGameJams() {
     try {
-      const res = await fetch("https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/game_jams");
+      const res = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/game_jams");
       const result = await res.json();
       if (!result.ok) return [];
       return result.jams; // Suponemos que la API devuelve { jams: [...] }

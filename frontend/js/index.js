@@ -1,6 +1,6 @@
 (async function() {
   // ✅ CONFIGURACIÓN SOLO PRODUCCIÓN - Servidor local removido
-  const API_BASE = "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app";
+  const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
 
   console.log('🔗 Conectando a:', API_BASE);
   
@@ -579,7 +579,6 @@
               <i class="fas fa-exclamation-triangle"></i>
               <h3>Error al cargar los juegos</h3>
               <p>${mensajeError}</p>
-              <p><small>URL intentada: ${API_BASE}/api/juegos</small></p>
               <button onclick="location.reload()" class="btn-reintentar">Reintentar</button>
             </div>
           `;

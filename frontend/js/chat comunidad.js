@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ======================
   async function cargarForo(id) {
     try {
-      const res = await fetch(`https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/foros/${id}`);
+      const res = await fetch(`https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/foros/${id}`);
       const data = await res.json();
 
       if (!data.ok) throw new Error(data.error || "Foro no encontrado");

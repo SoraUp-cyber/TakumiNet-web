@@ -19,22 +19,46 @@
   <p>Por favor, espera un momento...</p>
 
   <script>
-    // Extraer el "code" que devuelve Discord
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
+// Extraer el "code" que devuelve Discord
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
 
+// Función async para manejar la autenticación
+async function handleDiscordAuth() {
     if (code) {
-      console.log("Código recibido de Discord:", code);
+        console.log("✅ Código recibido de Discord:", code);
 
-      // Aquí podrías enviarlo a tu backend para intercambiarlo por el token del usuario
+        try {
+            // Enviar código al backend
+            const response = await fetch('https://grim-britte-takuminet-backend-c7daca2c.koyeb.app/api/auth/discord', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: code })
+            });
 
-      // Luego redirige al index
-      setTimeout(() => {
-        window.location.href = "https://takuminet-app.netlify.app/index.html";
-      }, 1500);
-    } else {
-      document.body.innerHTML = "<h2>Error: no se recibió código de Discord.</h2>";
+            const data = await response.json();
+
+            if (data.ok && data.token) {
+                // Guardar token en localStorage
+                localStorage.setItem('token', data.token);
+                console.log('✅ Autenticación exitosa');
+            }
+
+        } catch (error) {
+            console.error('❌ Error en autenticación:', error);
+        }
     }
+}
+
+// Ejecutar la función y luego redirigir
+handleDiscordAuth().finally(() => {
+    // Redirigir al home después de 3 segundos
+    setTimeout(() => {
+        window.location.href = 'https://takuminet-app.netlify.app/home.html';
+    }, 3000);
+});
   </script>
 </body>
 </html>
