@@ -167,18 +167,46 @@ app.use(helmet({
 }));
 
 // 5. ✅ MIDDLEWARE DE SEGURIDAD SIMPLIFICADO
+// =======================
+// MIDDLEWARE DE SEGURIDAD ÚNICO Y ROBUSTO
+// =======================
 const securityMiddleware = (req, res, next) => {
   try {
-    // Solo validar si hay body (evita errores en GET requests)
-    if (req.body && Object.keys(req.body).length > 0) {
-      // Validar tipos de datos básicos en el body
-      if (req.body.avatarBase64 && typeof req.body.avatarBase64 !== 'string') {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "avatarBase64 debe ser una cadena base64" 
-        });
+    // ✅ Asegurar que req.body siempre existe
+    if (!req.body) {
+      req.body = {};
+      return next();
+    }
+    
+    // ✅ Solo validar si hay propiedades en el body
+    if (Object.keys(req.body).length > 0) {
+      // Validar avatarBase64 si existe
+      if (req.body.avatarBase64) {
+        if (typeof req.body.avatarBase64 !== 'string') {
+          return res.status(400).json({ 
+            ok: false, 
+            error: "avatarBase64 debe ser una cadena base64" 
+          });
+        }
+        
+        // Validar tamaño máximo
+        if (req.body.avatarBase64.length > 35000000) {
+          return res.status(400).json({ 
+            ok: false, 
+            error: "La imagen es demasiado grande. Máximo 25MB." 
+          });
+        }
+        
+        // Validar formato base64
+        if (!req.body.avatarBase64.startsWith('data:image/')) {
+          return res.status(400).json({ 
+            ok: false, 
+            error: "Formato de imagen no soportado" 
+          });
+        }
       }
     }
+    
     next();
   } catch (error) {
     console.error("❌ Error en security middleware:", error);
