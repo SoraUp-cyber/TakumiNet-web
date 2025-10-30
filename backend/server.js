@@ -49,6 +49,7 @@ const MERCADO_PAGO_CONFIG = {
 
 // =======================
 // CONFIGURACIÓN INICIAL
+
 // =======================
 const app = express();
 require("dotenv").config();
@@ -1818,18 +1819,19 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   }
 });
 
+
 // =======================
-// ENDPOINT CORREGIDO PARA CREAR PREFERENCIA
+// ENDPOINT MEJORADO PARA MOSTRAR INFORMACIÓN DEL DESARROLLADOR
 // =======================
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
   try {
     const { juego_id, amount, is_donation = false } = req.body;
 
-    console.log("💰 Creando preferencia de Marketplace para juego:", juego_id);
+    console.log("🔄 Creando preferencia de pago REAL...");
 
-    // 1. Obtener información del juego y desarrollador
+    // 1. Obtener información del juego
     const juegoQuery = `
-      SELECT j.*, u.mp_id, u.username, u.mp_email
+      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
       FROM juegos j 
       LEFT JOIN usuarios u ON j.user_id = u.user_id 
       WHERE j.id = ?
@@ -1843,7 +1845,6 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       });
     }
 
-    // 2. Verificar que el desarrollador tenga cuenta de Mercado Pago conectada
     if (!juego.mp_id) {
       return res.status(400).json({ 
         ok: false, 
@@ -1851,68 +1852,98 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       });
     }
 
-    // 3. Calcular comisiones
+    // 2. Calcular distribución
     const totalAmount = parseFloat(amount);
-    const comisionTakumi = totalAmount * 0.30; // 30% para TakumiNet
-    const pagoDesarrollador = totalAmount * 0.70; // 70% para el desarrollador
+    const comisionTakumi = totalAmount * 0.30;
+    const pagoDesarrollador = totalAmount * 0.70;
 
-    console.log(`💰 Distribución: $${totalAmount} = TakumiNet ($${comisionTakumi}) + Dev ($${pagoDesarrollador})`);
-
-    // 4. Crear preferencia de Marketplace
+    // 3. CONFIGURACIÓN CORREGIDA - URLs ABSOLUTAS
     const preference = {
       items: [
         {
-          title: is_donation ? `Donación para ${juego.username || 'desarrollador'}` : `Compra: ${juego.title}`,
-          description: juego.description || "Transacción en TakumiNet",
+          title: is_donation ? 
+            `Donación para ${juego.developer_name}` : 
+            `Compra: ${juego.title}`,
+          description: `Desarrollado por ${juego.developer_name} en TakumiNet`,
           quantity: 1,
           currency_id: "USD",
           unit_price: totalAmount
         }
       ],
+      payer: {
+        name: "",
+        surname: "",
+        email: ""
+      },
+      payment_methods: {
+        excluded_payment_methods: [],
+        excluded_payment_types: [],
+        installments: 1
+      },
+      // ✅ MARKETPLACE CONFIGURADO CORRECTAMENTE
       marketplace: "TakumiNet",
-      marketplace_fee: comisionTakumi, // 30% para TakumiNet
+      marketplace_fee: comisionTakumi,
       disbursements: [
         {
-          amount: pagoDesarrollador, // 70% para el desarrollador
-          collector_id: parseInt(juego.mp_id) // User ID MP del desarrollador
+          amount: pagoDesarrollador,
+          collector_id: parseInt(juego.mp_id),
+          external_reference: `dev_${juego.user_id}`,
+          description: `Pago a desarrollador: ${juego.developer_name}`
         }
       ],
+      // ✅ URLs ABSOLUTAS Y VÁLIDAS
       back_urls: {
-        success: `https://takuminet-app.netlify.app/pago-exitoso.html?juego_id=${juego_id}`,
-        failure: `https://takuminet-app.netlify.app/pago-fallido.html`,
-        pending: `https://takuminet-app.netlify.app/pago-pendiente.html`
+        success: "https://takuminet-app.netlify.app/pago-exitoso.html",
+        failure: "https://takuminet-app.netlify.app/pago-fallido.html", 
+        pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
       },
       auto_return: "approved",
       external_reference: `takumi_${juego_id}_${Date.now()}`,
-      notification_url: `${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/notifications`
+      notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
+      statement_descriptor: "TAKUMINET",
+      binary_mode: true
     };
 
-    console.log("🔄 Creando preferencia en Mercado Pago...");
+    console.log("📤 Enviando preferencia a Mercado Pago:", {
+      total: totalAmount,
+      developer: juego.developer_name,
+      mp_id: juego.mp_id
+    });
 
+    // 4. Crear preferencia
     const result = await mercadopago.preferences.create(preference);
     
-    console.log("✅ Preferencia de Marketplace creada:", result.body.id);
+    console.log("✅ Preferencia creada exitosamente:", result.body.id);
 
     res.json({
       ok: true,
       preferenceId: result.body.id,
       init_point: result.body.init_point,
+      sandbox_init_point: result.body.sandbox_init_point, // Por si acaso
       distribution: {
         total: totalAmount,
         takumi_commission: comisionTakumi,
         developer_payment: pagoDesarrollador,
-        developer_mp_id: juego.mp_id
+        developer_name: juego.developer_name
       }
     });
 
   } catch (err) {
-    console.error("❌ Error creando preferencia de Marketplace:", err);
+    console.error("❌ ERROR CRÍTICO en Mercado Pago:", {
+      message: err.message,
+      stack: err.stack,
+      response: err.response?.body
+    });
+    
     res.status(500).json({ 
       ok: false, 
-      error: "Error al crear preferencia de pago: " + err.message 
+      error: "Error interno del servidor al crear el pago",
+      details: err.message 
     });
   }
 });
+
+
 // ============================
 // WEBHOOK PARA NOTIFICACIONES DE PAGO
 // ============================
