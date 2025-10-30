@@ -168,42 +168,41 @@ app.use(helmet({
 
 // 5. ✅ MIDDLEWARE DE SEGURIDAD SIMPLIFICADO
 // =======================
-// MIDDLEWARE DE SEGURIDAD ÚNICO Y ROBUSTO
+// MIDDLEWARE DE SEGURIDAD MEJORADO
 // =======================
 const securityMiddleware = (req, res, next) => {
   try {
     // ✅ Asegurar que req.body siempre existe
     if (!req.body) {
       req.body = {};
-      return next();
     }
     
-    // ✅ Solo validar si hay propiedades en el body
-    if (Object.keys(req.body).length > 0) {
-      // Validar avatarBase64 si existe
-      if (req.body.avatarBase64) {
-        if (typeof req.body.avatarBase64 !== 'string') {
-          return res.status(400).json({ 
-            ok: false, 
-            error: "avatarBase64 debe ser una cadena base64" 
-          });
-        }
-        
-        // Validar tamaño máximo
-        if (req.body.avatarBase64.length > 35000000) {
-          return res.status(400).json({ 
-            ok: false, 
-            error: "La imagen es demasiado grande. Máximo 25MB." 
-          });
-        }
-        
-        // Validar formato base64
-        if (!req.body.avatarBase64.startsWith('data:image/')) {
-          return res.status(400).json({ 
-            ok: false, 
-            error: "Formato de imagen no soportado" 
-          });
-        }
+    // ✅ Solo validar si hay propiedades en el body Y si existe avatarBase64
+    if (Object.keys(req.body).length > 0 && req.body.avatarBase64 !== undefined) {
+      const avatarBase64 = req.body.avatarBase64;
+      
+      // Validar que sea un string
+      if (typeof avatarBase64 !== 'string') {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "avatarBase64 debe ser una cadena base64" 
+        });
+      }
+      
+      // Validar tamaño máximo
+      if (avatarBase64.length > 35000000) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "La imagen es demasiado grande. Máximo 25MB." 
+        });
+      }
+      
+      // Validar formato base64 solo si no está vacío
+      if (avatarBase64.trim() !== '' && !avatarBase64.startsWith('data:image/')) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "Formato de imagen no soportado" 
+        });
       }
     }
     
@@ -217,15 +216,21 @@ const securityMiddleware = (req, res, next) => {
 app.use(securityMiddleware);
 
 // =======================
-// VALIDACIÓN DE ARCHIVOS - CORREGIDA
+// VALIDACIÓN DE ARCHIVOS - CORREGIDA Y MEJORADA
 // =======================
 const validateFileUpload = (req, res, next) => {
   try {
-    // Solo validar si existe avatarBase64 en el body
-    if (req.body && req.body.avatarBase64) {
+    // ✅ Verificar que req.body existe
+    if (!req.body) {
+      console.log("⚠️ req.body está undefined");
+      return next();
+    }
+
+    // ✅ Solo validar si existe avatarBase64 en el body
+    if (req.body.avatarBase64 !== undefined && req.body.avatarBase64 !== null) {
       const base64String = req.body.avatarBase64;
       
-      // Validar que sea un string
+      // ✅ Validar que sea un string
       if (typeof base64String !== 'string') {
         return res.status(400).json({ 
           ok: false, 
@@ -233,7 +238,15 @@ const validateFileUpload = (req, res, next) => {
         });
       }
       
-      // Validar tamaño máximo (25MB en base64 ≈ 33MB original)
+      // ✅ Validar que no esté vacío
+      if (base64String.trim() === '') {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "Avatar no puede estar vacío" 
+        });
+      }
+      
+      // ✅ Validar tamaño máximo (25MB en base64 ≈ 33MB original)
       if (base64String.length > 35000000) {
         return res.status(400).json({ 
           ok: false, 
@@ -241,15 +254,16 @@ const validateFileUpload = (req, res, next) => {
         });
       }
       
-      // Validar formato base64
+      // ✅ Validar formato base64
       if (!base64String.startsWith('data:image/')) {
         return res.status(400).json({ 
           ok: false, 
-          error: "Formato de imagen no soportado" 
+          error: "Formato de imagen no soportado. Debe ser una imagen en formato base64." 
         });
       }
     }
     
+    // ✅ Si no hay avatarBase64, continuar normalmente
     next();
   } catch (error) {
     console.error("❌ Error validando archivo:", error);
@@ -257,6 +271,15 @@ const validateFileUpload = (req, res, next) => {
   }
 };
 
+// Middleware de debugging temporal
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path}`);
+  console.log('📦 Body keys:', req.body ? Object.keys(req.body) : 'No body');
+  if (req.body && req.body.avatarBase64) {
+    console.log('🖼️ Avatar presente, longitud:', req.body.avatarBase64.length);
+  }
+  next();
+});
 
 
 // =======================
