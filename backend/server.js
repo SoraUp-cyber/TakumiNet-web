@@ -124,7 +124,9 @@ const dbConfig = isVercel || isProduction ? {
 
 // =======================
 // MIDDLEWARES ESENCIALES - ACTUALIZADOS PARA 25MB
-// =======================
+// 1. ✅ Cookie Parser PRIMERO
+app.use(cookieParser());
+
 
 // ✅ AUMENTAR LÍMITE A 25MB PARA IMÁGENES Y ARCHIVOS
 app.use(express.json({ 
@@ -163,6 +165,71 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: false // Temporal para desarrollo
 }));
+
+// 5. ✅ MIDDLEWARE DE SEGURIDAD SIMPLIFICADO
+const securityMiddleware = (req, res, next) => {
+  try {
+    // Solo validar si hay body (evita errores en GET requests)
+    if (req.body && Object.keys(req.body).length > 0) {
+      // Validar tipos de datos básicos en el body
+      if (req.body.avatarBase64 && typeof req.body.avatarBase64 !== 'string') {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "avatarBase64 debe ser una cadena base64" 
+        });
+      }
+    }
+    next();
+  } catch (error) {
+    console.error("❌ Error en security middleware:", error);
+    res.status(500).json({ ok: false, error: "Error de validación de datos" });
+  }
+};
+
+app.use(securityMiddleware);
+
+// =======================
+// VALIDACIÓN DE ARCHIVOS - CORREGIDA
+// =======================
+const validateFileUpload = (req, res, next) => {
+  try {
+    // Solo validar si existe avatarBase64 en el body
+    if (req.body && req.body.avatarBase64) {
+      const base64String = req.body.avatarBase64;
+      
+      // Validar que sea un string
+      if (typeof base64String !== 'string') {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "Formato de avatar inválido" 
+        });
+      }
+      
+      // Validar tamaño máximo (25MB en base64 ≈ 33MB original)
+      if (base64String.length > 35000000) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "La imagen es demasiado grande. Máximo 25MB." 
+        });
+      }
+      
+      // Validar formato base64
+      if (!base64String.startsWith('data:image/')) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "Formato de imagen no soportado" 
+        });
+      }
+    }
+    
+    next();
+  } catch (error) {
+    console.error("❌ Error validando archivo:", error);
+    res.status(500).json({ ok: false, error: "Error validando archivo" });
+  }
+};
+
+
 
 // =======================
 // VARIABLES GLOBALES Y HELPERS
