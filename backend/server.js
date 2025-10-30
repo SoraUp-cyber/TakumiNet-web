@@ -121,16 +121,16 @@ const dbConfig = isVercel || isProduction ? {
   queueLimit: 0
 };
 
-
 // =======================
 // MIDDLEWARES ESENCIALES - ACTUALIZADOS PARA 25MB
+// =======================
+
 // 1. ✅ Cookie Parser PRIMERO
 app.use(cookieParser());
 
-
-// ✅ AUMENTAR LÍMITE A 25MB PARA IMÁGENES Y ARCHIVOS
+// 2. ✅ MIDDLEWARES DE BODY PRIMERO (ESTO ES CLAVE)
 app.use(express.json({ 
-  limit: '50mb', // Aumentado de 10MB a 50MB
+  limit: '50mb',
   verify: (req, res, buf) => {
     try {
       JSON.parse(buf);
@@ -142,34 +142,31 @@ app.use(express.json({
 
 app.use(express.urlencoded({ 
   extended: true, 
-  limit: '50mb' // Aumentado de 10MB a 50MB
+  limit: '50mb'
 }));
 
-// ✅ CONFIGURACIÓN CORS MEJORADA
+// 3. ✅ CONFIGURACIÓN CORS MEJORADA
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         "https://takuminet-app.netlify.app",
-        "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app",
+        "https://distinct-oralla-takumi-net-0d317399.koyeb.app",
         "http://localhost:3000"
       ]
     : ["http://localhost:3000", "http://127.0.0.1:3000"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  maxAge: 86400 // 24 horas
+  maxAge: 86400
 }));
 
-// ✅ HEADERS DE SEGURIDAD PERMITIENDO ARCHIVOS GRANDES
+// 4. ✅ HEADERS DE SEGURIDAD
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: false // Temporal para desarrollo
+  contentSecurityPolicy: false
 }));
 
-// 5. ✅ MIDDLEWARE DE SEGURIDAD SIMPLIFICADO
-// =======================
-// MIDDLEWARE DE SEGURIDAD MEJORADO
-// =======================
+// 5. ✅ MIDDLEWARE DE SEGURIDAD - AHORA SÍ FUNCIONARÁ
 const securityMiddleware = (req, res, next) => {
   try {
     // ✅ Asegurar que req.body siempre existe
@@ -177,11 +174,10 @@ const securityMiddleware = (req, res, next) => {
       req.body = {};
     }
     
-    // ✅ Solo validar si hay propiedades en el body Y si existe avatarBase64
-    if (Object.keys(req.body).length > 0 && req.body.avatarBase64 !== undefined) {
+    // ✅ Solo validar si existe avatarBase64
+    if (req.body.avatarBase64 !== undefined && req.body.avatarBase64 !== null) {
       const avatarBase64 = req.body.avatarBase64;
       
-      // Validar que sea un string
       if (typeof avatarBase64 !== 'string') {
         return res.status(400).json({ 
           ok: false, 
@@ -189,7 +185,6 @@ const securityMiddleware = (req, res, next) => {
         });
       }
       
-      // Validar tamaño máximo
       if (avatarBase64.length > 35000000) {
         return res.status(400).json({ 
           ok: false, 
@@ -197,7 +192,6 @@ const securityMiddleware = (req, res, next) => {
         });
       }
       
-      // Validar formato base64 solo si no está vacío
       if (avatarBase64.trim() !== '' && !avatarBase64.startsWith('data:image/')) {
         return res.status(400).json({ 
           ok: false, 
@@ -215,63 +209,10 @@ const securityMiddleware = (req, res, next) => {
 
 app.use(securityMiddleware);
 
-// =======================
-// VALIDACIÓN DE ARCHIVOS - CORREGIDA Y MEJORADA
-// =======================
-const validateFileUpload = (req, res, next) => {
-  try {
-    // ✅ Verificar que req.body existe
-    if (!req.body) {
-      console.log("⚠️ req.body está undefined");
-      return next();
-    }
+// 6. ✅ VALIDACIÓN DE ARCHIVOS - SIMPLIFICADA (ELIMINA validateFileUpload)
+// YA NO NECESITAS validateFileUpload SEPARADO, TODO ESTÁ EN securityMiddleware
 
-    // ✅ Solo validar si existe avatarBase64 en el body
-    if (req.body.avatarBase64 !== undefined && req.body.avatarBase64 !== null) {
-      const base64String = req.body.avatarBase64;
-      
-      // ✅ Validar que sea un string
-      if (typeof base64String !== 'string') {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Formato de avatar inválido" 
-        });
-      }
-      
-      // ✅ Validar que no esté vacío
-      if (base64String.trim() === '') {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Avatar no puede estar vacío" 
-        });
-      }
-      
-      // ✅ Validar tamaño máximo (25MB en base64 ≈ 33MB original)
-      if (base64String.length > 35000000) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "La imagen es demasiado grande. Máximo 25MB." 
-        });
-      }
-      
-      // ✅ Validar formato base64
-      if (!base64String.startsWith('data:image/')) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Formato de imagen no soportado. Debe ser una imagen en formato base64." 
-        });
-      }
-    }
-    
-    // ✅ Si no hay avatarBase64, continuar normalmente
-    next();
-  } catch (error) {
-    console.error("❌ Error validando archivo:", error);
-    res.status(500).json({ ok: false, error: "Error validando archivo" });
-  }
-};
-
-// Middleware de debugging temporal
+// 7. ✅ Middleware de debugging temporal
 app.use((req, res, next) => {
   console.log(`📨 ${req.method} ${req.path}`);
   console.log('📦 Body keys:', req.body ? Object.keys(req.body) : 'No body');
