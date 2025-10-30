@@ -19,32 +19,6 @@ const cloudinary = require("cloudinary").v2;
 const mysql = require("mysql2/promise");
 const paypal = require('@paypal/checkout-server-sdk'); // ✅ NUEVO: PayPal SDK
 
-
-// =======================
-// MERCADO PAGO SIMPLIFICADO
-// =======================
-let mercadopago;
-
-try {
-  mercadopago = require('mercadopago');
-  console.log("✅ Mercado Pago cargado");
-  mercadopago.configure({
-    access_token: "APP_USR-2794725193382250-103011-9a3f5cfa029a24e8debf31adbf03b5a9-2669472141"
-  });
-} catch (error) {
-  console.log("❌ Mercado Pago no disponible");
-  mercadopago = null;
-}
-
-
-
-// =======================
-// CONFIGURACIÓN MERCADO PAGO PARA WEBHOOK
-// =======================
-const MERCADO_PAGO_CONFIG = {
-  API_BASE: process.env.API_BASE_URL || "https://distinct-oralla-takumi-net-0d317399.koyeb.app"
-};
-
 // =======================
 // CONFIGURACIÓN INICIAL
 // =======================
@@ -98,18 +72,20 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 console.log(`🔍 Entorno detectado: Koyeb=${isKoyeb}, Vercel=${isVercel}, Production=${isProduction}`);
 
-
+// CONFIGURACIÓN DE BASE DE DATOS DUAL - ACTUALIZADA
 const dbConfig = isVercel || isProduction ? {
-  host: process.env.DB_HOST || "serverless-eastus.sysp0000.db3.skysql.com",
-  user: process.env.DB_USER || "dbpbf41588767",
-  password: process.env.DB_PASSWORD || "h8fH7R-26c6DQ7J~S7wRh",
-  database: process.env.DB_NAME || "takuminet_db", // o tu nombre de DB real
-  port: process.env.DB_PORT || 4108,
-  ssl: { rejectUnauthorized: false }, // necesario para SkySQL
+  // ✅ CONFIGURACIÓN NUBE (Aiven) - Para Koyeb y producción
+  host: process.env.DB_HOST || "takuminet-mariadb-julianmartinezarenas480-c704.g.aivencloud.com",
+  user: process.env.DB_USER || "avnadmin",
+  password: process.env.DB_PASSWORD || "AVNS_W8Jtd5VqKCChu5rHHTG",
+  database: process.env.DB_NAME || "defaultdb",
+  port: process.env.DB_PORT || 25967,
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 } : {
+  // ✅ CONFIGURACIÓN LOCAL - Para desarrollo
   host: process.env.DB_HOST || "127.0.0.1",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "2001",
@@ -122,106 +98,28 @@ const dbConfig = isVercel || isProduction ? {
 };
 
 // =======================
-// MIDDLEWARES ESENCIALES - ACTUALIZADOS PARA 25MB
+// MIDDLEWARES ESENCIALES
 // =======================
 
-// 1. ✅ Cookie Parser PRIMERO
-app.use(cookieParser());
+// Middleware para parsear JSON - ¡ESENCIAL!
+app.use(express.json({ limit: '50mb' })); // Añade esto
 
-// 2. ✅ MIDDLEWARES DE BODY PRIMERO (ESTO ES CLAVE)
-app.use(express.json({ 
-  limit: '50mb',
-  verify: (req, res, buf) => {
-    try {
-      JSON.parse(buf);
-    } catch (e) {
-      res.status(400).json({ ok: false, error: "JSON inválido" });
-    }
-  }
-}));
+// Middleware para parsear URL-encoded - RECOMENDADO
+app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Y esto
 
-app.use(express.urlencoded({ 
-  extended: true, 
-  limit: '50mb'
-}));
-
-// 3. ✅ CONFIGURACIÓN CORS MEJORADA
+// ✅ TE RECOMIENDO ESTA - CONFIGURACIÓN MÍNIMA Y RÁPIDA
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         "https://takuminet-app.netlify.app",
-        "https://distinct-oralla-takumi-net-0d317399.koyeb.app",
-        "http://localhost:3000"
+        "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app"
       ]
-    : ["http://localhost:3000", "http://127.0.0.1:3000"],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  maxAge: 86400
+    : true, // En desarrollo permitir todos los orígenes
+  credentials: true
 }));
 
-// 4. ✅ HEADERS DE SEGURIDAD
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: false
-}));
-
-// 5. ✅ MIDDLEWARE DE SEGURIDAD - AHORA SÍ FUNCIONARÁ
-const securityMiddleware = (req, res, next) => {
-  try {
-    // ✅ Asegurar que req.body siempre existe
-    if (!req.body) {
-      req.body = {};
-    }
-    
-    // ✅ Solo validar si existe avatarBase64
-    if (req.body.avatarBase64 !== undefined && req.body.avatarBase64 !== null) {
-      const avatarBase64 = req.body.avatarBase64;
-      
-      if (typeof avatarBase64 !== 'string') {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "avatarBase64 debe ser una cadena base64" 
-        });
-      }
-      
-      if (avatarBase64.length > 35000000) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "La imagen es demasiado grande. Máximo 25MB." 
-        });
-      }
-      
-      if (avatarBase64.trim() !== '' && !avatarBase64.startsWith('data:image/')) {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "Formato de imagen no soportado" 
-        });
-      }
-    }
-    
-    next();
-  } catch (error) {
-    console.error("❌ Error en security middleware:", error);
-    res.status(500).json({ ok: false, error: "Error de validación de datos" });
-  }
-};
-
-app.use(securityMiddleware);
-
-// 6. ✅ VALIDACIÓN DE ARCHIVOS - SIMPLIFICADA (ELIMINA validateFileUpload)
-// YA NO NECESITAS validateFileUpload SEPARADO, TODO ESTÁ EN securityMiddleware
-
-// 7. ✅ Middleware de debugging temporal
-app.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.path}`);
-  console.log('📦 Body keys:', req.body ? Object.keys(req.body) : 'No body');
-  if (req.body && req.body.avatarBase64) {
-    console.log('🖼️ Avatar presente, longitud:', req.body.avatarBase64.length);
-  }
-  next();
-});
-
+app.use(helmet());
+app.use(cookieParser());
 
 // =======================
 // VARIABLES GLOBALES Y HELPERS
@@ -909,133 +807,66 @@ app.get("/api/foros/:id/comentarios", async (req, res) => {
 
 
 // =======================
-// ENDPOINT SUBIR JUEGO - ACTUALIZADO PARA 25MB
+// ENDPOINT SUBIR JUEGO (ACTUALIZADO)
 // =======================
 app.post("/api/juegos", authMiddleware, async (req, res) => {
   try {
     const data = req.body;
-    
-    console.log("📥 Recibiendo solicitud para subir juego...");
-    console.log("📊 Tamaño de datos recibidos:", JSON.stringify(data).length, "bytes");
 
-    // ✅ Validación mejorada con mensajes más claros
+    // Validación básica
     if (!data.title || !data.description) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "❌ Título y descripción son obligatorios" 
-      });
-    }
-
-    // ✅ Validar tamaño de imágenes base64
-    if (data.cover_base64 && data.cover_base64.length > 30 * 1024 * 1024) { // ~30MB en base64
-      return res.status(400).json({
-        ok: false,
-        error: "❌ La portada es demasiado grande. Máximo 25MB."
-      });
+      return res.status(400).json({ ok: false, error: "Título y descripción obligatorios" });
     }
 
     let coverUrl = null;
     let screenshotsUrls = [];
 
-    // 📤 SUBIR PORTADA - CON MANEJO DE ERRORES MEJORADO
+    // 📤 Subir portada (base64)
     if (data.cover_base64) {
       try {
-        console.log("🖼️ Subiendo portada a Cloudinary...");
-        console.log("📸 Tamaño base64 portada:", data.cover_base64.length, "caracteres");
-        
-        const imageFormat = detectImageFormat(data.cover_base64);
-        console.log("🎨 Formato detectado para portada:", imageFormat);
-        
-        const result = await cloudinary.uploader.upload(
-          `data:image/${imageFormat};base64,${data.cover_base64}`, 
-          {
-            folder: "takuminet/games/cover",
-            public_id: `cover_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-            overwrite: true,
-            timeout: 60000, // 60 segundos timeout
-            chunk_size: 20 * 1024 * 1024 // 20MB chunks
-          }
-        );
-        
+        const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${data.cover_base64}`, {
+          folder: "takuminet/games/cover",
+          public_id: `cover_${Date.now()}`,
+          overwrite: true,
+        });
         coverUrl = result.secure_url;
         console.log("✅ Portada subida a Cloudinary:", coverUrl);
-        
       } catch (cloudinaryError) {
-        console.error("❌ Error detallado subiendo portada:", {
-          message: cloudinaryError.message,
-          code: cloudinaryError.code,
-          http_code: cloudinaryError.http_code
-        });
-        
-        return res.status(500).json({ 
-          ok: false, 
-          error: "Error al subir la portada: " + cloudinaryError.message 
-        });
+        console.error("❌ Error subiendo portada a Cloudinary:", cloudinaryError);
+        return res.status(500).json({ ok: false, error: "Error al subir la portada" });
       }
     }
 
-    // 📤 SUBIR CAPTURAS - CON LÍMITE DE 25MB
+    // 📤 Subir capturas (array base64)
     if (data.screenshots_base64 && data.screenshots_base64.length > 0) {
       try {
-        console.log("🖼️ Subiendo", data.screenshots_base64.length, "capturas...");
-        
-        // ✅ Validar número de capturas
-        if (data.screenshots_base64.length < 5) {
-          return res.status(400).json({
-            ok: false,
-            error: "❌ Debes subir al menos 5 capturas del juego"
+        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
+          const result = await cloudinary.uploader.upload(`data:image/jpeg;base64,${ssBase64}`, {
+            folder: "takuminet/games/screenshots",
+            public_id: `ss_${Date.now()}_${i}`,
+            overwrite: true,
           });
-        }
-
-        // ✅ Validar tamaño de cada captura
-        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
-          if (ssBase64.length > 30 * 1024 * 1024) { // ~30MB en base64
-            return res.status(400).json({
-              ok: false,
-              error: `❌ La captura ${i + 1} es demasiado grande. Máximo 25MB por imagen.`
-            });
-          }
-        }
-
-        // ✅ Subir capturas en serie (más estable que en paralelo)
-        for (const [i, ssBase64] of data.screenshots_base64.entries()) {
-          console.log(`📤 Subiendo captura ${i + 1}/${data.screenshots_base64.length}...`);
-          
-          const imageFormat = detectImageFormat(ssBase64);
-          const result = await cloudinary.uploader.upload(
-            `data:image/${imageFormat};base64,${ssBase64}`,
-            {
-              folder: "takuminet/games/screenshots",
-              public_id: `ss_${Date.now()}_${i}_${Math.random().toString(36).substring(2, 9)}`,
-              overwrite: true,
-              timeout: 60000,
-              chunk_size: 20 * 1024 * 1024
-            }
-          );
-          
           screenshotsUrls.push(result.secure_url);
-          console.log(`✅ Captura ${i + 1} subida (${imageFormat.toUpperCase()})`);
         }
-        
-        console.log("🎉 Todas las capturas subidas:", screenshotsUrls.length);
-        
+        console.log("✅ Capturas subidas a Cloudinary:", screenshotsUrls.length);
       } catch (cloudinaryError) {
-        console.error("❌ Error subiendo capturas:", cloudinaryError);
-        return res.status(500).json({ 
-          ok: false, 
-          error: "Error al subir las capturas: " + cloudinaryError.message 
-        });
+        console.error("❌ Error subiendo capturas a Cloudinary:", cloudinaryError);
+        return res.status(500).json({ ok: false, error: "Error al subir las capturas" });
       }
     }
 
-    // 🎯 CONTINÚA CON EL RESTO DEL CÓDIGO ORIGINAL...
     const screenshotsJSON = JSON.stringify(screenshotsUrls);
 
-    // Mapear pricing values
+    // Mapear pricing values a inglés para la base de datos
     const pricingMap = {
-      'free': 'free', 'paid': 'paid', 'donation': 'donation',
-      'gratis': 'free', 'pago': 'paid', 'donacion': 'donation'
+      'free': 'free',
+      'paid': 'paid', 
+      'donation': 'donation',
+      'gratis': 'free',
+      'pago': 'paid',
+      'donacion': 'donation'
     };
+
     const mappedPricing = pricingMap[data.pricing] || 'free';
 
     // Guardar en MariaDB
@@ -1051,7 +882,7 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
     `;
 
     const values = [
-      req.userId,
+      req.userId, // ID usuario del token
       data.title,
       data.description,
       data.category || "other",
@@ -1077,50 +908,25 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
       data.terms_accepted ? 1 : 0
     ];
 
-    console.log("💾 Guardando en base de datos...");
+    console.log("📝 Valores para INSERT:", values);
+
     const result = await runAsync(query, values);
-    console.log("✅ Juego guardado en BD con ID:", result.insertId);
 
     res.json({
       ok: true,
-      message: "🎮 ¡Juego publicado con éxito!",
+      message: "Juego publicado con éxito 🎮",
       id: result.insertId,
       cover: coverUrl,
       screenshots: screenshotsUrls,
     });
 
   } catch (err) {
-    console.error("💥 ERROR CRÍTICO subiendo juego:", {
-      message: err.message,
-      stack: err.stack,
-      code: err.code
-    });
-    
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor: " + err.message 
-    });
+    console.error("❌ Error subiendo juego:", err);
+    res.status(500).json({ ok: false, error: "Error al subir juego: " + err.message });
   }
 });
 
-// =======================
-// FUNCIÓN PARA DETECTAR FORMATO DE IMAGEN
-// =======================
-function detectImageFormat(base64String) {
-  // Los primeros caracteres del base64 indican el formato
-  const signature = base64String.substring(0, 20);
-  
-  if (signature.startsWith('/9j/')) {
-    return 'jpeg'; // JPEG
-  } else if (signature.startsWith('iVBORw0KGgo')) {
-    return 'png'; // PNG
-  } else if (signature.startsWith('R0lGODlh')) {
-    return 'gif'; // GIF
-  } else {
-    console.log("⚠️ Formato no detectado, usando PNG por defecto. Signature:", signature);
-    return 'png'; // Por defecto
-  }
-}
+
 
 
 // =======================
@@ -1675,31 +1481,6 @@ app.get("/api/game_jams/:id/votos", async (req, res) => {
 
 
 
-// =====================
-// VERIFICAR SI UN EMAIL EXISTE (para recuperación)
-// =====================
-app.get("/api/verificar-email", async (req, res) => {
-  const { email } = req.query;
-  if (!email) return res.status(400).json({ ok: false, error: "Falta el parámetro 'email'" });
-
-  try {
-    const [rows] = await pool.query("SELECT user_id FROM usuarios WHERE email = ?", [email]);
-    const existe = rows.length > 0;
-    res.json({ ok: true, existe });
-  } catch (err) {
-    console.error("❌ Error verificando email:", err);
-    res.status(500).json({ ok: false, error: "Error interno del servidor" });
-  }
-});
-
-
-
-
-
-
-// =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS
-// =======================
 
 // =======================
 // ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
@@ -1967,9 +1748,6 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
     res.status(500).send("Error");
   }
 });
-
-
-
 
 
 
