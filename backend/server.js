@@ -1184,20 +1184,20 @@ app.get("/api/juegos", async (req, res) => {
 });
 
 // =======================
-// ENDPOINT OBTENER JUEGO POR ID - OPTIMIZADO
+// ENDPOINT OBTENER JUEGO POR ID - CORREGIDO
 // =======================
 app.get("/api/juegos/:id", async (req, res) => {
   try {
-    console.time('⏱️ ObtenerJuegoID'); // Medir tiempo
+    console.time('⏱️ ObtenerJuegoID');
     
     const gameId = req.params.id;
 
-    // 1️⃣ Obtener el juego principal CON TIMEOUT
+    // ✅ CORREGIDO: Incluir mp_id y mp_email en la consulta
     const juegoQuery = `
       SELECT j.*, 
              u.username, u.avatar, u.descripcion, 
              u.contacto_email, u.twitter, u.instagram, 
-             u.youtube, u.discord
+             u.youtube, u.discord, u.mp_id, u.mp_email  -- ✅ AGREGAR ESTOS CAMPOS
       FROM juegos j 
       LEFT JOIN usuarios u ON j.user_id = u.user_id 
       WHERE j.id = ?
@@ -1216,16 +1216,25 @@ app.get("/api/juegos/:id", async (req, res) => {
     // Procesar datos del juego
     const juegoProcesado = procesarJuego(juego);
 
-    // 2️⃣ Obtener otros juegos (EN PARALELO para mayor velocidad)
+    // 2️⃣ Obtener otros juegos
     const otrosJuegosPromise = allAsync(
       `SELECT id, title, cover FROM juegos WHERE user_id = ? AND id != ? LIMIT 6`,
       [juego.user_id, gameId]
     );
 
-    // Esperar ambas promesas en paralelo
     const [otrosJuegos] = await Promise.all([otrosJuegosPromise]);
     
-    console.timeEnd('⏱️ ObtenerJuegoID'); // Fin medición
+    console.timeEnd('⏱️ ObtenerJuegoID');
+
+    // ✅ DEBUG: Verificar qué datos se envían
+    console.log("📤 Enviando datos del juego:", {
+      id: juegoProcesado.id,
+      title: juegoProcesado.title,
+      user_id: juegoProcesado.user_id,
+      username: juegoProcesado.username,
+      mp_id: juegoProcesado.mp_id,
+      mp_email: juegoProcesado.mp_email
+    });
 
     res.json({ 
       ok: true, 
@@ -1241,7 +1250,6 @@ app.get("/api/juegos/:id", async (req, res) => {
     });
   }
 });
-
 
 // =======================
 // ENDPOINT OBTENER JUEGOS DEL USUARIO
