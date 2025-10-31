@@ -2728,7 +2728,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         }
       ],
       back_urls: {
-        success: "https://takuminet-app.netlify.app/descargar.html",
+        success: "https://takuminet-app.netlify.app/descarga.html",
         failure: "https://takuminet-app.netlify.app/home.html", 
         pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
       },
