@@ -1900,8 +1900,8 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         }
       ],
       back_urls: {
-        success: "https://takuminet-app.netlify.app/pago-exitoso.html",
-        failure: "https://takuminet-app.netlify.app/pago-fallido.html", 
+        success: "https://takuminet-app.netlify.app/descargar.html",
+        failure: "https://takuminet-app.netlify.app/home.html", 
         pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
       },
       auto_return: "approved",
@@ -2728,8 +2728,8 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         }
       ],
       back_urls: {
-        success: "https://takuminet-app.netlify.app/pago-exitoso.html",
-        failure: "https://takuminet-app.netlify.app/pago-fallido.html", 
+        success: "https://takuminet-app.netlify.app/descargar.html",
+        failure: "https://takuminet-app.netlify.app/home.html", 
         pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
       },
       auto_return: "approved",
