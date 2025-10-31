@@ -1824,7 +1824,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
 
     // Obtener información del juego
     const juegoQuery = `
-      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
+      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email, u.user_id
       FROM juegos j 
       LEFT JOIN usuarios u ON j.user_id = u.user_id 
       WHERE j.id = ?
@@ -1853,14 +1853,14 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
 
     console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
 
-    // Crear preferencia
+    // ✅ CORREGIDO: Mostrar toda la información del desarrollador
     const preference = {
       items: [
         {
           title: is_donation ? 
-            `Donación para ${juego.developer_name}` : 
-            `Compra: ${juego.title}`,
-          description: `Desarrollado por ${juego.developer_name} | TakumiNet`,
+            `Donación para ${juego.developer_name} (ID:${juego.user_id})` : 
+            `Compra: ${juego.title} - ${juego.developer_name}`,
+          description: `Desarrollador: ${juego.developer_name} | User ID: ${juego.user_id} | MP ID: ${juego.mp_id} | Email: ${juego.mp_email} | TakumiNet`,
           quantity: 1,
           currency_id: "USD",
           unit_price: totalAmount
@@ -1871,9 +1871,9 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       disbursements: [
         {
           amount: pagoDesarrollador,
-          collector_id: parseInt(juego.mp_id), // ✅ Usar SOLO el MP del desarrollador
+          collector_id: parseInt(juego.mp_id),
           external_reference: `dev_${juego.user_id}`,
-          description: `Pago a: ${juego.developer_name}`
+          description: `Pago a: ${juego.developer_name} (User ID:${juego.user_id}, MP ID:${juego.mp_id})`
         }
       ],
       back_urls: {
@@ -1900,7 +1900,9 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         takumi_commission: comisionTakumi,
         developer_payment: pagoDesarrollador,
         developer_name: juego.developer_name,
-        mp_id_usado: juego.mp_id
+        developer_id: juego.user_id,
+        mp_id: juego.mp_id,
+        mp_email: juego.mp_email
       }
     });
 
@@ -1912,6 +1914,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
     });
   }
 });
+
 
 // 5. Webhook para notificaciones de pago
 app.post('/api/mercadopago/notifications', async (req, res) => {
