@@ -1703,10 +1703,10 @@ app.get("/api/verificar-email", async (req, res) => {
 
 
 // =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
+// ENDPOINTS MERCADO PAGO - SIN REPETICIONES
 // =======================
 
-// Conectar cuenta de Mercado Pago
+// 1. Conectar cuenta de Mercado Pago
 app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
   try {
     const { mp_email, mp_user_id } = req.body;
@@ -1718,7 +1718,6 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
       });
     }
 
-    // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(mp_email)) {
       return res.status(400).json({ 
@@ -1727,12 +1726,11 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
       });
     }
 
-    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
     await runAsync(
       `UPDATE usuarios 
        SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
        WHERE user_id = ?`,
-      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
+      [mp_email, mp_user_id, req.userId]
     );
 
     res.json({ 
@@ -1754,10 +1752,9 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
   }
 });
 
-// Obtener estado de Mercado Pago - ✅ CORREGIDO
+// 2. Obtener estado de Mercado Pago
 app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
   try {
-    // ✅ CORREGIDO: Usando SOLO las columnas que existen
     const user = await getAsync(
       `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
        FROM usuarios WHERE user_id = ?`,
@@ -1780,7 +1777,7 @@ app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
         user_id: user.user_id,
         username: user.username,
         email: user.mp_email,
-        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
+        account_id: user.mp_id,
         connected_at: user.mp_connected_at
       }
     });
@@ -1794,10 +1791,9 @@ app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
   }
 });
 
-// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
+// 3. Desconectar cuenta de Mercado Pago
 app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   try {
-    // ✅ CORREGIDO: Usando las columnas correctas
     await runAsync(
       `UPDATE usuarios 
        SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
@@ -1819,17 +1815,14 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   }
 });
 
-
-// =======================
-// ENDPOINT CORREGIDO - USA CUENTA ADMIN SI NO HAY MP
-// =======================
+// 4. Crear preferencia de pago - CORREGIDO
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
   try {
     const { juego_id, amount, is_donation = false } = req.body;
 
     console.log("🔄 Creando pago para juego:", juego_id);
 
-    // 1. Obtener información del juego
+    // Obtener información del juego
     const juegoQuery = `
       SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
       FROM juegos j 
@@ -1845,38 +1838,22 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       });
     }
 
-    // 2. ✅ SOLUCIÓN: Si no tiene MP, usar cuenta admin
-    let mpIdUsar = juego.mp_id;
-    let mpEmailUsar = juego.mp_email;
-    let usandoCuentaAdmin = false;
-
-    if (!mpIdUsar) {
-      // Buscar cualquier usuario que tenga MP conectado (como admin)
-      const usuarioConMP = await getAsync(
-        "SELECT mp_id, mp_email, username FROM usuarios WHERE mp_id IS NOT NULL LIMIT 1"
-      );
-      
-      if (usuarioConMP) {
-        mpIdUsar = usuarioConMP.mp_id;
-        mpEmailUsar = usuarioConMP.mp_email;
-        usandoCuentaAdmin = true;
-        console.log("⚠️ Usando cuenta MP de:", usuarioConMP.username);
-      } else {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "No hay cuentas de Mercado Pago conectadas en el sistema" 
-        });
-      }
+    // ✅ CORREGIDO: NO permitir pagos si el desarrollador no tiene MP
+    if (!juego.mp_id) {
+      return res.status(400).json({ 
+        ok: false, 
+        error: "El desarrollador no tiene cuenta de Mercado Pago configurada" 
+      });
     }
 
-    // 3. Calcular distribución
+    // Calcular distribución
     const totalAmount = parseFloat(amount);
     const comisionTakumi = totalAmount * 0.30;
     const pagoDesarrollador = totalAmount * 0.70;
 
     console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
 
-    // 4. Crear preferencia
+    // Crear preferencia
     const preference = {
       items: [
         {
@@ -1894,835 +1871,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       disbursements: [
         {
           amount: pagoDesarrollador,
-          collector_id: parseInt(mpIdUsar),
-          external_reference: `dev_${juego.user_id}`,
-          description: `Pago a: ${juego.developer_name}`
-        }
-      ],
-      back_urls: {
-        success: "https://takuminet-app.netlify.app/descargar.html",
-        failure: "https://takuminet-app.netlify.app/home.html", 
-        pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
-      },
-      auto_return: "approved",
-      external_reference: `takumi_${juego_id}_${juego.user_id}_${Date.now()}`,
-      notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
-      binary_mode: true
-    };
-
-    const result = await mercadopago.preferences.create(preference);
-    
-    console.log("✅ Preferencia creada:", result.body.id);
-
-    res.json({
-      ok: true,
-      preferenceId: result.body.id,
-      init_point: result.body.init_point,
-      usando_cuenta_admin: usandoCuentaAdmin, // ✅ Para debug
-      distribution: {
-        total: totalAmount,
-        takumi_commission: comisionTakumi,
-        developer_payment: pagoDesarrollador,
-        developer_name: juego.developer_name,
-        mp_id_usado: mpIdUsar
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error en Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error al crear el pago: " + err.message 
-    });
-  }
-});
-
-
-// ============================
-// WEBHOOK PARA NOTIFICACIONES DE PAGO
-// ============================
-app.post('/api/mercadopago/notifications', async (req, res) => {
-  try {
-    const { type, data } = req.body;
-    
-    if (type === "payment") {
-      const paymentId = data.id;
-      
-      // Obtener detalles del pago
-      const payment = await mercadopago.payment.get(paymentId);
-      const paymentData = payment.body;
-      
-      console.log("💰 Notificación de pago recibida:", {
-        id: paymentData.id,
-        status: paymentData.status,
-        amount: paymentData.transaction_amount,
-        external_reference: paymentData.external_reference
-      });
-
-      // Aquí puedes guardar en tu base de datos el registro del pago
-      if (paymentData.status === "approved") {
-        console.log("✅ Pago aprobado - Guardando en base de datos...");
-        
-        // Extraer información del external_reference
-        const reference = paymentData.external_reference;
-        if (reference && reference.startsWith('takumi_')) {
-          const parts = reference.split('_');
-          const juegoId = parts[1];
-          
-          // Guardar registro de venta
-          await runAsync(
-            `INSERT INTO ventas_juegos 
-             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-              juegoId,
-              paymentData.id,
-              paymentData.transaction_amount,
-              paymentData.transaction_amount * 0.30, // 30% comisión
-              paymentData.transaction_amount * 0.70, // 70% desarrollador
-              'completed'
-            ]
-          );
-          
-          console.log("📊 Venta registrada en base de datos");
-        }
-      }
-    }
-    
-    res.status(200).send("OK");
-  } catch (err) {
-    console.error("❌ Error en webhook:", err);
-    res.status(500).send("Error");
-  }
-});
-
-
-
-// =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
-// =======================
-
-// Conectar cuenta de Mercado Pago
-app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
-  try {
-    const { mp_email, mp_user_id } = req.body;
-
-    if (!mp_email || !mp_user_id) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Email y User ID de Mercado Pago son requeridos" 
-      });
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(mp_email)) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Formato de email inválido" 
-      });
-    }
-
-    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
-       WHERE user_id = ?`,
-      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago conectada correctamente",
-      data: {
-        email: mp_email,
-        user_id: mp_user_id,
-        connected_at: new Date().toISOString()
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error conectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Obtener estado de Mercado Pago - ✅ CORREGIDO
-app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando SOLO las columnas que existen
-    const user = await getAsync(
-      `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
-       FROM usuarios WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    if (!user) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Usuario no encontrado" 
-      });
-    }
-
-    const isConnected = !!user.mp_email;
-    
-    res.json({
-      ok: true,
-      connected: isConnected,
-      data: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.mp_email,
-        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
-        connected_at: user.mp_connected_at
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error verificando estado de Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
-app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando las columnas correctas
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
-       WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago desconectada correctamente" 
-    });
-
-  } catch (err) {
-    console.error("❌ Error desconectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-
-// =======================
-// ENDPOINT CORREGIDO - USA CUENTA ADMIN SI NO HAY MP
-// =======================
-app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
-  try {
-    const { juego_id, amount, is_donation = false } = req.body;
-
-    console.log("🔄 Creando pago para juego:", juego_id);
-
-    // 1. Obtener información del juego
-    const juegoQuery = `
-      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
-      FROM juegos j 
-      LEFT JOIN usuarios u ON j.user_id = u.user_id 
-      WHERE j.id = ?
-    `;
-    const juego = await getAsync(juegoQuery, [juego_id]);
-
-    if (!juego) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Juego no encontrado" 
-      });
-    }
-
-    // 2. ✅ SOLUCIÓN: Si no tiene MP, usar cuenta admin
-    let mpIdUsar = juego.mp_id;
-    let mpEmailUsar = juego.mp_email;
-    let usandoCuentaAdmin = false;
-
-    if (!mpIdUsar) {
-      // Buscar cualquier usuario que tenga MP conectado (como admin)
-      const usuarioConMP = await getAsync(
-        "SELECT mp_id, mp_email, username FROM usuarios WHERE mp_id IS NOT NULL LIMIT 1"
-      );
-      
-      if (usuarioConMP) {
-        mpIdUsar = usuarioConMP.mp_id;
-        mpEmailUsar = usuarioConMP.mp_email;
-        usandoCuentaAdmin = true;
-        console.log("⚠️ Usando cuenta MP de:", usuarioConMP.username);
-      } else {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "No hay cuentas de Mercado Pago conectadas en el sistema" 
-        });
-      }
-    }
-
-    // 3. Calcular distribución
-    const totalAmount = parseFloat(amount);
-    const comisionTakumi = totalAmount * 0.30;
-    const pagoDesarrollador = totalAmount * 0.70;
-
-    console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
-
-    // 4. Crear preferencia
-    const preference = {
-      items: [
-        {
-          title: is_donation ? 
-            `Donación para ${juego.developer_name}` : 
-            `Compra: ${juego.title}`,
-          description: `Desarrollado por ${juego.developer_name} | TakumiNet`,
-          quantity: 1,
-          currency_id: "USD",
-          unit_price: totalAmount
-        }
-      ],
-      marketplace: "TakumiNet",
-      marketplace_fee: comisionTakumi,
-      disbursements: [
-        {
-          amount: pagoDesarrollador,
-          collector_id: parseInt(mpIdUsar),
-          external_reference: `dev_${juego.user_id}`,
-          description: `Pago a: ${juego.developer_name}`
-        }
-      ],
-      back_urls: {
-        success: "https://takuminet-app.netlify.app/pago-exitoso.html",
-        failure: "https://takuminet-app.netlify.app/pago-fallido.html", 
-        pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
-      },
-      auto_return: "approved",
-      external_reference: `takumi_${juego_id}_${juego.user_id}_${Date.now()}`,
-      notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
-      binary_mode: true
-    };
-
-    const result = await mercadopago.preferences.create(preference);
-    
-    console.log("✅ Preferencia creada:", result.body.id);
-
-    res.json({
-      ok: true,
-      preferenceId: result.body.id,
-      init_point: result.body.init_point,
-      usando_cuenta_admin: usandoCuentaAdmin, // ✅ Para debug
-      distribution: {
-        total: totalAmount,
-        takumi_commission: comisionTakumi,
-        developer_payment: pagoDesarrollador,
-        developer_name: juego.developer_name,
-        mp_id_usado: mpIdUsar
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error en Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error al crear el pago: " + err.message 
-    });
-  }
-});
-
-
-// ============================
-// WEBHOOK PARA NOTIFICACIONES DE PAGO
-// ============================
-app.post('/api/mercadopago/notifications', async (req, res) => {
-  try {
-    const { type, data } = req.body;
-    
-    if (type === "payment") {
-      const paymentId = data.id;
-      
-      // Obtener detalles del pago
-      const payment = await mercadopago.payment.get(paymentId);
-      const paymentData = payment.body;
-      
-      console.log("💰 Notificación de pago recibida:", {
-        id: paymentData.id,
-        status: paymentData.status,
-        amount: paymentData.transaction_amount,
-        external_reference: paymentData.external_reference
-      });
-
-      // Aquí puedes guardar en tu base de datos el registro del pago
-      if (paymentData.status === "approved") {
-        console.log("✅ Pago aprobado - Guardando en base de datos...");
-        
-        // Extraer información del external_reference
-        const reference = paymentData.external_reference;
-        if (reference && reference.startsWith('takumi_')) {
-          const parts = reference.split('_');
-          const juegoId = parts[1];
-          
-          // Guardar registro de venta
-          await runAsync(
-            `INSERT INTO ventas_juegos 
-             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-              juegoId,
-              paymentData.id,
-              paymentData.transaction_amount,
-              paymentData.transaction_amount * 0.30, // 30% comisión
-              paymentData.transaction_amount * 0.70, // 70% desarrollador
-              'completed'
-            ]
-          );
-          
-          console.log("📊 Venta registrada en base de datos");
-        }
-      }
-    }
-    
-    res.status(200).send("OK");
-  } catch (err) {
-    console.error("❌ Error en webhook:", err);
-    res.status(500).send("Error");
-  }
-});
-
-
-// =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
-// =======================
-
-// Conectar cuenta de Mercado Pago
-app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
-  try {
-    const { mp_email, mp_user_id } = req.body;
-
-    if (!mp_email || !mp_user_id) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Email y User ID de Mercado Pago son requeridos" 
-      });
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(mp_email)) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Formato de email inválido" 
-      });
-    }
-
-    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
-       WHERE user_id = ?`,
-      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago conectada correctamente",
-      data: {
-        email: mp_email,
-        user_id: mp_user_id,
-        connected_at: new Date().toISOString()
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error conectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Obtener estado de Mercado Pago - ✅ CORREGIDO
-app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando SOLO las columnas que existen
-    const user = await getAsync(
-      `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
-       FROM usuarios WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    if (!user) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Usuario no encontrado" 
-      });
-    }
-
-    const isConnected = !!user.mp_email;
-    
-    res.json({
-      ok: true,
-      connected: isConnected,
-      data: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.mp_email,
-        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
-        connected_at: user.mp_connected_at
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error verificando estado de Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
-app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando las columnas correctas
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
-       WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago desconectada correctamente" 
-    });
-
-  } catch (err) {
-    console.error("❌ Error desconectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-
-// =======================
-// ENDPOINT CORREGIDO - USA CUENTA ADMIN SI NO HAY MP
-// =======================
-app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
-  try {
-    const { juego_id, amount, is_donation = false } = req.body;
-
-    console.log("🔄 Creando pago para juego:", juego_id);
-
-    // 1. Obtener información del juego
-    const juegoQuery = `
-      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
-      FROM juegos j 
-      LEFT JOIN usuarios u ON j.user_id = u.user_id 
-      WHERE j.id = ?
-    `;
-    const juego = await getAsync(juegoQuery, [juego_id]);
-
-    if (!juego) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Juego no encontrado" 
-      });
-    }
-
-    // 2. ✅ SOLUCIÓN: Si no tiene MP, usar cuenta admin
-    let mpIdUsar = juego.mp_id;
-    let mpEmailUsar = juego.mp_email;
-    let usandoCuentaAdmin = false;
-
-    if (!mpIdUsar) {
-      // Buscar cualquier usuario que tenga MP conectado (como admin)
-      const usuarioConMP = await getAsync(
-        "SELECT mp_id, mp_email, username FROM usuarios WHERE mp_id IS NOT NULL LIMIT 1"
-      );
-      
-      if (usuarioConMP) {
-        mpIdUsar = usuarioConMP.mp_id;
-        mpEmailUsar = usuarioConMP.mp_email;
-        usandoCuentaAdmin = true;
-        console.log("⚠️ Usando cuenta MP de:", usuarioConMP.username);
-      } else {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "No hay cuentas de Mercado Pago conectadas en el sistema" 
-        });
-      }
-    }
-
-    // 3. Calcular distribución
-    const totalAmount = parseFloat(amount);
-    const comisionTakumi = totalAmount * 0.30;
-    const pagoDesarrollador = totalAmount * 0.70;
-
-    console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
-
-    // 4. Crear preferencia
-    const preference = {
-      items: [
-        {
-          title: is_donation ? 
-            `Donación para ${juego.developer_name}` : 
-            `Compra: ${juego.title}`,
-          description: `Desarrollado por ${juego.developer_name} | TakumiNet`,
-          quantity: 1,
-          currency_id: "USD",
-          unit_price: totalAmount
-        }
-      ],
-      marketplace: "TakumiNet",
-      marketplace_fee: comisionTakumi,
-      disbursements: [
-        {
-          amount: pagoDesarrollador,
-          collector_id: parseInt(mpIdUsar),
-          external_reference: `dev_${juego.user_id}`,
-          description: `Pago a: ${juego.developer_name}`
-        }
-      ],
-      back_urls: {
-        success: "https://takuminet-app.netlify.app/pago-exitoso.html",
-        failure: "https://takuminet-app.netlify.app/pago-fallido.html", 
-        pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
-      },
-      auto_return: "approved",
-      external_reference: `takumi_${juego_id}_${juego.user_id}_${Date.now()}`,
-      notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
-      binary_mode: true
-    };
-
-    const result = await mercadopago.preferences.create(preference);
-    
-    console.log("✅ Preferencia creada:", result.body.id);
-
-    res.json({
-      ok: true,
-      preferenceId: result.body.id,
-      init_point: result.body.init_point,
-      usando_cuenta_admin: usandoCuentaAdmin, // ✅ Para debug
-      distribution: {
-        total: totalAmount,
-        takumi_commission: comisionTakumi,
-        developer_payment: pagoDesarrollador,
-        developer_name: juego.developer_name,
-        mp_id_usado: mpIdUsar
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error en Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error al crear el pago: " + err.message 
-    });
-  }
-});
-
-
-
-// =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
-// =======================
-
-// Conectar cuenta de Mercado Pago
-app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
-  try {
-    const { mp_email, mp_user_id } = req.body;
-
-    if (!mp_email || !mp_user_id) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Email y User ID de Mercado Pago son requeridos" 
-      });
-    }
-
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(mp_email)) {
-      return res.status(400).json({ 
-        ok: false, 
-        error: "Formato de email inválido" 
-      });
-    }
-
-    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
-       WHERE user_id = ?`,
-      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago conectada correctamente",
-      data: {
-        email: mp_email,
-        user_id: mp_user_id,
-        connected_at: new Date().toISOString()
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error conectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Obtener estado de Mercado Pago - ✅ CORREGIDO
-app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando SOLO las columnas que existen
-    const user = await getAsync(
-      `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
-       FROM usuarios WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    if (!user) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Usuario no encontrado" 
-      });
-    }
-
-    const isConnected = !!user.mp_email;
-    
-    res.json({
-      ok: true,
-      connected: isConnected,
-      data: {
-        user_id: user.user_id,
-        username: user.username,
-        email: user.mp_email,
-        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
-        connected_at: user.mp_connected_at
-      }
-    });
-
-  } catch (err) {
-    console.error("❌ Error verificando estado de Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
-app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
-  try {
-    // ✅ CORREGIDO: Usando las columnas correctas
-    await runAsync(
-      `UPDATE usuarios 
-       SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
-       WHERE user_id = ?`,
-      [req.userId]
-    );
-
-    res.json({ 
-      ok: true, 
-      message: "✅ Cuenta de Mercado Pago desconectada correctamente" 
-    });
-
-  } catch (err) {
-    console.error("❌ Error desconectando Mercado Pago:", err);
-    res.status(500).json({ 
-      ok: false, 
-      error: "Error interno del servidor" 
-    });
-  }
-});
-
-
-// =======================
-// ENDPOINT CORREGIDO - USA CUENTA ADMIN SI NO HAY MP
-// =======================
-app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
-  try {
-    const { juego_id, amount, is_donation = false } = req.body;
-
-    console.log("🔄 Creando pago para juego:", juego_id);
-
-    // 1. Obtener información del juego
-    const juegoQuery = `
-      SELECT j.*, u.username as developer_name, u.mp_id, u.mp_email
-      FROM juegos j 
-      LEFT JOIN usuarios u ON j.user_id = u.user_id 
-      WHERE j.id = ?
-    `;
-    const juego = await getAsync(juegoQuery, [juego_id]);
-
-    if (!juego) {
-      return res.status(404).json({ 
-        ok: false, 
-        error: "Juego no encontrado" 
-      });
-    }
-
-    // 2. ✅ SOLUCIÓN: Si no tiene MP, usar cuenta admin
-    let mpIdUsar = juego.mp_id;
-    let mpEmailUsar = juego.mp_email;
-    let usandoCuentaAdmin = false;
-
-    if (!mpIdUsar) {
-      // Buscar cualquier usuario que tenga MP conectado (como admin)
-      const usuarioConMP = await getAsync(
-        "SELECT mp_id, mp_email, username FROM usuarios WHERE mp_id IS NOT NULL LIMIT 1"
-      );
-      
-      if (usuarioConMP) {
-        mpIdUsar = usuarioConMP.mp_id;
-        mpEmailUsar = usuarioConMP.mp_email;
-        usandoCuentaAdmin = true;
-        console.log("⚠️ Usando cuenta MP de:", usuarioConMP.username);
-      } else {
-        return res.status(400).json({ 
-          ok: false, 
-          error: "No hay cuentas de Mercado Pago conectadas en el sistema" 
-        });
-      }
-    }
-
-    // 3. Calcular distribución
-    const totalAmount = parseFloat(amount);
-    const comisionTakumi = totalAmount * 0.30;
-    const pagoDesarrollador = totalAmount * 0.70;
-
-    console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
-
-    // 4. Crear preferencia
-    const preference = {
-      items: [
-        {
-          title: is_donation ? 
-            `Donación para ${juego.developer_name}` : 
-            `Compra: ${juego.title}`,
-          description: `Desarrollado por ${juego.developer_name} | TakumiNet`,
-          quantity: 1,
-          currency_id: "USD",
-          unit_price: totalAmount
-        }
-      ],
-      marketplace: "TakumiNet",
-      marketplace_fee: comisionTakumi,
-      disbursements: [
-        {
-          amount: pagoDesarrollador,
-          collector_id: parseInt(mpIdUsar),
+          collector_id: parseInt(juego.mp_id), // ✅ Usar SOLO el MP del desarrollador
           external_reference: `dev_${juego.user_id}`,
           description: `Pago a: ${juego.developer_name}`
         }
@@ -2746,13 +1895,12 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       ok: true,
       preferenceId: result.body.id,
       init_point: result.body.init_point,
-      usando_cuenta_admin: usandoCuentaAdmin, // ✅ Para debug
       distribution: {
         total: totalAmount,
         takumi_commission: comisionTakumi,
         developer_payment: pagoDesarrollador,
         developer_name: juego.developer_name,
-        mp_id_usado: mpIdUsar
+        mp_id_usado: juego.mp_id
       }
     });
 
@@ -2765,10 +1913,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
   }
 });
 
-
-// ============================
-// WEBHOOK PARA NOTIFICACIONES DE PAGO
-// ============================
+// 5. Webhook para notificaciones de pago
 app.post('/api/mercadopago/notifications', async (req, res) => {
   try {
     const { type, data } = req.body;
@@ -2776,7 +1921,6 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
     if (type === "payment") {
       const paymentId = data.id;
       
-      // Obtener detalles del pago
       const payment = await mercadopago.payment.get(paymentId);
       const paymentData = payment.body;
       
@@ -2787,17 +1931,14 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
         external_reference: paymentData.external_reference
       });
 
-      // Aquí puedes guardar en tu base de datos el registro del pago
       if (paymentData.status === "approved") {
         console.log("✅ Pago aprobado - Guardando en base de datos...");
         
-        // Extraer información del external_reference
         const reference = paymentData.external_reference;
         if (reference && reference.startsWith('takumi_')) {
           const parts = reference.split('_');
           const juegoId = parts[1];
           
-          // Guardar registro de venta
           await runAsync(
             `INSERT INTO ventas_juegos 
              (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
@@ -2806,8 +1947,8 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
               juegoId,
               paymentData.id,
               paymentData.transaction_amount,
-              paymentData.transaction_amount * 0.30, // 30% comisión
-              paymentData.transaction_amount * 0.70, // 70% desarrollador
+              paymentData.transaction_amount * 0.30,
+              paymentData.transaction_amount * 0.70,
               'completed'
             ]
           );
@@ -2824,15 +1965,11 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
   }
 });
 
-
-// =======================
-// ENDPOINT PARA VERIFICAR SI DESARROLLADOR TIENE MP
-// =======================
+// 6. Verificar si desarrollador tiene MP
 app.get('/api/juegos/:id/verificar-mp', async (req, res) => {
   try {
     const juegoId = req.params.id;
 
-    // Obtener información del juego y su desarrollador
     const juegoQuery = `
       SELECT j.user_id, u.username, u.mp_email, u.mp_id 
       FROM juegos j 
@@ -2854,9 +1991,7 @@ app.get('/api/juegos/:id/verificar-mp', async (req, res) => {
     console.log("🔍 Verificando MP desarrollador:", {
       juegoId,
       desarrollador: juego.username,
-      tieneMP,
-      mp_email: juego.mp_email,
-      mp_id: juego.mp_id
+      tieneMP
     });
     
     res.json({ 
@@ -2874,7 +2009,6 @@ app.get('/api/juegos/:id/verificar-mp', async (req, res) => {
     });
   }
 });
-
 
 
 
