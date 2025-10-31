@@ -1924,7 +1924,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
 });
 
 
-// 5. Webhook para notificaciones de pago
+// 5. Webhook para notificaciones de pago - ACTUALIZADO
 app.post('/api/mercadopago/notifications', async (req, res) => {
   try {
     const { type, data } = req.body;
@@ -1949,22 +1949,32 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
         if (reference && reference.startsWith('takumi_')) {
           const parts = reference.split('_');
           const juegoId = parts[1];
+          const developerId = parts[2];
+          
+          // Obtener información del desarrollador para el MP ID
+          const juego = await getAsync(`
+            SELECT j.*, u.mp_id 
+            FROM juegos j 
+            LEFT JOIN usuarios u ON j.user_id = u.user_id 
+            WHERE j.id = ?
+          `, [juegoId]);
           
           await runAsync(
             `INSERT INTO ventas_juegos 
-             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
-             VALUES (?, ?, ?, ?, ?, ?)`,
+             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, developer_mp_id, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [
               juegoId,
               paymentData.id,
               paymentData.transaction_amount,
               paymentData.transaction_amount * 0.30,
               paymentData.transaction_amount * 0.70,
+              juego.mp_id, // MP ID del desarrollador
               'completed'
             ]
           );
           
-          console.log("📊 Venta registrada en base de datos");
+          console.log("📊 Venta registrada en base de datos para desarrollador:", juego.mp_id);
         }
       }
     }
@@ -1973,6 +1983,46 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
   } catch (err) {
     console.error("❌ Error en webhook:", err);
     res.status(500).send("Error");
+  }
+});
+
+
+
+// ✅ ENDPOINT PARA VER PAGOS REALES - ACTUALIZADO
+app.get('/api/pagos/reales', authMiddleware, async (req, res) => {
+  try {
+    const pagos = await runAsync(`
+      SELECT 
+        vj.id,
+        vj.juego_id,
+        vj.payment_id,
+        vj.monto_total,
+        vj.comision_takumi,
+        vj.pago_desarrollador,
+        vj.developer_mp_id,
+        vj.status,
+        vj.created_at,
+        j.title as juego_titulo,
+        u.username as desarrollador,
+        u.mp_email as developer_email
+      FROM ventas_juegos vj
+      LEFT JOIN juegos j ON vj.juego_id = j.id
+      LEFT JOIN usuarios u ON j.user_id = u.user_id
+      WHERE vj.es_simulacion = 0 OR vj.es_simulacion IS NULL
+      ORDER BY vj.created_at DESC
+      LIMIT 50
+    `);
+    
+    console.log("📊 Pagos reales encontrados:", pagos.length);
+    
+    res.json({ 
+      ok: true, 
+      total_pagos: pagos.length,
+      pagos 
+    });
+  } catch (err) {
+    console.error("Error obteniendo pagos reales:", err);
+    res.status(500).json({ ok: false, error: "Error interno del servidor" });
   }
 });
 
