@@ -1823,12 +1823,12 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   }
 });
 
-// 4. Crear preferencia de pago - CORREGIDO
+// 4. Crear preferencia de pago - COMPLETAMENTE CORREGIDO
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
   try {
     const { juego_id, amount, is_donation = false } = req.body;
 
-    console.log("🔄 Creando pago para juego:", juego_id);
+    console.log("🔄 Creando pago REAL para juego:", juego_id);
 
     // Obtener información del juego
     const juegoQuery = `
@@ -1846,7 +1846,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       });
     }
 
-    // ✅ CORREGIDO: NO permitir pagos si el desarrollador no tiene MP
+    // Verificar que el desarrollador tenga MP configurado
     if (!juego.mp_id) {
       return res.status(400).json({ 
         ok: false, 
@@ -1859,70 +1859,115 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
     const comisionTakumi = totalAmount * 0.30;
     const pagoDesarrollador = totalAmount * 0.70;
 
-    console.log(`💰 Distribución: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
+    console.log(`💰 Distribución REAL: $${totalAmount} = ${juego.developer_name} ($${pagoDesarrollador}) + TakumiNet ($${comisionTakumi})`);
 
-    // ✅ CORREGIDO: Mostrar toda la información del desarrollador
+    // ✅ CORREGIDO: Configuración VÁLIDA y SIMPLE
     const preference = {
       items: [
         {
+          id: juego_id.toString(),
           title: is_donation ? 
-            `Donación para ${juego.developer_name} (ID:${juego.user_id})` : 
-            `Compra: ${juego.title} - ${juego.developer_name}`,
-          description: `Desarrollador: ${juego.developer_name} | User ID: ${juego.user_id} | MP ID: ${juego.mp_id} | Email: ${juego.mp_email} | TakumiNet`,
+            `Donación para ${juego.developer_name}` : 
+            `Compra: ${juego.title}`,
+          description: `Desarrollador: ${juego.developer_name} - TakumiNet`,
           quantity: 1,
           currency_id: "USD",
-          unit_price: totalAmount
+          unit_price: totalAmount,
+          category_id: "games"
         }
       ],
-      marketplace: "TakumiNet",
-      marketplace_fee: comisionTakumi,
-      disbursements: [
-        {
-          amount: pagoDesarrollador,
-          collector_id: parseInt(juego.mp_id),
-          external_reference: `dev_${juego.user_id}`,
-          description: `Pago a: ${juego.developer_name} (User ID:${juego.user_id}, MP ID:${juego.mp_id})`
-        }
-      ],
-      back_urls: {
-        success: "https://takuminet-app.netlify.app/descarga.html",
-        failure: "https://takuminet-app.netlify.app/home.html", 
-        pending: "https://takuminet-app.netlify.app/pago-pendiente.html"
+      
+      // ✅ CORREGIDO: Solo parámetros válidos
+      payer: {
+        name: "Comprador",
+        surname: "TakumiNet", 
+        email: "comprador@takuminet.com"
       },
+      
+      // ✅ CORREGIDO: Back URLs actualizadas
+      back_urls: {
+        success: "https://takuminet-app.netlify.app/success",
+        failure: "https://takuminet-app.netlify.app/failure", 
+        pending: "https://takuminet-app.netlify.app/pending"
+      },
+      
       auto_return: "approved",
-      external_reference: `takumi_${juego_id}_${juego.user_id}_${Date.now()}`,
+      
+      // ✅ CORREGIDO: Referencia simple
+      external_reference: `takumi_${juego_id}_${Date.now()}`,
+      
+      // ✅ CORREGIDO: Notification URL
       notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
-      binary_mode: true
+      
+      // ✅ CORREGIDO: Modo binario
+      binary_mode: true,
+      
+      // ✅ ELIMINADO: marketplace, marketplace_fee, disbursements (no son válidos)
+      // Para marketplace necesitas una configuración especial que no tienes
     };
 
-    const result = await mercadopago.preferences.create(preference);
-    
-    console.log("✅ Preferencia creada:", result.body.id);
+    console.log("📋 Preferencia a crear (simplificada):", JSON.stringify(preference, null, 2));
 
-    res.json({
-      ok: true,
-      preferenceId: result.body.id,
-      init_point: result.body.init_point,
-      distribution: {
-        total: totalAmount,
-        takumi_commission: comisionTakumi,
-        developer_payment: pagoDesarrollador,
-        developer_name: juego.developer_name,
-        developer_id: juego.user_id,
-        mp_id: juego.mp_id,
-        mp_email: juego.mp_email
-      }
-    });
+    try {
+      const result = await mercadopago.preferences.create(preference);
+      
+      console.log("✅ Preferencia creada EXITOSAMENTE:", result.body.id);
+      console.log("🔗 Init Point:", result.body.init_point);
+      console.log("🔗 Sandbox Init Point:", result.body.sandbox_init_point);
+
+      // ✅ GUARDAR EN BASE DE DATOS PARA SEGUIMIENTO
+      await runAsync(
+        `INSERT INTO ventas_juegos 
+         (juego_id, preference_id, monto_total, comision_takumi, pago_desarrollador, developer_mp_id, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [
+          juego_id,
+          result.body.id,
+          totalAmount,
+          comisionTakumi,
+          pagoDesarrollador,
+          juego.mp_id,
+          'pending'
+        ]
+      );
+
+      res.json({
+        ok: true,
+        preferenceId: result.body.id,
+        init_point: result.body.init_point,
+        sandbox_init_point: result.body.sandbox_init_point,
+        distribution: {
+          total: totalAmount,
+          takumi_commission: comisionTakumi,
+          developer_payment: pagoDesarrollador,
+          developer_name: juego.developer_name,
+          developer_id: juego.user_id,
+          mp_id: juego.mp_id
+        }
+      });
+
+    } catch (mpError) {
+      console.error("❌ Error de Mercado Pago API:", {
+        message: mpError.message,
+        status: mpError.status,
+        body: mpError.response?.body
+      });
+      
+      throw mpError;
+    }
 
   } catch (err) {
-    console.error("❌ Error en Mercado Pago:", err);
+    console.error("❌ Error en crear preferencia:", err);
+    
+    const errorMessage = err.response?.body?.message || err.message;
+    
     res.status(500).json({ 
       ok: false, 
-      error: "Error al crear el pago: " + err.message 
+      error: "Error al crear el pago: " + errorMessage,
+      details: err.response?.body || null
     });
   }
 });
-
 
 // 5. Webhook para notificaciones de pago - ACTUALIZADO
 app.post('/api/mercadopago/notifications', async (req, res) => {
@@ -1942,39 +1987,28 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
         external_reference: paymentData.external_reference
       });
 
+      // ✅ ACTUALIZAR EN BASE DE DATOS CUANDO EL PAGO ES APROBADO
       if (paymentData.status === "approved") {
-        console.log("✅ Pago aprobado - Guardando en base de datos...");
+        console.log("✅ Pago aprobado - Actualizando base de datos...");
         
         const reference = paymentData.external_reference;
         if (reference && reference.startsWith('takumi_')) {
           const parts = reference.split('_');
           const juegoId = parts[1];
-          const developerId = parts[2];
           
-          // Obtener información del desarrollador para el MP ID
-          const juego = await getAsync(`
-            SELECT j.*, u.mp_id 
-            FROM juegos j 
-            LEFT JOIN usuarios u ON j.user_id = u.user_id 
-            WHERE j.id = ?
-          `, [juegoId]);
-          
+          // Actualizar el registro existente
           await runAsync(
-            `INSERT INTO ventas_juegos 
-             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, developer_mp_id, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            `UPDATE ventas_juegos 
+             SET payment_id = ?, status = ?
+             WHERE juego_id = ? AND status = 'pending'`,
             [
-              juegoId,
               paymentData.id,
-              paymentData.transaction_amount,
-              paymentData.transaction_amount * 0.30,
-              paymentData.transaction_amount * 0.70,
-              juego.mp_id, // MP ID del desarrollador
-              'completed'
+              'completed',
+              juegoId
             ]
           );
           
-          console.log("📊 Venta registrada en base de datos para desarrollador:", juego.mp_id);
+          console.log("📊 Venta actualizada en base de datos para juego:", juegoId);
         }
       }
     }
