@@ -1823,7 +1823,40 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   }
 });
 
+// Endpoint para verificar pagos
+app.get('/api/mercadopago/payments/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No autorizado' });
+        }
 
+        // Verificar token del usuario
+        const user = await verificarToken(token);
+        if (!user) {
+            return res.status(401).json({ error: 'Token inválido' });
+        }
+
+        // Verificar el pago en Mercado Pago
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: {
+                'Authorization': `Bearer ${MERCADO_PAGO_CONFIG.ACCESS_TOKEN}`
+            }
+        });
+
+        if (response.ok) {
+            const payment = await response.json();
+            res.json(payment);
+        } else {
+            res.status(404).json({ error: 'Pago no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error verificando pago:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
 
 // 4. Crear preferencia de pago - CORREGIDO
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
