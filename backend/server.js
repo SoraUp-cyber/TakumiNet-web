@@ -1825,7 +1825,7 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
 
 
 
-// 4. Crear preferencia de pago - PRODUCCIÓN REAL
+// 4. Crear preferencia de pago - CORREGIDO CON MEJOR MANEJO DE ERRORES
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
   try {
     const { juego_id, amount, is_donation = false } = req.body;
@@ -1885,16 +1885,6 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         surname: "TakumiNet"
       },
       
-      // ✅ Payment methods configuration
-      payment_methods: {
-        excluded_payment_types: [
-          { id: "atm" }
-        ],
-        default_payment_method_id: null,
-        installments: 1,
-        default_installments: 1
-      },
-      
       // ✅ URLs de retorno ACTUALIZADAS
       back_urls: {
         success: "https://takuminet-app.netlify.app/success",
@@ -1911,23 +1901,10 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       notification_url: "https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/mercadopago/notifications",
       
       // ✅ Modo binario (sin estados pendientes)
-      binary_mode: true,
-      
-      // ✅ ELIMINADO: marketplace, marketplace_fee, disbursements 
-      // (Estos solo funcionan si tienes aplicación marketplace configurada en MP)
-      
-      // ✅ Configuración adicional para mejor UX
-      expires: false,
-      expiration_date_from: null,
-      expiration_date_to: null
+      binary_mode: true
     };
 
-    console.log("📋 Preferencia PRODUCCIÓN:", {
-      juego: juego.title,
-      monto: totalAmount,
-      desarrollador: juego.developer_name,
-      mp_id: juego.mp_id
-    });
+    console.log("📋 Preferencia PRODUCCIÓN:", JSON.stringify(preference, null, 2));
 
     try {
       const result = await mercadopago.preferences.create(preference);
@@ -1955,7 +1932,7 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       res.json({
         ok: true,
         preferenceId: result.body.id,
-        init_point: result.body.init_point, // ✅ URL de PRODUCCIÓN real
+        init_point: result.body.init_point,
         distribution: {
           total: totalAmount,
           takumi_commission: comisionTakumi,
@@ -1968,35 +1945,50 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
       });
 
     } catch (mpError) {
-      console.error("❌ Error de Mercado Pago PRODUCCIÓN:", {
+      console.error("❌ Error de Mercado Pago API:", {
         message: mpError.message,
         status: mpError.status,
         body: mpError.response?.body
       });
       
-      // ✅ Error específico para debugging
-      const mpErrorBody = mpError.response?.body;
+      // ✅ ERROR MEJORADO: Mostrar el error real de Mercado Pago
       let errorMessage = "Error al crear el pago";
       
-      if (mpErrorBody) {
-        errorMessage = mpErrorBody.message || JSON.stringify(mpErrorBody);
+      if (mpError.response && mpError.response.body) {
+        const mpErrorBody = mpError.response.body;
+        
+        if (mpErrorBody.message) {
+          errorMessage = mpErrorBody.message;
+        } else if (mpErrorBody.cause && mpErrorBody.cause.length > 0) {
+          errorMessage = mpErrorBody.cause[0].description || "Error de Mercado Pago";
+        } else if (typeof mpErrorBody === 'string') {
+          errorMessage = mpErrorBody;
+        } else {
+          errorMessage = JSON.stringify(mpErrorBody);
+        }
+      } else if (mpError.message) {
+        errorMessage = mpError.message;
       }
       
-      throw new Error(errorMessage);
+      console.error("🚨 Error específico de MP:", errorMessage);
+      
+      res.status(500).json({ 
+        ok: false, 
+        error: errorMessage,
+        details: mpError.response?.body || null
+      });
     }
 
   } catch (err) {
-    console.error("❌ Error en crear preferencia PRODUCCIÓN:", err);
+    console.error("❌ Error general en crear preferencia:", err);
     
     res.status(500).json({ 
       ok: false, 
-      error: "Error al crear el pago: " + err.message
+      error: "Error interno del servidor: " + err.message
     });
   }
 });
 
-
-// 5. Webhook para notificaciones de pago - ACTUALIZADO
 // 5. Webhook para notificaciones de pago - PRODUCCIÓN
 app.post('/api/mercadopago/notifications', async (req, res) => {
   try {
@@ -2130,6 +2122,64 @@ app.get('/api/pagos/reales', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("Error obteniendo pagos reales:", err);
     res.status(500).json({ ok: false, error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint de prueba ultra simple
+app.post('/api/mercadopago/test-simple', authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    console.log("🧪 Probando Mercado Pago con monto:", amount);
+
+    // Preferencia MUY simple
+    const preference = {
+      items: [
+        {
+          title: "Test TakumiNet",
+          quantity: 1,
+          currency_id: "USD",
+          unit_price: parseFloat(amount)
+        }
+      ],
+      back_urls: {
+        success: "https://takuminet-app.netlify.app/success",
+        failure: "https://takuminet-app.netlify.app/failure"
+      },
+      auto_return: "approved"
+    };
+
+    console.log("📋 Preferencia de prueba:", preference);
+
+    const result = await mercadopago.preferences.create(preference);
+    
+    console.log("✅ Test exitoso:", result.body.id);
+
+    res.json({
+      ok: true,
+      preferenceId: result.body.id,
+      init_point: result.body.init_point,
+      message: "Test exitoso"
+    });
+
+  } catch (err) {
+    console.error("❌ Error en test:", err);
+    
+    // ✅ ERROR DETALLADO
+    let errorMsg = "Error en test";
+    
+    if (err.response && err.response.body) {
+      const mpError = err.response.body;
+      errorMsg += ": " + (mpError.message || JSON.stringify(mpError));
+    } else {
+      errorMsg += ": " + err.message;
+    }
+    
+    res.status(500).json({ 
+      ok: false, 
+      error: errorMsg,
+      details: err.response?.body || null
+    });
   }
 });
 
