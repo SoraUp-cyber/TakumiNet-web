@@ -1,92 +1,404 @@
-/* ==============================
-   CONTENEDOR PRINCIPAL DE BOTÓN
-   ============================== */
-#contenedor-boton-juego {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 15px;
-  margin: 30px auto;
-  padding: 20px;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  border-radius: 14px;
+/* ============================
+   ESTILOS RESPONSIVOS
+   ============================ */
 
+/* Contenedores principales */
+.contenedor-principal {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
-/* ==============================
-   BOTÓN DESCARGAR / CONTINUAR
-   ============================== */
-.boton-descargar {
-  background: linear-gradient(135deg, #009600, #4b4b4b);
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 80%;
-  max-width: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+.donacion-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;
 }
 
-.boton-descargar:hover {
-  background: linear-gradient(135deg, #292929, #01880d);
-  transform: scale(1.05);
+/* Info desarrollador */
+.desarrollador-container {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #fff;
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #00ff00;
+    font-size: 16px;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
 }
 
-/* ==============================
-   INPUT DONACIÓN
-   ============================== */
-#contenedor-boton-juego input[type="number"] {
-  background: #1c1c1c;
-  color: #f5f5f5;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
-  width: 80%;
-  max-width: 250px;
-  text-align: center;
-  transition: border 0.2s ease;
+.desarrollador-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-#contenedor-boton-juego input[type="number"]:focus {
-  outline: none;
-  border-color: #00aaff;
+.desarrollador-titulo {
+    color: #00ff00;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
 }
 
-/* ==============================
-   BOTONES DE PAYPAL
-   ============================== */
-#paypal-button-container,
-#paypal-donation-container {
-  width: 100%;
-  max-width: 280px;
+.desarrollador-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* ==============================
-   EFECTOS Y RESPONSIVE
-   ============================== */
-@media (max-width: 600px) {
-  #contenedor-boton-juego {
-    width: 90%;
+.estado-mp {
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.mp-conectado {
+    background: #00ff00;
+}
+
+.mp-sin-conectar {
+    background: #ff4444;
+}
+
+.btn-toggle-info {
+    background: #555;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.btn-toggle-info.activo {
+    background: #333;
+}
+
+.info-detalles {
+    text-align: left;
+    background: #1a1a1a;
     padding: 15px;
-  }
+    border-radius: 8px;
+    margin: 12px 0;
+    display: none;
+}
 
-  .boton-descargar {
-    font-size: 0.95rem;
-    padding: 10px 18px;
-  }
+.detalle-item {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
 
-  #contenedor-boton-juego input[type="number"] {
-    font-size: 0.9rem;
-  }
+.distribucion-info {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #00ff00;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.distribucion-info.donacion {
+    background: #1e3a1e;
+}
+
+.distribucion-info.compra {
+    background: #1e3a1e;
+}
+
+/* Detalles de pago */
+.detalles-pago-container {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #fff;
+    background: #1e3a1e;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #00ff00;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.precio-titulo {
+    font-size: 24px;
+    color: #00ff00;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.pago-seguro {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.distribucion-detalles {
+    margin-top: 12px;
+    font-size: 14px;
+    background: #2a5a2a;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.pago-dev {
+    color: #00ff00;
+}
+
+.pago-takumi {
+    color: #ffa500;
+}
+
+/* Botones */
+.btn-accion, .btn-descarga-gratis, .btn-comprar, .btn-donacion {
+    width: 100%;
+    max-width: 500px;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.btn-descarga-gratis {
+    background: #4CAF50;
+}
+
+.btn-comprar {
+    background: linear-gradient(135deg, #07ac02ff, #037e01ff, #023d01ff);
+}
+
+.btn-donacion {
+    background: #666;
+}
+
+.btn-accion:disabled, .btn-donacion:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn-accion:hover:not(:disabled), 
+.btn-descarga-gratis:hover, 
+.btn-comprar:hover, 
+.btn-donacion:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Input donación */
+.input-donacion-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    justify-content: center;
+}
+
+.btn-input-donacion {
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: #333;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}
+
+.btn-input-donacion:hover {
+    background: #444;
+}
+
+.input-donacion {
+    padding: 12px;
+    width: 180px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    text-align: center;
+    background: #1d1d1d;
+    color: white;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Error container */
+.error-container {
+    text-align: center;
+    color: #fff;
+    background: #5a1a1a;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #ff4444;
+    width: 100%;
+    max-width: 500px;
+    box-sizing: border-box;
+}
+
+.error-titulo {
+    font-size: 20px;
+    color: #ff4444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.error-mensaje {
+    font-size: 14px;
+}
+
+/* Iconos */
+.icono {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.icono-grande {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+/* ============================
+   MEDIA QUERIES PARA RESPONSIVIDAD
+   ============================ */
+
+/* Tablets y pantallas medianas */
+@media (max-width: 768px) {
+    .contenedor-principal, 
+    .donacion-wrapper,
+    .desarrollador-container,
+    .detalles-pago-container,
+    .error-container,
+    .btn-accion,
+    .btn-descarga-gratis,
+    .btn-comprar,
+    .btn-donacion,
+    .input-donacion-group {
+        max-width: 100%;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .desarrollador-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .desarrollador-controls {
+        justify-content: center;
+    }
+    
+    .precio-titulo {
+        font-size: 20px;
+    }
+    
+    .btn-accion, .btn-descarga-gratis, .btn-comprar, .btn-donacion {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .desarrollador-container,
+    .detalles-pago-container,
+    .error-container {
+        padding: 15px;
+        font-size: 14px;
+    }
+    
+    .desarrollador-titulo {
+        font-size: 16px;
+    }
+    
+    .precio-titulo {
+        font-size: 18px;
+    }
+    
+    .input-donacion-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .input-donacion {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .distribucion-detalles {
+        font-size: 12px;
+        padding: 10px;
+    }
+    
+    .icono {
+        width: 14px;
+        height: 14px;
+        margin-right: 6px;
+    }
+    
+    .icono-grande {
+        width: 20px;
+        height: 20px;
+        margin-right: 6px;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 320px) {
+    .desarrollador-container,
+    .detalles-pago-container,
+    .error-container {
+        padding: 10px;
+        font-size: 12px;
+    }
+    
+    .btn-accion, .btn-descarga-gratis, .btn-comprar, .btn-donacion {
+        padding: 10px;
+        font-size: 12px;
+    }
+    
+    .desarrollador-titulo {
+        font-size: 14px;
+    }
+    
+    .precio-titulo {
+        font-size: 16px;
+    }
 }

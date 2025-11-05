@@ -42,11 +42,14 @@ try {
 // CONFIGURACIÓN MERCADO PAGO PARA WEBHOOK
 // =======================
 const MERCADO_PAGO_CONFIG = {
+  ACCESS_TOKEN: "APP_USR-2794725193382250-103011-9a3f5cfa029a24e8debf31adbf03b5a9-2669472141",
+  PUBLIC_KEY: "APP_USR-ddfbdc07-b2fb-4188-8aca-eb40a90ee910",
   API_BASE: process.env.API_BASE_URL || "https://distinct-oralla-takumi-net-0d317399.koyeb.app"
 };
 
 // =======================
 // CONFIGURACIÓN INICIAL
+
 // =======================
 const app = express();
 require("dotenv").config();
@@ -121,14 +124,16 @@ const dbConfig = isVercel || isProduction ? {
   queueLimit: 0
 };
 
-
 // =======================
 // MIDDLEWARES ESENCIALES - ACTUALIZADOS PARA 25MB
 // =======================
 
-// ✅ AUMENTAR LÍMITE A 25MB PARA IMÁGENES Y ARCHIVOS
+// 1. ✅ Cookie Parser PRIMERO
+app.use(cookieParser());
+
+// 2. ✅ MIDDLEWARES DE BODY PRIMERO (ESTO ES CLAVE)
 app.use(express.json({ 
-  limit: '50mb', // Aumentado de 10MB a 50MB
+  limit: '50mb',
   verify: (req, res, buf) => {
     try {
       JSON.parse(buf);
@@ -140,29 +145,86 @@ app.use(express.json({
 
 app.use(express.urlencoded({ 
   extended: true, 
-  limit: '50mb' // Aumentado de 10MB a 50MB
+  limit: '50mb'
 }));
 
-// ✅ CONFIGURACIÓN CORS MEJORADA
+// 3. ✅ CONFIGURACIÓN CORS MEJORADA
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
         "https://takuminet-app.netlify.app",
-        "https://grim-britte-takuminet-backend-c7daca2c.koyeb.app",
+        "https://distinct-oralla-takumi-net-0d317399.koyeb.app",
         "http://localhost:3000"
       ]
     : ["http://localhost:3000", "http://127.0.0.1:3000"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  maxAge: 86400 // 24 horas
+  maxAge: 86400
 }));
 
-// ✅ HEADERS DE SEGURIDAD PERMITIENDO ARCHIVOS GRANDES
+// 4. ✅ HEADERS DE SEGURIDAD
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: false // Temporal para desarrollo
+  contentSecurityPolicy: false
 }));
+
+// 5. ✅ MIDDLEWARE DE SEGURIDAD - AHORA SÍ FUNCIONARÁ
+const securityMiddleware = (req, res, next) => {
+  try {
+    // ✅ Asegurar que req.body siempre existe
+    if (!req.body) {
+      req.body = {};
+    }
+    
+    // ✅ Solo validar si existe avatarBase64
+    if (req.body.avatarBase64 !== undefined && req.body.avatarBase64 !== null) {
+      const avatarBase64 = req.body.avatarBase64;
+      
+      if (typeof avatarBase64 !== 'string') {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "avatarBase64 debe ser una cadena base64" 
+        });
+      }
+      
+      if (avatarBase64.length > 35000000) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "La imagen es demasiado grande. Máximo 25MB." 
+        });
+      }
+      
+      if (avatarBase64.trim() !== '' && !avatarBase64.startsWith('data:image/')) {
+        return res.status(400).json({ 
+          ok: false, 
+          error: "Formato de imagen no soportado" 
+        });
+      }
+    }
+    
+    next();
+  } catch (error) {
+    console.error("❌ Error en security middleware:", error);
+    res.status(500).json({ ok: false, error: "Error de validación de datos" });
+  }
+};
+
+app.use(securityMiddleware);
+
+// 6. ✅ VALIDACIÓN DE ARCHIVOS - SIMPLIFICADA (ELIMINA validateFileUpload)
+// YA NO NECESITAS validateFileUpload SEPARADO, TODO ESTÁ EN securityMiddleware
+
+// 7. ✅ Middleware de debugging temporal
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path}`);
+  console.log('📦 Body keys:', req.body ? Object.keys(req.body) : 'No body');
+  if (req.body && req.body.avatarBase64) {
+    console.log('🖼️ Avatar presente, longitud:', req.body.avatarBase64.length);
+  }
+  next();
+});
+
 
 // =======================
 // VARIABLES GLOBALES Y HELPERS
@@ -1122,20 +1184,20 @@ app.get("/api/juegos", async (req, res) => {
 });
 
 // =======================
-// ENDPOINT OBTENER JUEGO POR ID - OPTIMIZADO
+// ENDPOINT OBTENER JUEGO POR ID - CORREGIDO
 // =======================
 app.get("/api/juegos/:id", async (req, res) => {
   try {
-    console.time('⏱️ ObtenerJuegoID'); // Medir tiempo
+    console.time('⏱️ ObtenerJuegoID');
     
     const gameId = req.params.id;
 
-    // 1️⃣ Obtener el juego principal CON TIMEOUT
+    // ✅ CORREGIDO: Incluir mp_id y mp_email en la consulta
     const juegoQuery = `
       SELECT j.*, 
              u.username, u.avatar, u.descripcion, 
              u.contacto_email, u.twitter, u.instagram, 
-             u.youtube, u.discord
+             u.youtube, u.discord, u.mp_id, u.mp_email  -- ✅ AGREGAR ESTOS CAMPOS
       FROM juegos j 
       LEFT JOIN usuarios u ON j.user_id = u.user_id 
       WHERE j.id = ?
@@ -1154,16 +1216,25 @@ app.get("/api/juegos/:id", async (req, res) => {
     // Procesar datos del juego
     const juegoProcesado = procesarJuego(juego);
 
-    // 2️⃣ Obtener otros juegos (EN PARALELO para mayor velocidad)
+    // 2️⃣ Obtener otros juegos
     const otrosJuegosPromise = allAsync(
       `SELECT id, title, cover FROM juegos WHERE user_id = ? AND id != ? LIMIT 6`,
       [juego.user_id, gameId]
     );
 
-    // Esperar ambas promesas en paralelo
     const [otrosJuegos] = await Promise.all([otrosJuegosPromise]);
     
-    console.timeEnd('⏱️ ObtenerJuegoID'); // Fin medición
+    console.timeEnd('⏱️ ObtenerJuegoID');
+
+    // ✅ DEBUG: Verificar qué datos se envían
+    console.log("📤 Enviando datos del juego:", {
+      id: juegoProcesado.id,
+      title: juegoProcesado.title,
+      user_id: juegoProcesado.user_id,
+      username: juegoProcesado.username,
+      mp_id: juegoProcesado.mp_id,
+      mp_email: juegoProcesado.mp_email
+    });
 
     res.json({ 
       ok: true, 
@@ -1179,7 +1250,6 @@ app.get("/api/juegos/:id", async (req, res) => {
     });
   }
 });
-
 
 // =======================
 // ENDPOINT OBTENER JUEGOS DEL USUARIO
@@ -1638,15 +1708,13 @@ app.get("/api/verificar-email", async (req, res) => {
 
 
 
-// =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS
-// =======================
+
 
 // =======================
-// ENDPOINTS MERCADO PAGO CORREGIDOS (USANDO LAS COLUMNAS CORRECTAS)
+// ENDPOINTS MERCADO PAGO - SIN REPETICIONES
 // =======================
 
-// Conectar cuenta de Mercado Pago
+// 1. Conectar cuenta de Mercado Pago
 app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
   try {
     const { mp_email, mp_user_id } = req.body;
@@ -1658,7 +1726,6 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
       });
     }
 
-    // Validar formato de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(mp_email)) {
       return res.status(400).json({ 
@@ -1667,12 +1734,11 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
       });
     }
 
-    // ✅ CORREGIDO: Usando las columnas correctas que SÍ existen
     await runAsync(
       `UPDATE usuarios 
        SET mp_email = ?, mp_id = ?, mp_connected_at = NOW()
        WHERE user_id = ?`,
-      [mp_email, mp_user_id, req.userId] // mp_user_id se guarda en mp_id
+      [mp_email, mp_user_id, req.userId]
     );
 
     res.json({ 
@@ -1694,10 +1760,9 @@ app.post('/api/mercadopago/connect', authMiddleware, async (req, res) => {
   }
 });
 
-// Obtener estado de Mercado Pago - ✅ CORREGIDO
+// 2. Obtener estado de Mercado Pago
 app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
   try {
-    // ✅ CORREGIDO: Usando SOLO las columnas que existen
     const user = await getAsync(
       `SELECT user_id, username, mp_email, mp_id, mp_connected_at 
        FROM usuarios WHERE user_id = ?`,
@@ -1720,7 +1785,7 @@ app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
         user_id: user.user_id,
         username: user.username,
         email: user.mp_email,
-        account_id: user.mp_id, // ✅ mp_id contiene el User ID de MP
+        account_id: user.mp_id,
         connected_at: user.mp_connected_at
       }
     });
@@ -1734,10 +1799,9 @@ app.get('/api/mercadopago/status', authMiddleware, async (req, res) => {
   }
 });
 
-// Desconectar cuenta de Mercado Pago - ✅ CORREGIDO
+// 3. Desconectar cuenta de Mercado Pago
 app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
   try {
-    // ✅ CORREGIDO: Usando las columnas correctas
     await runAsync(
       `UPDATE usuarios 
        SET mp_email = NULL, mp_id = NULL, mp_connected_at = NULL
@@ -1758,6 +1822,102 @@ app.delete('/api/mercadopago/disconnect', authMiddleware, async (req, res) => {
     });
   }
 });
+
+// Endpoint para verificar pagos
+app.get('/api/mercadopago/payments/:paymentId', async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        
+        if (!token) {
+            return res.status(401).json({ error: 'No autorizado' });
+        }
+
+        // Verificar token del usuario
+        const user = await verificarToken(token);
+        if (!user) {
+            return res.status(401).json({ error: 'Token inválido' });
+        }
+
+        // Verificar el pago en Mercado Pago
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: {
+                'Authorization': `Bearer ${MERCADO_PAGO_CONFIG.ACCESS_TOKEN}`
+            }
+        });
+
+        if (response.ok) {
+            const payment = await response.json();
+            res.json(payment);
+        } else {
+            res.status(404).json({ error: 'Pago no encontrado' });
+        }
+    } catch (error) {
+        console.error('Error verificando pago:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+async function crearModalPagoReal(precio, juegoId, esDonacion = false) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert("❌ Debes iniciar sesión para realizar el pago");
+            return;
+        }
+
+        // ✅ Validar que el precio sea un número válido
+        const amount = parseFloat(precio);
+        if (isNaN(amount) || amount <= 0) {
+            alert("❌ El monto debe ser un número válido mayor a 0");
+            return;
+        }
+
+        console.log("🔄 Creando pago:", { juegoId, amount, esDonacion });
+
+        const response = await fetch(`${MERCADO_PAGO_CONFIG.API_BASE}/api/mercadopago/create-marketplace-preference`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                juego_id: juegoId,
+                amount: amount,
+                is_donation: esDonacion
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.ok) {
+            console.log("✅ Pago creado exitosamente, redirigiendo...");
+            
+            // ✅ MOSTRAR INSTRUCCIONES ANTES DE REDIRIGIR
+            const confirmar = confirm(
+                "🔔 INSTRUCCIONES IMPORTANTES:\n\n" +
+                "1. Si ves 'No tienes suficiente dinero', NO te preocupes\n" +
+                "2. Busca la opción 'Pagar con otro método'\n" +
+                "3. Selecciona 'Tarjeta de crédito/débito' o 'PSE'\n" +
+                "4. Completa tu pago normalmente\n\n" +
+                "¿Continuar a Mercado Pago?"
+            );
+            
+            if (confirmar) {
+                window.location.href = data.init_point;
+            }
+        } else {
+            console.error("❌ Error del servidor:", data.error);
+            alert("❌ Error al crear el pago: " + (data.error || "Error desconocido"));
+        }
+
+    } catch (error) {
+        console.error("❌ Error en crearModalPagoReal:", error);
+        alert("❌ Error al procesar el pago. Intenta nuevamente.");
+    }
+}
+
+
 app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async (req, res) => {
   try {
     const { juego_id, amount, is_donation = false } = req.body;
@@ -1851,61 +2011,145 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
   }
 });
 
-// ============================
-// WEBHOOK PARA NOTIFICACIONES DE PAGO
-// ============================
-app.post('/api/mercadopago/notifications', async (req, res) => {
-  try {
-    const { type, data } = req.body;
-    
-    if (type === "payment") {
-      const paymentId = data.id;
-      
-      // Obtener detalles del pago
-      const payment = await mercadopago.payment.get(paymentId);
-      const paymentData = payment.body;
-      
-      console.log("💰 Notificación de pago recibida:", {
-        id: paymentData.id,
-        status: paymentData.status,
-        amount: paymentData.transaction_amount,
-        external_reference: paymentData.external_reference
-      });
 
-      // Aquí puedes guardar en tu base de datos el registro del pago
-      if (paymentData.status === "approved") {
-        console.log("✅ Pago aprobado - Guardando en base de datos...");
-        
-        // Extraer información del external_reference
-        const reference = paymentData.external_reference;
-        if (reference && reference.startsWith('takumi_')) {
-          const parts = reference.split('_');
-          const juegoId = parts[1];
-          
-          // Guardar registro de venta
-          await runAsync(
-            `INSERT INTO ventas_juegos 
-             (juego_id, payment_id, monto_total, comision_takumi, pago_desarrollador, status)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-              juegoId,
-              paymentData.id,
-              paymentData.transaction_amount,
-              paymentData.transaction_amount * 0.30, // 30% comisión
-              paymentData.transaction_amount * 0.70, // 70% desarrollador
-              'completed'
-            ]
-          );
-          
-          console.log("📊 Venta registrada en base de datos");
+// ✅ ENDPOINT PARA VER PAGOS REALES - ACTUALIZADO
+app.get('/api/pagos/reales', authMiddleware, async (req, res) => {
+  try {
+    const pagos = await runAsync(`
+      SELECT 
+        vj.id,
+        vj.juego_id,
+        vj.payment_id,
+        vj.monto_total,
+        vj.comision_takumi,
+        vj.pago_desarrollador,
+        vj.developer_mp_id,
+        vj.status,
+        vj.created_at,
+        j.title as juego_titulo,
+        u.username as desarrollador,
+        u.mp_email as developer_email
+      FROM ventas_juegos vj
+      LEFT JOIN juegos j ON vj.juego_id = j.id
+      LEFT JOIN usuarios u ON j.user_id = u.user_id
+      WHERE vj.es_simulacion = 0 OR vj.es_simulacion IS NULL
+      ORDER BY vj.created_at DESC
+      LIMIT 50
+    `);
+    
+    console.log("📊 Pagos reales encontrados:", pagos.length);
+    
+    res.json({ 
+      ok: true, 
+      total_pagos: pagos.length,
+      pagos 
+    });
+  } catch (err) {
+    console.error("Error obteniendo pagos reales:", err);
+    res.status(500).json({ ok: false, error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint de prueba ultra simple
+app.post('/api/mercadopago/test-simple', authMiddleware, async (req, res) => {
+  try {
+    const { amount } = req.body;
+
+    console.log("🧪 Probando Mercado Pago con monto:", amount);
+
+    // Preferencia MUY simple
+    const preference = {
+      items: [
+        {
+          title: "Test TakumiNet",
+          quantity: 1,
+          currency_id: "USD",
+          unit_price: parseFloat(amount)
         }
-      }
+      ],
+      back_urls: {
+        success: "https://takuminet-app.netlify.app/success",
+        failure: "https://takuminet-app.netlify.app/failure"
+      },
+      auto_return: "approved"
+    };
+
+    console.log("📋 Preferencia de prueba:", preference);
+
+    const result = await mercadopago.preferences.create(preference);
+    
+    console.log("✅ Test exitoso:", result.body.id);
+
+    res.json({
+      ok: true,
+      preferenceId: result.body.id,
+      init_point: result.body.init_point,
+      message: "Test exitoso"
+    });
+
+  } catch (err) {
+    console.error("❌ Error en test:", err);
+    
+    // ✅ ERROR DETALLADO
+    let errorMsg = "Error en test";
+    
+    if (err.response && err.response.body) {
+      const mpError = err.response.body;
+      errorMsg += ": " + (mpError.message || JSON.stringify(mpError));
+    } else {
+      errorMsg += ": " + err.message;
     }
     
-    res.status(200).send("OK");
+    res.status(500).json({ 
+      ok: false, 
+      error: errorMsg,
+      details: err.response?.body || null
+    });
+  }
+});
+
+// 6. Verificar si desarrollador tiene MP
+app.get('/api/juegos/:id/verificar-mp', async (req, res) => {
+  try {
+    const juegoId = req.params.id;
+
+    const juegoQuery = `
+      SELECT j.user_id, u.username, u.mp_email, u.mp_id 
+      FROM juegos j 
+      LEFT JOIN usuarios u ON j.user_id = u.user_id 
+      WHERE j.id = ?
+    `;
+    
+    const juego = await getAsync(juegoQuery, [juegoId]);
+
+    if (!juego) {
+      return res.status(404).json({ 
+        ok: false, 
+        error: "Juego no encontrado" 
+      });
+    }
+
+    const tieneMP = !!(juego.mp_email && juego.mp_id);
+    
+    console.log("🔍 Verificando MP desarrollador:", {
+      juegoId,
+      desarrollador: juego.username,
+      tieneMP
+    });
+    
+    res.json({ 
+      ok: true, 
+      tiene_mp: tieneMP,
+      desarrollador_id: juego.user_id,
+      desarrollador: juego.username
+    });
+
   } catch (err) {
-    console.error("❌ Error en webhook:", err);
-    res.status(500).send("Error");
+    console.error("❌ Error verificando MP desarrollador:", err);
+    res.status(500).json({ 
+      ok: false, 
+      error: "Error interno del servidor" 
+    });
   }
 });
 
@@ -1913,6 +2157,93 @@ app.post('/api/mercadopago/notifications', async (req, res) => {
 
 
 
+// =======================
+// HEALTH CHECKS PARA KOYEB
+// =======================
+
+// Health check básico
+app.get('/health', async (req, res) => {
+  try {
+    // Verificar conexión a la base de datos
+    if (pool) {
+      await pool.query('SELECT 1');
+    }
+    
+    res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      database: pool ? 'connected' : 'disconnected',
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'ERROR',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
+});
+
+// Health check simple (sin DB)
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Liveness probe
+app.get('/live', (req, res) => {
+  res.status(200).send('OK');
+});
+
+// Readiness probe
+app.get('/ready', async (req, res) => {
+  try {
+    if (pool) {
+      await pool.query('SELECT 1');
+      res.status(200).send('READY');
+    } else {
+      res.status(503).send('Database not connected');
+    }
+  } catch (error) {
+    res.status(503).send('Database error');
+  }
+});
+
+// Endpoint que realiza varias operaciones para mantener activo
+app.get('/wake-up', async (req, res) => {
+  try {
+    const results = {
+      server_time: new Date().toISOString(),
+      database_check: 'pending',
+      api_status: 'active'
+    };
+
+    // Verificar DB
+    if (pool) {
+      const [dbResult] = await pool.query('SELECT 1 as test');
+      results.database_check = dbResult[0].test === 1 ? 'connected' : 'error';
+    }
+
+    // Simular una operación pequeña
+    results.memory_usage = process.memoryUsage();
+    results.uptime = process.uptime();
+
+    res.json({
+      ok: true,
+      message: '🚀 Servidor activado y funcionando',
+      ...results
+    });
+  } catch (error) {
+    res.json({
+      ok: false,
+      message: 'Servidor activo pero con errores',
+      error: error.message
+    });
+  }
+});
 
 app.get("/", async (req, res) => {
   let dbConnected = false;
