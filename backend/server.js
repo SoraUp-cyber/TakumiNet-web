@@ -88,7 +88,7 @@ const PAYPAL_CONFIG = {
   clientId: process.env.PAYPAL_CLIENT_ID || "ATsaHPzDdIo6G2ly-xabsrheol0k3zU0M50XO_77JZ_edi6VKzIVV1sRBFvaNadDAmrXXeJp6ISZsnTS",
   clientSecret: process.env.PAYPAL_CLIENT_SECRET || "EB9ris0Crb5AZ8EpxQOemKM6gg9ZtLA1q8WMKzEpxiPnXF8QbKkPjIiGAYpOV7G5fk77zr7lsGKhIUwg",
   environment: process.env.PAYPAL_ENVIRONMENT || 'sandbox',
-  returnUrl: "https://takuminet.netlify.app/pagos-desarrollador"
+  returnUrl: "https://takuminet-app.netlify.app/pagos-desarrollador"
 };
 
 // ✅ Esto va antes de los middlewares
@@ -152,7 +152,7 @@ app.use(express.urlencoded({
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? [
-        "https://takuminet.netlify.app",
+        "https://takuminet-app.netlify.app",
         "https://distinct-oralla-takumi-net-0d317399.koyeb.app",
         "http://localhost:3000"
       ]
@@ -1975,9 +1975,9 @@ app.post('/api/mercadopago/create-marketplace-preference', authMiddleware, async
         }
       ],
       back_urls: {
-        success: `${process.env.FRONTEND_URL || 'https://takuminet.netlify.app'}/success.html?juego_id=${juego_id}`,
-        failure: `${process.env.FRONTEND_URL || 'https://takuminet.netlify.app'}/failure.html`,
-        pending: `${process.env.FRONTEND_URL || 'https://takuminet.netlify.app'}/pending.html`
+        success: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/success.html?juego_id=${juego_id}`,
+        failure: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/failure.html`,
+        pending: `${process.env.FRONTEND_URL || 'https://takuminet-app.netlify.app'}/pending.html`
       },
       auto_return: "approved",
       external_reference: `takumi_${juego_id}_${Date.now()}`,
@@ -2068,8 +2068,8 @@ app.post('/api/mercadopago/test-simple', authMiddleware, async (req, res) => {
         }
       ],
       back_urls: {
-        success: "https://takuminet.netlify.app/success",
-        failure: "https://takuminet.netlify.app/failure"
+        success: "https://takuminet-app.netlify.app/success",
+        failure: "https://takuminet-app.netlify.app/failure"
       },
       auto_return: "approved"
     };
