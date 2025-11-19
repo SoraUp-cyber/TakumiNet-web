@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (!token) {
         alert("Debes iniciar sesión para subir un juego");
-        window.location.href = "index.html";
+        window.location.href = "login.html";
         return;
     }
 
@@ -179,7 +179,7 @@ function removeCover() {
 }
 
 // =========================
-// PREVIEW DE CAPTURAS - ACTUALIZADO PARA 25MB
+// PREVIEW DE CAPTURAS - ACTUALIZADO PARA 1-8 IMÁGENES
 // =========================
 function handleScreenshotsPreview(event) {
     const files = event.target.files;
@@ -203,6 +203,12 @@ function handleScreenshotsPreview(event) {
         if (file.size > 25 * 1024 * 1024) {
             alert(`La imagen "${file.name}" es demasiado grande. Máximo 25MB por imagen.`);
             continue;
+        }
+
+        // ✅ NUEVO: Máximo 8 imágenes
+        if (validFiles >= 8) {
+            alert("Máximo 8 capturas permitidas. Las imágenes adicionales serán ignoradas.");
+            break;
         }
 
         validFiles++;
@@ -242,9 +248,9 @@ function handleScreenshotsPreview(event) {
         reader.readAsDataURL(file);
     }
 
-    // Mostrar contador
+    // ✅ NUEVO: Mostrar contador actualizado para 1-8 imágenes
     const counter = document.createElement("div");
-    counter.textContent = `Capturas seleccionadas: ${validFiles}/5 mínimo`;
+    counter.textContent = `Capturas seleccionadas: ${validFiles}/1 mínimo, 8 máximo`;
     counter.classList.add("screenshot-counter");
     previewContainer.appendChild(counter);
 }
@@ -281,7 +287,7 @@ function removeScreenshot(container, file) {
 }
 
 // =========================
-// ACTUALIZAR CONTADOR CAPTURAS
+// ACTUALIZAR CONTADOR CAPTURAS - ACTUALIZADO
 // =========================
 function updateScreenshotCounter() {
     const previewContainer = document.getElementById("screenshots-preview");
@@ -289,7 +295,7 @@ function updateScreenshotCounter() {
     const screenshotItems = previewContainer.getElementsByClassName("screenshot-item");
     
     if (counters.length > 0) {
-        counters[0].textContent = `Capturas seleccionadas: ${screenshotItems.length}/5 mínimo`;
+        counters[0].textContent = `Capturas seleccionadas: ${screenshotItems.length}/1 mínimo, 8 máximo`;
     }
 }
 
@@ -375,7 +381,7 @@ function fileToBase64(file) {
 }
 
 // =========================
-// VALIDAR FORMULARIO - ACTUALIZADO PARA 25MB
+// VALIDAR FORMULARIO - ACTUALIZADO PARA 1-8 IMÁGENES
 // =========================
 function validarFormulario() {
     const title = document.getElementById("title").value.trim();
@@ -396,8 +402,13 @@ function validarFormulario() {
         throw new Error("La descripción debe tener al menos 10 caracteres");
     }
 
-    if (!screenshotsInput.files || screenshotsInput.files.length < 5) {
-        throw new Error("Debes subir al menos 5 capturas del juego");
+    // ✅ CAMBIO: Ahora acepta de 1 a 8 imágenes
+    if (!screenshotsInput.files || screenshotsInput.files.length < 1) {
+        throw new Error("Debes subir al menos 1 captura del juego");
+    }
+
+    if (screenshotsInput.files.length > 8) {
+        throw new Error("Máximo 8 capturas permitidas");
     }
 
     // Validar tamaño de cada captura (25MB máximo)

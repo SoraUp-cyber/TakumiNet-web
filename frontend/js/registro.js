@@ -73,6 +73,35 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // =======================
+  // VALIDACIONES MEJORADAS
+  // =======================
+  
+  // Validación de contraseña mejorada
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (password.length < 7) {
+      errors.push("Al menos 7 caracteres");
+    }
+    
+    if (!/[A-Z]/.test(password)) {
+      errors.push("Al menos una letra mayúscula");
+    }
+    
+    if (!/\d/.test(password)) {
+      errors.push("Al menos un número");
+    }
+    
+    return errors;
+  };
+
+  // Validación de username - máximo 7 palabras
+  const validateUsernameWords = (username) => {
+    const words = username.trim().split(/\s+/).filter(word => word.length > 0);
+    return words.length <= 7;
+  };
+
+  // =======================
   // VALIDACIÓN EN TIEMPO REAL
   // =======================
   const setupRealTimeValidation = () => {
@@ -83,7 +112,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     usernameInput.addEventListener('blur', () => {
       const username = usernameInput.value.trim();
-      if (username.length > 0 && username.length < 3) {
+      if (username.length > 0) {
+        if (username.length < 3) {
+          showFieldError('usernameError', 'Mínimo 3 caracteres');
+        } else if (!validateUsernameWords(username)) {
+          showFieldError('usernameError', 'Máximo 7 palabras permitidas');
+        } else {
+          showFieldError('usernameError', '');
+        }
+      }
+    });
+
+    usernameInput.addEventListener('input', () => {
+      const username = usernameInput.value.trim();
+      if (username.length > 0 && !validateUsernameWords(username)) {
+        showFieldError('usernameError', 'Máximo 7 palabras permitidas');
+      } else if (username.length > 0 && username.length < 3) {
         showFieldError('usernameError', 'Mínimo 3 caracteres');
       } else {
         showFieldError('usernameError', '');
@@ -101,8 +145,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     passwordInput.addEventListener('blur', () => {
       const password = passwordInput.value;
-      if (password.length > 0 && password.length < 6) {
-        showFieldError('passwordError', 'Mínimo 6 caracteres');
+      if (password.length > 0) {
+        const passwordErrors = validatePassword(password);
+        if (passwordErrors.length > 0) {
+          showFieldError('passwordError', passwordErrors.join(', '));
+        } else {
+          showFieldError('passwordError', '');
+        }
+      }
+    });
+
+    passwordInput.addEventListener('input', () => {
+      const password = passwordInput.value;
+      if (password.length > 0) {
+        const passwordErrors = validatePassword(password);
+        if (passwordErrors.length > 0) {
+          showFieldError('passwordError', passwordErrors.join(', '));
+        } else {
+          showFieldError('passwordError', '');
+        }
       } else {
         showFieldError('passwordError', '');
       }
@@ -169,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmPassword = document.getElementById("confirmPassword").value;
     const terms = document.getElementById("terms")?.checked || false;
 
-    // VALIDACIONES
+    // VALIDACIONES MEJORADAS
     let hasErrors = false;
 
     if (!terms) {
@@ -181,14 +242,21 @@ document.addEventListener("DOMContentLoaded", () => {
       showFieldError('usernameError', 'Mínimo 3 caracteres');
       hasErrors = true;
     }
+
+    if (!validateUsernameWords(username)) {
+      showFieldError('usernameError', 'Máximo 7 palabras permitidas');
+      hasErrors = true;
+    }
     
     if (!email.includes("@")) {
       showFieldError('emailError', 'Email debe contener @');
       hasErrors = true;
     }
     
-    if (password.length < 6) {
-      showFieldError('passwordError', 'Mínimo 6 caracteres');
+    // Validación de contraseña mejorada
+    const passwordErrors = validatePassword(password);
+    if (passwordErrors.length > 0) {
+      showFieldError('passwordError', passwordErrors.join(', '));
       hasErrors = true;
     }
     

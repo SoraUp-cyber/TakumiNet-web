@@ -1,6 +1,9 @@
-/* 🎮 Perfil del Juego */
+/* ============================
+   ESTILOS PC ANCHO - MISMO DISEÑO EXACTO
+   ============================ */
+
 .perfil-juego {
-  max-width: 1400px; /* ✅ Más ancho */
+  max-width: 1400px;
   margin: 0 auto;
   padding: 50px 40px;
   font-family: 'Roboto', sans-serif;
@@ -18,12 +21,17 @@
   letter-spacing: 1.2px;
 }
 
+/* 🎥 Video del juego */
+h3.ocultar-texto {
+  display: none; /* Ocultar "Video del juego:" como pediste */
+}
+
 #video-container {
   position: relative;
-  width: 90%;           /* ocupa casi todo el ancho */
+  width: 90%;
   max-width: 1400px;
-  margin: 20px auto 30px; /* menos espacio arriba y abajo */
-  padding-bottom: 45%;   /* ✅ un poquito más alto */
+  margin: 20px auto 30px;
+  padding-bottom: 45%;
   height: 0;
   border-radius: 14px;
   overflow: hidden;
@@ -39,8 +47,6 @@
   height: 100%;
   border: none;
 }
-
-
 
 /* ⭐ Rating */
 .rating-box {
@@ -164,86 +170,216 @@
   display: none;
 }
 
+/* 🎮 Lightbox */
+#lightbox {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+}
 
+#lightbox-img {
+  max-width: 85%;
+  max-height: 85vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+}
 
+.close {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
 
+.close:hover {
+  color: #09ff00;
+  transform: scale(1.2);
+}
 
+/* ============================
+   BOTONES LIGHTBOX MEJORADOS - VERDE Y BLANCO
+   ============================ */
 
+.prev, .next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(34, 197, 94, 0.9); /* Verde */
+    color: white;
+    border: none;
+    padding: 20px 24px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    z-index: 10001;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    font-weight: bold;
+}
 
+.prev:hover, .next:hover {
+    background: rgba(21, 128, 61, 1); /* Verde más oscuro */
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 12px 30px rgba(34, 197, 94, 0.6);
+    border-color: rgba(255, 255, 255, 0.5);
+}
 
+.prev {
+    left: 40px;
+}
 
+.next {
+    right: 40px;
+}
+
+#lightbox-loader {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 1.8rem;
+  z-index: 10001;
+}
+
+/* 🔔 Botón Seguir */
 .btn-seguir {
-  display: inline-flex;            /* Ícono + texto en línea */
-  align-items: center;             /* Centra verticalmente */
-  justify-content: center;         /* Centra horizontalmente */
-  gap: 8px;                        /* Espacio entre ícono y texto */
-  padding: 10px 18px;              /* Relleno */
-  background-color: #28a745;       /* Verde principal */
-  color: #fff;                     /* Texto blanco */
-  font-size: 15px;                 /* Tamaño de fuente */
-  font-weight: 600;                /* Negrita moderada */
-  border: none;                    /* Sin borde */
-  border-radius: 8px;              /* Bordes redondeados */
-  cursor: pointer;                 /* Manito */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #28a745;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
-  margin: 0 auto;                  /* Centrado si está en contenedor block */
-  display: flex;                   /* Asegura centrado */
+  margin: 0 auto;
+  display: flex;
 }
 
 .btn-seguir img {
-  display: block;                  /* Elimina espacio raro */
+  display: block;
 }
 
 .btn-seguir:hover {
-  background-color: #218838;       /* Verde más oscuro al hover */
-  transform: scale(1.05);          /* Ligeramente más grande */
+  background-color: #218838;
+  transform: scale(1.05);
 }
 
 .btn-seguir:active {
-  transform: scale(0.95);          /* Efecto al hacer click */
+  transform: scale(0.95);
 }
 
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: fadeIn 0.3s ease;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* 🎯 SOLO para móviles */
-@media (max-width: 768px) {
-  #video-container {
+/* Contenedor del modal */
+.modal-content {
     position: relative;
-    width: 100%;
-    padding-bottom: 56.25%; /* Proporción 16:9 */
-    height: 0;
-    overflow: hidden;
+    max-width: 80vw;
+    max-height: 80vh;
     border-radius: 12px;
-    background-color: #000; /* Fondo negro elegante */
-  }
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: zoomIn 0.3s ease;
+    background: #111; /* Fondo oscuro elegante */
+    padding: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
 
-  #video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Imagen */
+.modal-img {
     width: 100%;
-    height: 100%;
-    border: none;
-  }
+    height: auto;
+    max-height: 75vh;
+    object-fit: contain;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+.modal-img:hover {
+    transform: scale(1.02);
+}
 
-  /* Opcional: estiliza el título solo en móvil */
-  .ocultar-texto[data-i18n="gameProfile.videoTitle"] {
-    font-size: 1rem;
-    text-align: center;
-    margin: 10px 0;
+/* Botón cerrar */
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
     color: #fff;
-  }
+    font-size: 28px;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 95vw;
+        max-height: 85vh;
+        padding: 5px;
+    }
+    .close-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 24px;
+    }
 }

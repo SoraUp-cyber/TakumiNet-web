@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <title>Sube tu Juego - TakumiNet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="6fNxUwzRmRh5IBVxX3XaPkpmrAMIC-SEEJN_P5G5FWc" />
+       <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJBJLHRKMD"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SJBJLHRKMD');
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/img/logo.png">
      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -601,5 +610,114 @@
 <script src="js/particulas.js"></script>
 <script src="js/lang.js"></script>
 <script>
+let mercadoPagoHabilitado = false; // cambiar a true si el dueño configuró Mercado Pago
 
+window.addEventListener('DOMContentLoaded', () => {
+    const modal = document.createElement('div');
+    modal.id = 'welcome-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.75);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 20px;
+        box-sizing: border-box;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            position: relative;
+            background: linear-gradient(180deg, #2e2e2e, #1a1a1a);
+            padding: 25px 30px;
+            border-radius: 20px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: fadeIn 0.6s ease forwards;
+        ">
+            <span id="close-modal" style="
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 26px;
+                font-weight: bold;
+                color: #fff;
+                cursor: pointer;
+                transition: color 0.2s ease;
+            ">&times;</span>
+
+            <h2 style="margin-bottom: 15px; color:#00ff7f; font-size: 1.6rem;">🎮 ¡Bienvenido a TakumiNet!</h2>
+            <p style="margin-bottom: 20px; font-size: 1rem; line-height: 1.5;">
+                Puedes <strong>publicar tu juego gratis</strong> o <strong>venderlo</strong> estableciendo un precio. <br><br>
+                Para <strong>recibir pagos</strong> necesitas iniciar sesión con <b>Mercado Pago</b>.
+            </p>
+
+            <button id="ok-btn" style="
+                background: #00ff7f;
+                color: #000;
+                font-weight: 600;
+                border: none;
+                border-radius: 10px;
+                padding: 10px 20px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            ">
+                Entendido ✅
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Cerrar con la X o con el botón
+    document.getElementById('close-modal').addEventListener('click', () => modal.remove());
+    document.getElementById('ok-btn').addEventListener('click', () => modal.remove());
+
+    // Auto cerrar después de 8 segundos
+    setTimeout(() => {
+        if (document.body.contains(modal)) {
+            modal.remove();
+            if (!mercadoPagoHabilitado) {
+                alert("💡 Recuerda: Para recibir pagos necesitas configurar tu cuenta de Mercado Pago.");
+            }
+        }
+    }, 8000);
+
+    // Animación CSS
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Versión móvil */
+        @media (max-width: 600px) {
+            #welcome-modal div {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            #welcome-modal h2 {
+                font-size: 1.3rem !important;
+            }
+            #welcome-modal p {
+                font-size: 0.95rem !important;
+            }
+            #welcome-modal button {
+                font-size: 0.9rem !important;
+                padding: 8px 16px !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+});
 </script>
+

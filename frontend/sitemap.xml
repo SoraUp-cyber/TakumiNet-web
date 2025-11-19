@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+<!-- TakumiNet - Sitemap completo generado para SEO -->
+<url>
+  <loc>https://takuminet-app.netlify.app/</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/index.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/home.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.90</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/registro.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/recuperar-password.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/nueva-contraseña.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/codigo_recuperar.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/juegos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.90</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/biblioteca.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/juegos-favoritos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/mis-juegos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/comunidad.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/chat-comunidad.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/foro.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/crear-foro.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/ranking.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/marketplace.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/centro-aprendiz.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/desarrolladores.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/subir_juegos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/creator-dashboard.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/pagos-desarrollador.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/perfil-del-usuario.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/perfil-editar.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/perfil-juegos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/seguidos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/jams.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/game-jam.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/crear-game-jam.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/blog.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/noticias.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>daily</changefreq>
+  <priority>0.85</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/contenido.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/descarga.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/descargar.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/acerca.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/faq.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.75</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/contacto.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.70</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/terminos.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>yearly</changefreq>
+  <priority>0.50</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/privacidad.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>yearly</changefreq>
+  <priority>0.50</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/cookies.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>yearly</changefreq>
+  <priority>0.50</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/discord-callback.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.30</priority>
+</url>
+<url>
+  <loc>https://takuminet-app.netlify.app/pago-pendiente.html</loc>
+  <lastmod>2024-11-07T00:00:00+00:00</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.30</priority>
+</url>
+</urlset>

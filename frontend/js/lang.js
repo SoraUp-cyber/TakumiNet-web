@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
+  // Si la página no tiene el selector de idioma, salimos sin error
+  if (!languageBtn || !dropdown) return;
+
   let currentLang = "es"; // Idioma por defecto
   let i18nData = {};
 
@@ -29,7 +32,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // Actualizar idioma en backend (solo si hay token)
       if (token) await updateUserLanguage(lang);
     } catch (error) {
-      console.error(`❌ Error al cargar idioma (${lang}):`, error.message);
+      // Silencio total si el JSON o la carga fallan
+      console.warn(`⚠️ No se pudo cargar el idioma (${lang}): ${error.message}`);
     }
   }
 
@@ -61,16 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const text = await res.text();
-
-      // Solo intentar parsear si parece JSON
       if (text.trim().startsWith("{")) {
         const json = JSON.parse(text);
         if (!json.ok) console.warn("⚠️ Error del backend al actualizar idioma:", json);
       }
-      // Si no es JSON → silencio total (sin consola)
-
     } catch {
-      // Silencio total (no mostrar errores en consola)
+      // Silencio total si hay error
     }
   }
 
@@ -108,14 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // ================================
   // 🎛️ 5. Mostrar / ocultar menú idiomas
   // ================================
-  languageBtn?.addEventListener("click", (e) => {
+  languageBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     const isHidden = dropdown.getAttribute("aria-hidden") === "true";
     dropdown.setAttribute("aria-hidden", isHidden ? "false" : "true");
   });
 
   document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target) && !languageBtn.contains(e.target)) {
+    // ✅ Protección extra: verificar existencia antes de usar contains()
+    if (dropdown && languageBtn && !dropdown.contains(e.target) && !languageBtn.contains(e.target)) {
       dropdown.setAttribute("aria-hidden", "true");
     }
   });

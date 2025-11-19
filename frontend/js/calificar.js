@@ -1,64 +1,76 @@
+// ============================
+// CALIFICAR.JS - SIN ERRORES EN CONSOLA
+// ============================
 (async function () {
   const API_BASE = "https://distinct-oralla-takumi-net-0d317399.koyeb.app";
-  const juegoId = new URLSearchParams(window.location.search).get("juego_id");
+  const params = new URLSearchParams(window.location.search);
+  const juegoId = params.get("juego_id");
   const userId = sessionStorage.getItem("userId");
   const username = sessionStorage.getItem("username");
 
-  let valorSeleccionado = 0;
+  // Esperar que el DOM esté listo
+  await new Promise(resolve => {
+    if (document.readyState === "complete" || document.readyState === "interactive") resolve();
+    else document.addEventListener("DOMContentLoaded", resolve);
+  });
+
+  // Elementos
   const ratingStars = document.querySelectorAll("#rating span");
   const ratingInfo = document.getElementById("rating-info");
   const btnEnviar = document.getElementById("btnEnviarRating");
+  if (!ratingStars.length || !btnEnviar || !ratingInfo) return;
 
-  // ✅ Clave única por usuario y juego
+  let valorSeleccionado = 0;
   const claveVoto = `votado_${juegoId}_${userId}`;
 
-  // Función para actualizar estrellas según valor
+  // ⭐ Actualizar estrellas
   function actualizarEstrellas(valor) {
-    ratingStars.forEach(s => s.classList.remove("active"));
-    for (let i = 0; i < valor; i++) ratingStars[i].classList.add("active");
+    ratingStars.forEach((s, i) => {
+      s.classList.toggle("active", i < valor);
+    });
   }
 
-  // Manejo de clic en estrellas
+  // 📊 Cargar calificaciones sin errores visibles
+  async function cargarCalificaciones() {
+    try {
+      const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificaciones`).catch(() => null);
+      if (!res || !res.ok) return;
+
+      const data = await res.json().catch(() => ({}));
+      if (!data || !data.ok) return;
+
+      const { promedio = 0, total = 0 } = data;
+      ratingInfo.textContent = `Promedio: ${promedio.toFixed(1)} (${total} voto${total !== 1 ? "s" : ""})`;
+      actualizarEstrellas(Math.round(promedio));
+    } catch {
+      // No mostrar nada en consola
+    }
+  }
+
+  // ⭐ Selección de estrella
   ratingStars.forEach(star => {
     star.addEventListener("click", () => {
       if (localStorage.getItem(claveVoto)) {
         alert("Ya calificaste este juego ⭐");
         return;
       }
-      valorSeleccionado = parseInt(star.dataset.value);
+      valorSeleccionado = parseInt(star.dataset.value || "0");
       actualizarEstrellas(valorSeleccionado);
     });
   });
 
-  // Función para cargar promedio y número de votos
-  async function cargarCalificaciones() {
-    try {
-      const res = await fetch(`${API_BASE}/api/juegos/${juegoId}/calificaciones`);
-      const data = await res.json();
-      if (!data.ok) return;
-
-      const { promedio, total } = data;
-      ratingInfo.textContent = `Promedio: ${promedio.toFixed(1)} (${total} voto${total !== 1 ? 's' : ''})`;
-      actualizarEstrellas(Math.round(promedio));
-    } catch (err) {
-      console.error("Error cargando calificaciones:", err);
-    }
-  }
-
-  // ✅ Enviar calificación solo una vez
+  // 🚀 Enviar calificación
   btnEnviar.addEventListener("click", async () => {
     if (localStorage.getItem(claveVoto)) {
-      alert("Ya calificaste este juego anteriormente ⭐");
+      alert("⭐ Ya calificaste este juego anteriormente");
       return;
     }
-
     if (!userId || !username) {
-      alert("⭐ Ya calificaste este juego.");
+      alert("Debes iniciar sesión para calificar un juego.");
       return;
     }
-
     if (valorSeleccionado === 0) {
-      alert("Selecciona una calificación antes de enviar");
+      alert("Selecciona una calificación antes de enviar ⭐");
       return;
     }
 
@@ -67,29 +79,31 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, username, valor: valorSeleccionado })
-      });
+      }).catch(() => null);
 
-      const data = await res.json();
+      const data = await res?.json().catch(() => ({})) || {};
 
       if (data.ok) {
         alert("✔ Calificación enviada correctamente");
-        localStorage.setItem(claveVoto, "true"); // ✅ Guardar bloqueo local
+        localStorage.setItem(claveVoto, "true");
         btnEnviar.disabled = true;
-        cargarCalificaciones();
+        btnEnviar.textContent = "⭐ Ya calificaste este juego";
+        await cargarCalificaciones();
       } else {
-        alert("❌ " + data.error);
+        alert("❌ " + (data.error || "Error desconocido"));
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      // Silencio total en consola
       alert("Error de conexión con el servidor");
     }
   });
 
-  // Desactivar botón si ya votó
+  // 🔒 Si ya votó
   if (localStorage.getItem(claveVoto)) {
     btnEnviar.disabled = true;
     btnEnviar.textContent = "⭐ Ya calificaste este juego";
   }
 
-  document.addEventListener("DOMContentLoaded", cargarCalificaciones);
+  // 🔹 Cargar calificaciones iniciales
+  await cargarCalificaciones();
 })();

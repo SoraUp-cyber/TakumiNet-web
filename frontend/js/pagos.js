@@ -411,6 +411,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const avatarIcon = document.getElementById("avatar-icon");
   const currentUsername = document.getElementById("current-username");
 
+  // Verificar que los elementos existan antes de continuar
+  if (!avatarCircle || !avatarIcon || !currentUsername) {
+    console.log("❌ Elementos de avatar no encontrados, omitiendo carga de usuario");
+    return;
+  }
+
   let token = localStorage.getItem("token");
 
   // =========================

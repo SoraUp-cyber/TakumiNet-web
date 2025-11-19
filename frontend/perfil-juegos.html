@@ -3,12 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="6fNxUwzRmRh5IBVxX3XaPkpmrAMIC-SEEJN_P5G5FWc" />
+     <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SJBJLHRKMD"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-SJBJLHRKMD');
+    </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/footer.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/nav.css">
-    <link rel="stylesheet" href="src/capturas.css">
+    <link rel="stylesheet" href="css/capturas.css">
     <link rel="stylesheet" href="css/perfiljuegos.css">
     <link rel="stylesheet" href="css/seguir.css">
     <link rel="stylesheet" href="css/downloadButton.css">
@@ -51,56 +60,6 @@
 }
 
 
-
-
-
-
-
-
-/* Loader global */
-#page-loader {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #1a1a1a, #000);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.4s ease;
-}
-
-.spinner {
-  width: 60px;
-  height: 60px;
-  border: 5px solid #333;
-  border-top: 5px solid #33ff00;
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Contenido principal */
-#contenido-principal {
-  transition: opacity 0.5s ease;
-}
-
-/* Galería */
-#galeria-capturas img {
-  width: 100%;
-  max-width: 420px;
-  border-radius: 10px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-#galeria-capturas img:hover {
-  transform: scale(1.03);
-}
-
 </style>
 </head>
 <body>
@@ -123,7 +82,7 @@
 
     <!-- Sección Central: Enlaces de navegación -->
     <ul class="nav-links">
-      <li><a href="home.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
+      <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> <span data-i18n="inicio">Inicio</span></a></li>
       <li><a href="marketplace.html"><i class="fas fa-store"></i> <span data-i18n="tienda">Tienda</span></a></li>
       <li><a href="game jam.html"><i class="fas fa-calendar-alt"></i> <span data-i18n="game_jams">Game Jams</span></a></li>
       <li><a href="centro-aprendiz.html"><i class="fas fa-graduation-cap"></i> <span data-i18n="tutoriales">Tutoriales</span></a></li>
