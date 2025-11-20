@@ -1,5 +1,5 @@
 /* =========================
-   Carousel Principal - Versión Profesional Mejorada
+   Carousel Principal - Versión Profesional
 ========================= */
 .carousel {
   position: relative;
@@ -52,19 +52,20 @@
   overflow: hidden;
 }
 
-/* Imagen del slide */
+/* Imagen del slide - TAMAÑO AJUSTADO */
 .slide-content img {
-  width: 100%;
-  height: 100%;
+  width: 102%;
+  height: 102%;
   object-fit: cover;
   display: block;
   border-radius: 16px;
   transition: transform 0.8s ease;
   filter: brightness(0.9);
+  margin: -1%;
 }
 
 .slide:hover .slide-content img {
-  transform: scale(1.05);
+  transform: scale(1.03);
   filter: brightness(1);
 }
 
@@ -86,7 +87,7 @@
   pointer-events: none;
 }
 
-/* Información sobre el slide - Versión Mejorada */
+/* Información sobre el slide */
 .slide-info {
   position: absolute;
   bottom: 25px;
@@ -133,7 +134,7 @@
   margin-top: 15px;
   font-weight: 700;
   font-size: 1.3rem;
-  color: #4CAF50; /* Verde profesional */
+  color: #4CAF50;
   display: inline-block;
   padding: 6px 14px;
   background: rgba(76, 175, 80, 0.15);
@@ -143,51 +144,15 @@
 }
 
 /* =========================
-   Botones de navegación - Versión Mejorada
+   Botones de navegación OCULTOS
 ========================= */
 .carousel-prev,
 .carousel-next {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 48px;
-  height: 48px;
-  background: rgba(45, 45, 45, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  color: #ffffff;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
-}
-
-.carousel-prev:hover,
-.carousel-next:hover {
-  background: rgba(76, 175, 80, 0.9);
-  color: #ffffff;
-  transform: translateY(-50%) scale(1.1);
-  border-color: rgba(76, 175, 80, 0.6);
-  box-shadow: 0 5px 20px rgba(76, 175, 80, 0.3);
-  opacity: 1;
-}
-
-.carousel-prev {
-  left: 20px;
-}
-
-.carousel-next {
-  right: 20px;
+  display: none;
 }
 
 /* =========================
-   Indicadores - Versión Mejorada
+   Indicadores
 ========================= */
 .carousel-indicators {
   position: absolute;
@@ -288,7 +253,7 @@
 }
 
 /* =========================
-   Responsive Mejorado
+   Responsive
 ========================= */
 @media screen and (max-width: 1200px) {
   .carousel {
@@ -305,13 +270,6 @@
   .carousel {
     max-width: 100%;
     aspect-ratio: 16/9;
-  }
-  
-  .carousel-prev,
-  .carousel-next {
-    width: 44px;
-    height: 44px;
-    font-size: 1.2rem;
   }
 }
 
@@ -340,10 +298,11 @@
     font-size: 1.2rem;
   }
   
-  .carousel-prev,
-  .carousel-next {
-    width: 40px;
-    height: 40px;
+  /* Ajuste de imagen en móvil */
+  .slide-content img {
+    width: 104%;
+    height: 104%;
+    margin: -2%;
   }
 }
 
@@ -381,28 +340,19 @@
     margin: 0 4px;
   }
   
-  .carousel-prev {
-    left: 10px;
-  }
-  
-  .carousel-next {
-    right: 10px;
-  }
-  
   .slide-badge {
     top: 15px;
     right: 15px;
     padding: 6px 12px;
     font-size: 0.75rem;
   }
-}
-
-/* =========================
-   Estados de interacción
-========================= */
-.carousel-prev:active,
-.carousel-next:active {
-  transform: translateY(-50%) scale(0.95);
+  
+  /* Ajuste de imagen en móvil pequeño */
+  .slide-content img {
+    width: 106%;
+    height: 106%;
+    margin: -3%;
+  }
 }
 
 /* =========================
@@ -411,8 +361,6 @@
 @media (prefers-reduced-motion: reduce) {
   .carousel-slides .slide,
   .slide-info,
-  .carousel-prev,
-  .carousel-next,
   .carousel-indicators .indicator,
   .slide-content img {
     transition: none;
@@ -428,65 +376,278 @@
 
 
 
-
-
-
 /* =========================
-   Sección "Ver Todos los Juegos"
+   Sección "Ver Todos los Juegos" - Optimizada
 ========================= */
 .ver-todos-juegos {
   text-align: center;
-  padding: 20px 50px;
-  background: #252525;
-  border-radius: 16px;
-  margin: 50px auto;
-  max-width: 800px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  padding: 35px 25px;
+  background: #1a1a1a;
+  border-radius: 14px;
+  margin: 45px auto;
+  max-width: 650px;
+  border: 1px solid #333;
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
 }
 
 .ver-todos-juegos h2 {
-  font-size: 2rem;
+  font-size: 1.7rem;
   margin-bottom: 15px;
   color: #ffffff;
+  font-weight: 700;
+  line-height: 1.3;
 }
 
 .ver-todos-juegos p {
-  font-size: 1rem;
-  color: #01ff01;
-  margin-bottom: 30px;
+  font-size: 1.05rem;
+  color: #2ecc71;
+  margin-bottom: 28px;
+  line-height: 1.5;
+  opacity: 0.9;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .btn-ver-todos {
-  display: inline-block;
-  padding: 12px 30px;
-  background-color: #111;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  background-color: #2ecc71;
   color: #fff;
   text-decoration: none;
   font-weight: 600;
   border-radius: 8px;
   transition: all 0.3s ease;
+  border: 1px solid #27ae60;
+  font-size: 1rem;
 }
 
 .btn-ver-todos:hover {
-  background-color: #333;
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  background-color: #27ae60;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
 /* =========================
    Responsive
 ========================= */
 @media screen and (max-width: 768px) {
+  .ver-todos-juegos {
+    padding: 30px 20px;
+    margin: 35px 20px;
+    border-radius: 12px;
+  }
+
   .ver-todos-juegos h2 {
     font-size: 1.5rem;
+    margin-bottom: 12px;
   }
 
   .ver-todos-juegos p {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    margin-bottom: 25px;
   }
 
   .btn-ver-todos {
-    padding: 10px 25px;
-    font-size: 0.9rem;
+    padding: 11px 24px;
+    font-size: 0.95rem;
   }
+}
+
+@media screen and (max-width: 480px) {
+  .ver-todos-juegos {
+    padding: 25px 18px;
+    margin: 30px 15px;
+  }
+
+  .ver-todos-juegos h2 {
+    font-size: 1.4rem;
+  }
+
+  .ver-todos-juegos p {
+    font-size: 0.95rem;
+    margin-bottom: 22px;
+  }
+  
+  .btn-ver-todos {
+    padding: 10px 22px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+.hero {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  text-align: center;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid #333;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(46, 204, 113, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(46, 204, 113, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  position: relative;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: #e0e0e0;
+  position: relative;
+  font-weight: 400;
+  line-height: 1.5;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.btn-primary, .btn-secondary {
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  color: white;
+  box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+  border: 1px solid #27ae60;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+  background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive para móvil y PC */
+@media (max-width: 768px) {
+  .hero {
+    padding: 50px 20px;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .btn-primary, .btn-secondary {
+    width: 100%;
+    max-width: 250px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 40px 15px;
+  }
+  
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  
+  .hero p {
+    font-size: 0.95rem;
+  }
+  
+  .btn-primary, .btn-secondary {
+    padding: 10px 18px;
+    min-width: auto;
+  }
+}
+
+/* Animaciones de entrada */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero h1 {
+  animation: slideInUp 0.6s ease-out;
+}
+
+.hero p {
+  animation: slideInUp 0.6s ease-out 0.1s both;
+}
+
+.cta-buttons {
+  animation: slideInUp 0.6s ease-out 0.2s both;
 }
