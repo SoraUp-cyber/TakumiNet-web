@@ -2212,6 +2212,14 @@ app.get('/ready', async (req, res) => {
   }
 });
 
+app.get('/', (req, res) => {
+  res.json({
+    message: '🎮 TakumiNet Backend API',
+    status: 'active',
+    version: '1.0.0'
+  });
+});
+
 // Endpoint que realiza varias operaciones para mantener activo
 app.get('/wake-up', async (req, res) => {
   try {
