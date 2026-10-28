@@ -2284,14 +2284,20 @@ initializePool().then((ok) => {
   }
 });
 
-// Koyeb maneja el servidor automáticamente, solo exportamos la app
-if (require.main === module) {
-  // Solo inicia servidor si se ejecuta directamente (desarrollo local)
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🎯 Servidor ejecutándose en puerto ${PORT}`);
-    console.log(`📱 URL: http://localhost:${PORT}`);
-  });
-}
+// Inicializar pool de conexiones
+initializePool().then((ok) => {
+  if (ok) {
+    console.log(`✅ Aplicación inicializada correctamente`);
+  } else {
+    console.error("❌ No se pudo conectar a la base de datos");
+  }
+});
 
-// Exportamos la app para Koyeb
-module.exports = app; 
+// 🔥 INICIAR SERVIDOR PARA KOYEB
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🎯 Servidor ejecutándose en el puerto ${PORT}`);
+  console.log(`📱 Entorno: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Exportamos la app
+module.exports = app;
