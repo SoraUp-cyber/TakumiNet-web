@@ -1048,9 +1048,9 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
         min_os, min_cpu, min_ram, min_gpu, min_storage,
         rec_os, rec_cpu, rec_ram, rec_gpu, rec_storage,
         cover, screenshots, youtube_url,
-        storage_service, mediafire_url,
+        storage_service, mediafire_url, external_download_url,
         pricing, price, terms_accepted
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -1075,6 +1075,7 @@ app.post("/api/juegos", authMiddleware, async (req, res) => {
       data.youtube_url || null,
       data.storage_service || null,
       data.mediafire_url || null,
+      data.external_download_url || null,
       mappedPricing,
       data.price || 0.0,
       data.terms_accepted ? 1 : 0
@@ -1153,7 +1154,7 @@ app.get("/api/juegos", async (req, res) => {
       SELECT 
         j.id, j.title, j.description, j.category, j.main_genre,
         j.cover, j.screenshots, j.youtube_url, j.pricing, j.price,
-        j.storage_service, j.mediafire_url, j.created_at,
+                j.storage_service, j.mediafire_url, j.external_download_url, j.created_at,
         u.user_id, u.username, u.avatar
       FROM juegos j
       LEFT JOIN usuarios u ON j.user_id = u.user_id
@@ -2301,3 +2302,4 @@ app.listen(PORT, '0.0.0.0', () => {
 
 // Exportamos la app
 module.exports = app;
+
