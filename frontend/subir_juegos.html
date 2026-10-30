@@ -30,11 +30,11 @@
     align-items: center;
     justify-content: start;
     padding: 1rem 2rem;
-    background-color: #1B1B1B; /* Fondo oscuro profesional */
+    background-color: #1B1B1B;
     color: #ffffff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     gap: 1rem;
-    border-bottom: 2px solid #00ff0d; /* Línea morada decorativa */
+    border-bottom: 2px solid #00ff0d;
 }
 
 .back-btn {
@@ -45,7 +45,7 @@
 }
 
 .back-btn:hover {
-    color: #17ff02; /* Morado hover */
+    color: #17ff02;
 }
 
 .config-title {
@@ -56,26 +56,23 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-
-
-
-
 /* ===== Contenedor de botones ===== */
 .storage-options {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* ===== Botón principal con degradado ===== */
 .storage-btn {
-  background: linear-gradient(135deg, #1e90ff, #007bff); /* degradado azul suave */
+  background: linear-gradient(135deg, #1e90ff, #007bff);
   color: #fff;
   border: none;
-  padding: 10px 24px; /* más compacto */
+  padding: 10px 24px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.95rem; /* tamaño ligeramente más pequeño */
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -83,31 +80,28 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
-/* Icono dentro del botón */
 .storage-btn i {
   font-size: 1.1rem;
 }
 
-
 /* ===== Modal general ===== */
 .modal {
-  display: none; /* Oculto por defecto */
+  display: none;
   position: fixed;
   z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fondo semi-transparente */
+  background-color: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   justify-content: center;
   align-items: center;
   transition: opacity 0.3s ease;
 }
 
-/* Contenido del modal */
 .modal-content {
-  background-color: #2e2e2e; /* gris elegante */
+  background-color: #2e2e2e;
   padding: 30px 25px;
   border-radius: 15px;
   width: 380px;
@@ -119,13 +113,11 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Animación apertura */
 @keyframes slideDown {
   from { transform: translateY(-40px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* Botón de cerrar */
 .close {
   color: #fff;
   float: right;
@@ -138,7 +130,6 @@
   color: #ff4d4d;
 }
 
-/* Título del modal */
 .modal-content h3 {
   margin: 0 0 20px 0;
   font-size: 1.3rem;
@@ -146,9 +137,8 @@
   color: #fff;
 }
 
-/* Mensaje informativo */
 .mediafire-info {
-  background-color: #1f1f1f; /* gris oscuro */
+  background-color: #1f1f1f;
   color: #fff;
   padding: 12px 15px;
   border-radius: 10px;
@@ -158,11 +148,11 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .mediafire-info strong {
-  color: #05f010; /* verde destacado */
+  color: #05f010;
 }
 
-/* Input de URL */
-#mediafire-url {
+#mediafire-url,
+#external-url {
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 20px;
@@ -172,19 +162,21 @@
   color: #fff;
   font-size: 0.95rem;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
-#mediafire-url:focus {
+#mediafire-url:focus,
+#external-url:focus {
   outline: none;
-  border-color: #05f010; /* verde al enfocar */
+  border-color: #05f010;
   box-shadow: 0 0 8px rgba(5,240,16,0.4);
 }
 
-/* Botón agregar enlace */
-#saveMediaFireLinkBtn {
+#saveMediaFireLinkBtn,
+.modal-content button {
   width: 100%;
   padding: 12px 0;
   border: none;
-  background-color: #05f010; /* verde profesional */
+  background-color: #05f010;
   color: #000000;
   font-size: 1rem;
   font-weight: 600;
@@ -193,17 +185,20 @@
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-#saveMediaFireLinkBtn:hover {
+
+#saveMediaFireLinkBtn:hover,
+.modal-content button:hover {
   background-color: #03b10a;
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0,0,0,0.25);
 }
-#saveMediaFireLinkBtn:active {
+
+#saveMediaFireLinkBtn:active,
+.modal-content button:active {
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Botón principal MediaFire (fuera del modal) */
 .storage-btn-green {
   background: linear-gradient(135deg, #1e90ff, #007bff);
   color: #fff;
@@ -230,47 +225,59 @@
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
-/* Botón Agregar enlace en modal */
-#saveMediaFireLinkBtn,
-.modal-content button {
-  width: 100%;
-  padding: 12px 0;
+
+/* Botón azul para enlace externo */
+.storage-btn-blue {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: #fff;
   border: none;
-  background-color: #05f010; /* verde profesional */
-  color: #000000; /* letras blancas */
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 10px;
+  padding: 10px 24px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
-/* Hover: más intenso y efecto levantado */
-#saveMediaFireLinkBtn:hover,
-.modal-content button:hover {
-  background-color: #03b10a; /* verde más intenso */
+.storage-btn-blue i {
+  font-size: 1.1rem;
+}
+
+.storage-btn-blue:hover {
+  background: linear-gradient(135deg, #8e44ad, #6c3483);
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
-/* Click activo: vuelve al estado normal */
-#saveMediaFireLinkBtn:active,
-.modal-content button:active {
+.storage-btn-blue:active {
   transform: translateY(0);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
+.storage-status {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #00ff7f;
+  font-size: 0.9rem;
+  text-align: center;
+  word-break: break-all;
+}
+.storage-status a {
+  color: #00ff7f;
+  text-decoration: underline;
+}
 
-
-/* Contenedor de previsualización */
 #preview-container {
   position: relative;
   margin-top: 15px;
   max-width: 600px;
 }
 
-/* Imagen de vista previa */
 #cover-preview {
   width: 100%;
   max-height: 400px;
@@ -281,7 +288,6 @@
   display: block;
 }
 
-/* Video de vista previa */
 #video-preview {
   width: 100%;
   max-height: 400px;
@@ -291,7 +297,6 @@
   display: block;
 }
 
-/* Botón eliminar */
 #remove-cover {
   position: absolute;
   top: 8px;
@@ -323,9 +328,6 @@
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
-
-
 
 #screenshots-preview {
     display: flex;
@@ -378,19 +380,19 @@
     padding: 20px;
 }
 </style>
+</head>
+<body>
 
 <nav class="config-navbar">
-    <!-- Botón Volver -->
     <a href="Creator Dashboard.html" class="back-btn" title="Volver al Inicio" data-i18n-title="config.backToHome">
         <i class="fas fa-arrow-left"></i>
     </a>
-    <!-- Título -->
     <h1 class="config-title" data-i18n="config.return">Volver</h1>
 </nav>
 
- <div id="particles-js"></div>
+<div id="particles-js"></div>
 
- <form id="upload-form">
+<form id="upload-form">
 
   <!-- Sección Título -->
   <div class="form-group">
@@ -398,17 +400,17 @@
     <input type="text" id="title" name="title" class="form-input" required placeholder="Escribe el título" data-i18n-placeholder="uploadForm.titlePlaceholder">
   </div>
 
-        <!-- Sección Usuario -->
-    <div class="form-group user-section">
-      <div class="domain-wrapper">
-        <div class="domain" id="user-domain">Usuario</div>
-      </div>
-      <p class="user-info">
-        Nombre del propietario: <strong><span id="username">usuario</span></strong><br>
-        ID del usuario: <strong><span id="user-id-display">cargando...</span></strong>
-      </p>
-      <input type="hidden" id="user-id" name="user_id" value="0">
+  <!-- Sección Usuario -->
+  <div class="form-group user-section">
+    <div class="domain-wrapper">
+      <div class="domain" id="user-domain">Usuario</div>
     </div>
+    <p class="user-info">
+      Nombre del propietario: <strong><span id="username">usuario</span></strong><br>
+      ID del usuario: <strong><span id="user-id-display">cargando...</span></strong>
+    </p>
+    <input type="hidden" id="user-id" name="user_id" value="0">
+  </div>
 
   <!-- Sección Descripción -->
   <div class="form-group">
@@ -416,191 +418,208 @@
     <textarea id="description" name="description" class="form-textarea" required placeholder="Escribe una descripción" data-i18n-placeholder="uploadForm.descriptionPlaceholder"></textarea>
   </div>
 
-   <!-- Sección Categoría -->
-<div class="form-group">
-  <label for="category" class="form-label" data-i18n="uploadForm.categoryLabel">Categoría</label>
-  <select id="category" name="category" class="form-select" required>
-    <option value="aventura" data-i18n="uploadForm.categoryOptions.adventure">Aventura</option>
-    <option value="rpg" data-i18n="uploadForm.categoryOptions.rpg">RPG</option>
-    <option value="acción" data-i18n="uploadForm.categoryOptions.action">Acción</option>
-    <option value="puzzle" data-i18n="uploadForm.categoryOptions.puzzle">Puzzle</option>
-    <option value="terror" data-i18n="uploadForm.categoryOptions.horror">Terror</option>
-    <option value="otro" data-i18n="uploadForm.categoryOptions.other">Otro</option>
-  </select>
-</div>
-
-<!-- Sección Géneros -->
-<div class="form-group">
-  <label for="genres" class="form-label" data-i18n="uploadForm.genresLabel">Géneros</label>
-  <select id="genres" name="genres" class="form-select" required>
-    <option value="pixelart" data-i18n="uploadForm.genresOptions.pixelart">Pixelart</option>
-    <option value="retro" data-i18n="uploadForm.genresOptions.retro">Retro</option>
-    <option value="historia-corta" data-i18n="uploadForm.genresOptions.shortStory">Historia corta</option>
-    <option value="comedia" data-i18n="uploadForm.genresOptions.comedy">Comedia</option>
-    <option value="fantasía" data-i18n="uploadForm.genresOptions.fantasy">Fantasía</option>
-    <option value="niveles" data-i18n="uploadForm.genresOptions.levels">Niveles</option>
-    <option value="decisiones" data-i18n="uploadForm.genresOptions.choices">Decisiones</option>
-    <option value="magia" data-i18n="uploadForm.genresOptions.magic">Magia</option>
-    <option value="puzzles" data-i18n="uploadForm.genresOptions.puzzles">Puzzles</option>
-    <option value="2D" data-i18n="uploadForm.genresOptions.2d">2D</option>
-    <option value="3D" data-i18n="uploadForm.genresOptions.3d">3D</option>
-    <option value="4K" data-i18n="uploadForm.genresOptions.4k">4K</option>
-    <option value="cooperativo" data-i18n="uploadForm.genresOptions.coop">Cooperativo</option>
-    <option value="competitivo" data-i18n="uploadForm.genresOptions.competitive">Competitivo</option>
-    <option value="enemigos" data-i18n="uploadForm.genresOptions.enemies">Enemigos</option>
-    <option value="jefes" data-i18n="uploadForm.genresOptions.bosses">Jefes</option>
-    <option value="minijuegos" data-i18n="uploadForm.genresOptions.minigames">Minijuegos</option>
-    <option value="sin-texto" data-i18n="uploadForm.genresOptions.noText">Sin texto</option>
-    <option value="misterio" data-i18n="uploadForm.genresOptions.mystery">Misterio</option>
-    <option value="cyberpunk" data-i18n="uploadForm.genresOptions.cyberpunk">Cyberpunk</option>
-    <option value="anime" data-i18n="uploadForm.genresOptions.anime">Anime</option>
-  </select>
-</div>
-
-<!-- Sección Género Principal -->
-<div class="form-group">
-  <label for="main_genre" class="form-label" data-i18n="uploadForm.mainGenreLabel">Género Principal</label>
-  <select id="main_genre" name="main_genre" class="form-select" required>
-    <option value="no-genero" data-i18n="uploadForm.mainGenreOptions.none">No género</option>
-    <option value="aventura" data-i18n="uploadForm.mainGenreOptions.adventure">Aventura</option>
-    <option value="rpg" data-i18n="uploadForm.mainGenreOptions.rpg">RPG</option>
-    <option value="acción" data-i18n="uploadForm.mainGenreOptions.action">Acción</option>
-    <option value="puzzle" data-i18n="uploadForm.mainGenreOptions.puzzle">Puzzle</option>
-    <option value="terror" data-i18n="uploadForm.mainGenreOptions.horror">Terror</option>
-    <option value="otro" data-i18n="uploadForm.mainGenreOptions.other">Otro</option>
-  </select>
-</div>
-<!-- Sección Requisitos -->
-<fieldset class="form-fieldset">
-  <legend class="form-legend" data-i18n="uploadForm.systemRequirements">Requisitos del Sistema</legend>
-
+  <!-- Sección Categoría -->
   <div class="form-group">
-    <label for="tipo-requisitos" data-i18n="uploadForm.requirementsTypeLabel">
-      <strong>Selecciona el tipo de requisitos:</strong>
-    </label>
-    <select id="tipo-requisitos" class="form-select" onchange="mostrarFormulario()">
-      <option value="" data-i18n="uploadForm.requirementsTypeOptions.select">-- Selecciona una opción --</option>
-      <option value="minimos" data-i18n="uploadForm.requirementsTypeOptions.min">Requisitos Mínimos</option>
-      <option value="recomendados" data-i18n="uploadForm.requirementsTypeOptions.recommended">Requisitos Recomendados</option>
+    <label for="category" class="form-label" data-i18n="uploadForm.categoryLabel">Categoría</label>
+    <select id="category" name="category" class="form-select" required>
+      <option value="aventura" data-i18n="uploadForm.categoryOptions.adventure">Aventura</option>
+      <option value="rpg" data-i18n="uploadForm.categoryOptions.rpg">RPG</option>
+      <option value="acción" data-i18n="uploadForm.categoryOptions.action">Acción</option>
+      <option value="puzzle" data-i18n="uploadForm.categoryOptions.puzzle">Puzzle</option>
+      <option value="terror" data-i18n="uploadForm.categoryOptions.horror">Terror</option>
+      <option value="otro" data-i18n="uploadForm.categoryOptions.other">Otro</option>
     </select>
   </div>
 
-  <div id="form-minimos" class="requirements-form" style="display: none;">
-    <h3 data-i18n="uploadForm.minimumRequirements">Requisitos Mínimos</h3>
-    <input type="text" id="min_os" name="min_os" class="form-input" placeholder="Sistema Operativo" data-i18n-placeholder="uploadForm.placeholders.os">
-    <input type="text" id="min_cpu" name="min_cpu" class="form-input" placeholder="Procesador" data-i18n-placeholder="uploadForm.placeholders.cpu">
-    <input type="text" id="min_ram" name="min_ram" class="form-input" placeholder="Memoria RAM" data-i18n-placeholder="uploadForm.placeholders.ram">
-    <input type="text" id="min_gpu" name="min_gpu" class="form-input" placeholder="Tarjeta Gráfica" data-i18n-placeholder="uploadForm.placeholders.gpu">
-    <input type="text" id="min_storage" name="min_storage" class="form-input" placeholder="Almacenamiento" data-i18n-placeholder="uploadForm.placeholders.storage">
+  <!-- Sección Géneros -->
+  <div class="form-group">
+    <label for="genres" class="form-label" data-i18n="uploadForm.genresLabel">Géneros</label>
+    <select id="genres" name="genres" class="form-select" required>
+      <option value="pixelart" data-i18n="uploadForm.genresOptions.pixelart">Pixelart</option>
+      <option value="retro" data-i18n="uploadForm.genresOptions.retro">Retro</option>
+      <option value="historia-corta" data-i18n="uploadForm.genresOptions.shortStory">Historia corta</option>
+      <option value="comedia" data-i18n="uploadForm.genresOptions.comedy">Comedia</option>
+      <option value="fantasía" data-i18n="uploadForm.genresOptions.fantasy">Fantasía</option>
+      <option value="niveles" data-i18n="uploadForm.genresOptions.levels">Niveles</option>
+      <option value="decisiones" data-i18n="uploadForm.genresOptions.choices">Decisiones</option>
+      <option value="magia" data-i18n="uploadForm.genresOptions.magic">Magia</option>
+      <option value="puzzles" data-i18n="uploadForm.genresOptions.puzzles">Puzzles</option>
+      <option value="2D" data-i18n="uploadForm.genresOptions.2d">2D</option>
+      <option value="3D" data-i18n="uploadForm.genresOptions.3d">3D</option>
+      <option value="4K" data-i18n="uploadForm.genresOptions.4k">4K</option>
+      <option value="cooperativo" data-i18n="uploadForm.genresOptions.coop">Cooperativo</option>
+      <option value="competitivo" data-i18n="uploadForm.genresOptions.competitive">Competitivo</option>
+      <option value="enemigos" data-i18n="uploadForm.genresOptions.enemies">Enemigos</option>
+      <option value="jefes" data-i18n="uploadForm.genresOptions.bosses">Jefes</option>
+      <option value="minijuegos" data-i18n="uploadForm.genresOptions.minigames">Minijuegos</option>
+      <option value="sin-texto" data-i18n="uploadForm.genresOptions.noText">Sin texto</option>
+      <option value="misterio" data-i18n="uploadForm.genresOptions.mystery">Misterio</option>
+      <option value="cyberpunk" data-i18n="uploadForm.genresOptions.cyberpunk">Cyberpunk</option>
+      <option value="anime" data-i18n="uploadForm.genresOptions.anime">Anime</option>
+    </select>
   </div>
 
-  <div id="form-recomendados" class="requirements-form" style="display: none;">
-    <h3 data-i18n="uploadForm.recommendedRequirements">Requisitos Recomendados</h3>
-    <input type="text" id="rec_os" name="rec_os" class="form-input" placeholder="Sistema Operativo" data-i18n-placeholder="uploadForm.placeholders.os">
-    <input type="text" id="rec_cpu" name="rec_cpu" class="form-input" placeholder="Procesador" data-i18n-placeholder="uploadForm.placeholders.cpu">
-    <input type="text" id="rec_ram" name="rec_ram" class="form-input" placeholder="Memoria RAM" data-i18n-placeholder="uploadForm.placeholders.ram">
-    <input type="text" id="rec_gpu" name="rec_gpu" class="form-input" placeholder="Tarjeta Gráfica" data-i18n-placeholder="uploadForm.placeholders.gpu">
-    <input type="text" id="rec_storage" name="rec_storage" class="form-input" placeholder="Almacenamiento" data-i18n-placeholder="uploadForm.placeholders.storage">
+  <!-- Sección Género Principal -->
+  <div class="form-group">
+    <label for="main_genre" class="form-label" data-i18n="uploadForm.mainGenreLabel">Género Principal</label>
+    <select id="main_genre" name="main_genre" class="form-select" required>
+      <option value="no-genero" data-i18n="uploadForm.mainGenreOptions.none">No género</option>
+      <option value="aventura" data-i18n="uploadForm.mainGenreOptions.adventure">Aventura</option>
+      <option value="rpg" data-i18n="uploadForm.mainGenreOptions.rpg">RPG</option>
+      <option value="acción" data-i18n="uploadForm.mainGenreOptions.action">Acción</option>
+      <option value="puzzle" data-i18n="uploadForm.mainGenreOptions.puzzle">Puzzle</option>
+      <option value="terror" data-i18n="uploadForm.mainGenreOptions.horror">Terror</option>
+      <option value="otro" data-i18n="uploadForm.mainGenreOptions.other">Otro</option>
+    </select>
   </div>
-</fieldset>
 
+  <!-- Sección Requisitos -->
+  <fieldset class="form-fieldset">
+    <legend class="form-legend" data-i18n="uploadForm.systemRequirements">Requisitos del Sistema</legend>
 
-<!-- Sección Portada del Juego -->
-<div class="form-group">
-  <label for="cover" class="form-label" data-i18n="uploadForm.coverLabel">
-    Imagen o video destacado del juego (Portada)
-  </label>
-  <input type="file" id="cover" name="cover" class="form-file" accept=".jpg,.jpeg,.png,.gif,.mp4,.webm" required>
-  <small class="form-text" data-i18n="uploadForm.coverHint">
-    Recomendado: 1280 × 719 px, máximo 100 MB. Formatos: JPG, PNG, GIF, MP4, WebM. Videos: máximo 4 segundos.
-  </small>
-</div>
+    <div class="form-group">
+      <label for="tipo-requisitos" data-i18n="uploadForm.requirementsTypeLabel">
+        <strong>Selecciona el tipo de requisitos:</strong>
+      </label>
+      <select id="tipo-requisitos" class="form-select" onchange="mostrarFormulario()">
+        <option value="" data-i18n="uploadForm.requirementsTypeOptions.select">-- Selecciona una opción --</option>
+        <option value="minimos" data-i18n="uploadForm.requirementsTypeOptions.min">Requisitos Mínimos</option>
+        <option value="recomendados" data-i18n="uploadForm.requirementsTypeOptions.recommended">Requisitos Recomendados</option>
+      </select>
+    </div>
 
-<div id="preview-container">
-  <img id="cover-preview" src="" alt="Vista previa de portada" style="display: none;" data-i18n-alt="uploadForm.coverPreview">
-  <video id="video-preview" controls style="display: none;"></video>
-  <button id="remove-cover" style="display: none;" data-i18n="uploadForm.removeCover">X</button>
-</div>
+    <div id="form-minimos" class="requirements-form" style="display: none;">
+      <h3 data-i18n="uploadForm.minimumRequirements">Requisitos Mínimos</h3>
+      <input type="text" id="min_os" name="min_os" class="form-input" placeholder="Sistema Operativo" data-i18n-placeholder="uploadForm.placeholders.os">
+      <input type="text" id="min_cpu" name="min_cpu" class="form-input" placeholder="Procesador" data-i18n-placeholder="uploadForm.placeholders.cpu">
+      <input type="text" id="min_ram" name="min_ram" class="form-input" placeholder="Memoria RAM" data-i18n-placeholder="uploadForm.placeholders.ram">
+      <input type="text" id="min_gpu" name="min_gpu" class="form-input" placeholder="Tarjeta Gráfica" data-i18n-placeholder="uploadForm.placeholders.gpu">
+      <input type="text" id="min_storage" name="min_storage" class="form-input" placeholder="Almacenamiento" data-i18n-placeholder="uploadForm.placeholders.storage">
+    </div>
 
-<!-- Sección Capturas -->
-<div class="form-group">
-  <label for="screenshots" class="form-label" data-i18n="uploadForm.screenshotsLabel">
-    Capturas del juego (mínimo 5)
-  </label>
-  
-  <!-- ✅ INFORMACIÓN DE LÍMITES - SOLO AGREGA ESTO -->
-  <div class="upload-info">
-    <small>📏 <strong>Límites:</strong> Máximo 5 imágenes • 1MB cada una</small>
+    <div id="form-recomendados" class="requirements-form" style="display: none;">
+      <h3 data-i18n="uploadForm.recommendedRequirements">Requisitos Recomendados</h3>
+      <input type="text" id="rec_os" name="rec_os" class="form-input" placeholder="Sistema Operativo" data-i18n-placeholder="uploadForm.placeholders.os">
+      <input type="text" id="rec_cpu" name="rec_cpu" class="form-input" placeholder="Procesador" data-i18n-placeholder="uploadForm.placeholders.cpu">
+      <input type="text" id="rec_ram" name="rec_ram" class="form-input" placeholder="Memoria RAM" data-i18n-placeholder="uploadForm.placeholders.ram">
+      <input type="text" id="rec_gpu" name="rec_gpu" class="form-input" placeholder="Tarjeta Gráfica" data-i18n-placeholder="uploadForm.placeholders.gpu">
+      <input type="text" id="rec_storage" name="rec_storage" class="form-input" placeholder="Almacenamiento" data-i18n-placeholder="uploadForm.placeholders.storage">
+    </div>
+  </fieldset>
+
+  <!-- Sección Portada del Juego -->
+  <div class="form-group">
+    <label for="cover" class="form-label" data-i18n="uploadForm.coverLabel">
+      Imagen o video destacado del juego (Portada)
+    </label>
+    <input type="file" id="cover" name="cover" class="form-file" accept=".jpg,.jpeg,.png,.gif,.mp4,.webm" required>
+    <small class="form-text" data-i18n="uploadForm.coverHint">
+      Recomendado: 1280 × 719 px, máximo 100 MB. Formatos: JPG, PNG, GIF, MP4, WebM. Videos: máximo 4 segundos.
+    </small>
   </div>
-  
-  <input type="file" id="screenshots" name="screenshots" class="form-file" accept=".jpg,.jpeg,.png,.gif" multiple required>
-  <div id="screenshots-preview" class="preview-gallery"></div>
-</div>
 
-<!-- Sección Video -->
-<div class="form-group">
-  <label for="youtube_url" class="form-label" data-i18n="uploadForm.videoLabel">
-    URL del video del juego
-  </label>
-  <input type="url" id="youtube_url" name="youtube_url" class="form-input" placeholder="https://www.youtube.com/watch?v=XXXXX" data-i18n-placeholder="uploadForm.videoPlaceholder">
-</div>
+  <div id="preview-container">
+    <img id="cover-preview" src="" alt="Vista previa de portada" style="display: none;" data-i18n-alt="uploadForm.coverPreview">
+    <video id="video-preview" controls style="display: none;"></video>
+    <button id="remove-cover" style="display: none;" data-i18n="uploadForm.removeCover">X</button>
+  </div>
 
-   <!-- Sección Almacenamiento Externo -->
-<div class="form-group">
-  <label class="form-label" data-i18n="uploadForm.storageLabel">
-    Selecciona dónde se alojará tu juego:
-  </label>
-  <small data-i18n="uploadForm.storageHint">⚠️ Archivos mayores a 1 GB (hasta 5 GB) usa MediaFire.</small>
-  <div class="storage-options">
-    <button class="storage-btn storage-btn-green" type="button" onclick="openMediaFireModal()" data-i18n="uploadForm.mediafireBtn">
-      <i class="fa fa-cloud-download"></i> MediaFire
+  <!-- Sección Capturas -->
+  <div class="form-group">
+    <label for="screenshots" class="form-label" data-i18n="uploadForm.screenshotsLabel">
+      Capturas del juego (mínimo 5)
+    </label>
+    <div class="upload-info">
+      <small>📏 <strong>Límites:</strong> Máximo 5 imágenes • 1MB cada una</small>
+    </div>
+    <input type="file" id="screenshots" name="screenshots" class="form-file" accept=".jpg,.jpeg,.png,.gif" multiple required>
+    <div id="screenshots-preview" class="preview-gallery"></div>
+  </div>
+
+  <!-- Sección Video -->
+  <div class="form-group">
+    <label for="youtube_url" class="form-label" data-i18n="uploadForm.videoLabel">
+      URL del video del juego
+    </label>
+    <input type="url" id="youtube_url" name="youtube_url" class="form-input" placeholder="https://www.youtube.com/watch?v=XXXXX" data-i18n-placeholder="uploadForm.videoPlaceholder">
+  </div>
+
+  <!-- Sección Almacenamiento Externo -->
+  <div class="form-group">
+    <label class="form-label" data-i18n="uploadForm.storageLabel">
+      Selecciona dónde se alojará tu juego:
+    </label>
+    <small data-i18n="uploadForm.storageHint">⚠️ Archivos mayores a 1 GB (hasta 5 GB) usa MediaFire. También puedes usar un enlace externo (itch.io, Steam, etc.).</small>
+    <div class="storage-options">
+      <button class="storage-btn storage-btn-green" type="button" onclick="openMediaFireModal()" data-i18n="uploadForm.mediafireBtn">
+        <i class="fa fa-cloud-download"></i> MediaFire
+      </button>
+      <button class="storage-btn storage-btn-blue" type="button" onclick="openExternalLinkModal()" data-i18n="uploadForm.externalBtn">
+        <i class="fa fa-link"></i> Enlace externo
+      </button>
+    </div>
+    <input type="hidden" id="storage-service" name="storage_service" value="">
+    <input type="hidden" id="mediafire-url-hidden" name="mediafire_url" value="">
+    <input type="hidden" id="external-download-url" name="external_download_url" value="">
+    <div id="storage-status" class="storage-status" style="display:none;"></div>
+  </div>
+
+  <!-- Modal MediaFire -->
+  <div id="mediafire-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeMediaFireModal()">&times;</span>
+      <h3 data-i18n="uploadForm.mediafireTitle">Agregar enlace de MediaFire</h3>
+      <div class="mediafire-info" data-i18n="uploadForm.mediafireInfo">
+        ⚠️ Archivos hasta <strong>20 GB</strong> en plan gratuito.
+      </div>
+      <input type="url" id="mediafire-url" placeholder="Pega el enlace ZIP aquí" data-i18n-placeholder="uploadForm.mediafirePlaceholder">
+      <button type="button" id="saveMediaFireLinkBtn" onclick="saveMediaFireLink()" data-i18n="uploadForm.mediafireAddBtn">Agregar enlace</button>
+    </div>
+  </div>
+
+  <!-- Modal Enlace Externo -->
+  <div id="external-link-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeExternalLinkModal()">&times;</span>
+      <h3 data-i18n="uploadForm.externalTitle">Agregar enlace de descarga externo</h3>
+      <div class="mediafire-info" data-i18n="uploadForm.externalInfo">
+        🔗 Pega el enlace de <strong>itch.io</strong>, <strong>Steam</strong>, <strong>Google Drive</strong>, <strong>Dropbox</strong> u otra plataforma.
+      </div>
+      <input type="url" id="external-url" placeholder="https://tu-juego.itch.io/mi-juego" data-i18n-placeholder="uploadForm.externalPlaceholder">
+      <button type="button" onclick="saveExternalLink()" data-i18n="uploadForm.externalAddBtn">Agregar enlace</button>
+    </div>
+  </div>
+
+  <!-- Sección Precio -->
+  <div class="form-group">
+    <label for="pricing" class="form-label" data-i18n="uploadForm.priceLabel">Precio</label>
+    <select id="pricing" name="pricing" class="form-select" required>
+      <option value="gratis" data-i18n="uploadForm.priceFree">Gratis</option>
+      <option value="pago" data-i18n="uploadForm.pricePaid">Pago</option>
+      <option value="donacion" data-i18n="uploadForm.priceDonation">Donación</option>
+    </select>
+    <input type="number" id="price" name="price" class="form-input" min="0" step="0.01" placeholder="0.00" style="display:none;" data-i18n-placeholder="uploadForm.pricePlaceholder">
+  </div>
+
+  <!-- Términos -->
+  <div class="form-group terms-group">
+    <input type="checkbox" id="terms" name="terms" required>
+    <label for="terms">
+      Normas y Pagos de TakumiNet
+      <a href="pdf/TakumiNet_Terminos_y_Condiciones.pdf" target="_blank" rel="noopener noreferrer">
+        Ver Normas y Pagos
+      </a>
+    </label>
+  </div>
+
+  <!-- Botón de Publicar -->
+  <div class="form-group">
+    <button type="button" onclick="subirJuego()" data-i18n="uploadForm.publishBtn">
+      <i class="fas fa-cloud-upload-alt"></i> Publicar Juego
     </button>
   </div>
-  <input type="hidden" id="storage-service" name="storage_service" value="">
-</div>
 
-<!-- Modal MediaFire -->
-<div id="mediafire-modal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeMediaFireModal()">&times;</span>
-    <h3 data-i18n="uploadForm.mediafireTitle">Agregar enlace de MediaFire</h3>
-    <div class="mediafire-info" data-i18n="uploadForm.mediafireInfo">
-      ⚠️ Archivos hasta <strong>20 GB</strong> en plan gratuito.
-    </div>
-    <input type="url" id="mediafire-url" placeholder="Pega el enlace ZIP aquí" data-i18n-placeholder="uploadForm.mediafirePlaceholder">
-    <button type="button" onclick="saveMediaFireLink()" data-i18n="uploadForm.mediafireAddBtn">Agregar enlace</button>
-  </div>
-</div>
-
-<!-- Sección Precio -->
-<div class="form-group">
-  <label for="pricing" class="form-label" data-i18n="uploadForm.priceLabel">Precio</label>
-  <select id="pricing" name="pricing" class="form-select" required>
-    <option value="gratis" data-i18n="uploadForm.priceFree">Gratis</option>
-    <option value="pago" data-i18n="uploadForm.pricePaid">Pago</option>
-    <option value="donacion" data-i18n="uploadForm.priceDonation">Donación</option>
-  </select>
-  <input type="number" id="price" name="price" class="form-input" min="0" step="0.01" placeholder="0.00" style="display:none;" data-i18n-placeholder="uploadForm.pricePlaceholder">
-</div>
-
-<!-- Términos -->
-<div class="form-group terms-group">
-  <input type="checkbox" id="terms" name="terms" required>
-  <label for="terms">
-    Normas y Pagos de TakumiNet
-    <a href="pdf/TakumiNet_Terminos_y_Condiciones.pdf" target="_blank" rel="noopener noreferrer">
-      Ver Normas y Pagos
-    </a>
-  </label>
-</div>
-
-<!-- Botón de Publicar -->
-<div class="form-group">
-  <button type="button" onclick="subirJuego()" data-i18n="uploadForm.publishBtn">
-    <i class="fas fa-cloud-upload-alt"></i> Publicar Juego
-  </button>
-</div>
-
+</form>
 
 <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/aws-sdk@2.1482.0/dist/aws-sdk.min.js"></script>
@@ -609,115 +628,5 @@
 <script src="js/upload-game.js"></script>
 <script src="js/particulas.js"></script>
 <script src="js/lang.js"></script>
-<script>
-let mercadoPagoHabilitado = false; // cambiar a true si el dueño configuró Mercado Pago
-
-window.addEventListener('DOMContentLoaded', () => {
-    const modal = document.createElement('div');
-    modal.id = 'welcome-modal';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.75);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 2000;
-        padding: 20px;
-        box-sizing: border-box;
-    `;
-
-    modal.innerHTML = `
-        <div style="
-            position: relative;
-            background: linear-gradient(180deg, #2e2e2e, #1a1a1a);
-            padding: 25px 30px;
-            border-radius: 20px;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            color: #fff;
-            font-family: 'Poppins', sans-serif;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: fadeIn 0.6s ease forwards;
-        ">
-            <span id="close-modal" style="
-                position: absolute;
-                top: 10px;
-                right: 15px;
-                font-size: 26px;
-                font-weight: bold;
-                color: #fff;
-                cursor: pointer;
-                transition: color 0.2s ease;
-            ">&times;</span>
-
-            <h2 style="margin-bottom: 15px; color:#00ff7f; font-size: 1.6rem;">🎮 ¡Bienvenido a TakumiNet!</h2>
-            <p style="margin-bottom: 20px; font-size: 1rem; line-height: 1.5;">
-                Puedes <strong>publicar tu juego gratis</strong> o <strong>venderlo</strong> estableciendo un precio. <br><br>
-                Para <strong>recibir pagos</strong> necesitas iniciar sesión con <b>Mercado Pago</b>.
-            </p>
-
-            <button id="ok-btn" style="
-                background: #00ff7f;
-                color: #000;
-                font-weight: 600;
-                border: none;
-                border-radius: 10px;
-                padding: 10px 20px;
-                font-size: 1rem;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            ">
-                Entendido ✅
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Cerrar con la X o con el botón
-    document.getElementById('close-modal').addEventListener('click', () => modal.remove());
-    document.getElementById('ok-btn').addEventListener('click', () => modal.remove());
-
-    // Auto cerrar después de 8 segundos
-    setTimeout(() => {
-        if (document.body.contains(modal)) {
-            modal.remove();
-            if (!mercadoPagoHabilitado) {
-                alert("💡 Recuerda: Para recibir pagos necesitas configurar tu cuenta de Mercado Pago.");
-            }
-        }
-    }, 8000);
-
-    // Animación CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Versión móvil */
-        @media (max-width: 600px) {
-            #welcome-modal div {
-                padding: 20px;
-                border-radius: 15px;
-            }
-            #welcome-modal h2 {
-                font-size: 1.3rem !important;
-            }
-            #welcome-modal p {
-                font-size: 0.95rem !important;
-            }
-            #welcome-modal button {
-                font-size: 0.9rem !important;
-                padding: 8px 16px !important;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-});
-</script>
-
+</body>
+</html>
