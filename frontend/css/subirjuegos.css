@@ -1,16 +1,15 @@
 /* ===== Estilos generales del formulario (versión ancha) ===== */
 #upload-form {
-    max-width: 1200px;         /* Formulario más ancho en pantallas grandes */
-    width: 95%;                /* Flexible en pantallas medianas y pequeñas */
-    margin: 80px auto 40px;    /* Separación superior y centrado horizontal */
-    background-color: #1616166c; /* Fondo oscuro */
-    padding: 40px;             /* Más espacio interno */
-    border-radius: 15px;       /* Bordes más redondeados */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35); /* Sombra profesional */
-    color: #ffffff;            /* Texto blanco */
+    max-width: 1200px;
+    width: 95%;
+    margin: 80px auto 40px;
+    background-color: #1616166c;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 
 /* Grupos de formulario */
 .form-group {
@@ -133,6 +132,10 @@
 /* Opciones de almacenamiento */
 .storage-options {
   margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .storage-btn {
@@ -146,22 +149,85 @@
   transition: all 0.2s ease;
 }
 
+.storage-btn i {
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
 .storage-btn-green {
-  background-color: #05ff50;
+  background: linear-gradient(135deg, #1e90ff, #007bff);
   color: white;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .storage-btn-green:hover {
-  background-color: #16a085;
+  background: linear-gradient(135deg, #1c7ed6, #0056b3);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
-.storage-btn i {
-  margin-right: 8px;
+.storage-btn-green:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
+/* ===== NUEVO: Botón morado para enlace externo ===== */
+.storage-btn-blue {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
 
+.storage-btn-blue i {
+  font-size: 1.1rem;
+  margin-right: 0;
+}
 
-/* Contenedor general */
+.storage-btn-blue:hover {
+  background: linear-gradient(135deg, #8e44ad, #6c3483);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+
+.storage-btn-blue:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ===== NUEVO: Estado del enlace guardado ===== */
+.storage-status {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #00ff7f;
+  font-size: 0.9rem;
+  text-align: center;
+  word-break: break-all;
+}
+
+.storage-status a {
+  color: #00ff7f;
+  text-decoration: underline;
+}
+
+/* Contenedor general de términos */
 .terms-group {
   display: flex;
   align-items: center;
@@ -169,30 +235,27 @@
   margin: 20px 0;
   font-family: 'Arial', sans-serif;
   font-size: 14px;
-  color: #fff; /* texto blanco */
-  background-color: #252525; /* gris oscuro */
+  color: #fff;
+  background-color: #252525;
   padding: 12px 15px;
   border-radius: 8px;
 }
 
-/* Checkbox */
 .terms-group input[type="checkbox"] {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #4CAF50; /* verde */
+  accent-color: #4CAF50;
 }
 
-/* Label principal */
 .terms-group label {
   display: inline;
   line-height: 1.4;
   cursor: pointer;
 }
 
-/* Link dentro del label */
 .terms-group label a {
-  color: #00ff08; /* verde */
+  color: #00ff08;
   font-weight: bold;
   text-decoration: none;
   margin-left: 5px;
@@ -200,14 +263,11 @@
 }
 
 .terms-group label a:hover {
-  color: #00df0b; /* verde más claro al pasar el mouse */
+  color: #00df0b;
   text-decoration: underline;
 }
 
-
-
-
-/* Botones */
+/* Botones generales */
 button {
   background-color: #09eb27;
   color: rgb(0, 0, 0);
@@ -228,7 +288,7 @@ button i {
   margin-right: 8px;
 }
 
-/* Modal */
+/* ===== Modal ===== */
 .modal {
   display: none;
   position: fixed;
@@ -237,62 +297,122 @@ button i {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
 }
 
 .modal-content {
-  background-color: #2c3e50;
-  margin: 10% auto;
-  padding: 25px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
+  background-color: #2e2e2e;
+  padding: 30px 25px;
+  border-radius: 15px;
+  width: 380px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: slideDown 0.35s ease;
+  color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   position: relative;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  color: #ecf0f1;
-  border: 1px solid #34495e;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .close {
-  color: #bdc3c7;
+  color: #fff;
   float: right;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
   cursor: pointer;
   position: absolute;
   right: 20px;
   top: 10px;
+  transition: color 0.2s ease;
 }
 
 .close:hover {
-  color: #ecf0f1;
+  color: #ff4d4d;
+}
+
+.modal-content h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fff;
 }
 
 .mediafire-info {
-  background-color: #34495e;
-  padding: 10px;
-  border-radius: 4px;
-  margin: 10px 0;
-  font-size: 14px;
-  color: #ecf0f1;
+  background-color: #1f1f1f;
+  color: #fff;
+  padding: 12px 15px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .mediafire-info strong {
-  color: #1abc9c;
+  color: #05f010;
 }
 
-#mediafire-url {
+#mediafire-url,
+#external-url {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
-  border: 1px solid #34495e;
-  background-color: #34495e;
-  color: #ecf0f1;
+  padding: 12px 14px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #555;
+  background-color: #2c2c2c;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-#mediafire-url::placeholder {
+#mediafire-url:focus,
+#external-url:focus {
+  outline: none;
+  border-color: #05f010;
+  box-shadow: 0 0 8px rgba(5,240,16,0.4);
+}
+
+#mediafire-url::placeholder,
+#external-url::placeholder {
   color: #95a5a6;
+}
+
+#saveMediaFireLinkBtn,
+.modal-content button {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background-color: #05f010;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#saveMediaFireLinkBtn:hover,
+.modal-content button:hover {
+  background-color: #03b10a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+#saveMediaFireLinkBtn:active,
+.modal-content button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Estilos para selectores */
@@ -311,26 +431,146 @@ button i {
   margin-top: 10px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  #upload-form {
-    padding: 20px;
-  }
-  
-  .form-fieldset {
-    padding: 15px;
-  }
-  
-  .modal-content {
-    width: 95%;
-    margin: 5% auto;
-    padding: 20px;
-  }
-  
-  .storage-btn {
+/* Preview de portada */
+#preview-container {
+  position: relative;
+  margin-top: 15px;
+  max-width: 600px;
+}
+
+#cover-preview {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+  display: block;
+}
+
+#video-preview {
+  width: 100%;
+  max-height: 400px;
+  border-radius: 10px;
+  border: 2px solid #34495e;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  display: block;
+}
+
+#remove-cover {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: all 0.2s ease-in-out;
+  z-index: 10;
+}
+
+#remove-cover:hover {
+  background: #e74c3c;
+  transform: scale(1.15);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+}
+
+#remove-cover:active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Preview de capturas */
+#screenshots-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.screenshot-item {
+    position: relative;
+    width: 120px;
+    height: 90px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.screenshot-item img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-screenshot {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 0, 0, 0.7);
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
     justify-content: center;
-  }
+    padding: 0;
+}
+
+.remove-screenshot:hover {
+    background: rgba(255, 0, 0, 0.9);
+}
+
+.no-screenshots {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 20px;
+}
+
+/* Barra de navegación */
+.config-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    padding: 1rem 2rem;
+    background-color: #1B1B1B;
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    gap: 1rem;
+    border-bottom: 2px solid #00ff0d;
+}
+
+.back-btn {
+    color: #ffffff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.back-btn:hover {
+    color: #17ff02;
+}
+
+.config-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    color: #f3f4f6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 /* Estilos para el input file */
@@ -352,6 +592,34 @@ button i {
   background-color: #3afa00;
 }
 
+/* Responsive */
+@media (max-width: 768px) {
+  #upload-form {
+    padding: 20px;
+  }
+  
+  .form-fieldset {
+    padding: 15px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+    padding: 20px;
+  }
+  
+  .storage-options {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .storage-btn,
+  .storage-btn-green,
+  .storage-btn-blue {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 
 
