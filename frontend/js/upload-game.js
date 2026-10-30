@@ -45,12 +45,10 @@ async function loadUser() {
             return;
         }
 
-        // Mostrar información en el formulario
         document.getElementById("username").textContent = user.username || "Usuario";
         document.getElementById("user-id-display").textContent = userId;
         document.getElementById("user-id").value = userId;
 
-        // Actualizar dominio del usuario
         const userDomain = document.getElementById("user-domain");
         if (userDomain) {
             userDomain.textContent = user.username || "Usuario";
@@ -68,19 +66,16 @@ async function loadUser() {
 // CONFIGURAR EVENT LISTENERS
 // =========================
 function setupEventListeners() {
-    // Preview de portada
     const coverInput = document.getElementById("cover");
     if (coverInput) {
         coverInput.addEventListener("change", handleCoverPreview);
     }
 
-    // Preview de capturas
     const screenshotsInput = document.getElementById("screenshots");
     if (screenshotsInput) {
         screenshotsInput.addEventListener("change", handleScreenshotsPreview);
     }
 
-    // Mostrar/ocultar precio
     const pricingSelect = document.getElementById("pricing");
     const priceInput = document.getElementById("price");
     
@@ -97,16 +92,15 @@ function setupEventListeners() {
         });
     }
 
-    // Botón eliminar portada
     const removeCoverBtn = document.getElementById("remove-cover");
     if (removeCoverBtn) {
         removeCoverBtn.addEventListener("click", removeCover);
     }
 
-    // Cerrar modal con ESC
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeMediaFireModal();
+            closeExternalLinkModal();
         }
     });
 }
@@ -122,12 +116,10 @@ function handleCoverPreview(event) {
     const videoPreview = document.getElementById("video-preview");
     const removeBtn = document.getElementById("remove-cover");
 
-    // Ocultar ambos previews inicialmente
     imgPreview.style.display = "none";
     videoPreview.style.display = "none";
     removeBtn.style.display = "none";
 
-    // Validar tamaño máximo (25MB)
     const maxSize = 25 * 1024 * 1024;
     if (file.size > maxSize) {
         alert("El archivo es demasiado grande. Máximo 25MB permitidos.");
@@ -135,7 +127,6 @@ function handleCoverPreview(event) {
         return;
     }
 
-    // Validar tipo de archivo
     const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     const validVideoTypes = ['video/mp4', 'video/webm'];
     
@@ -145,7 +136,6 @@ function handleCoverPreview(event) {
         return;
     }
 
-    // Verificar si es imagen o video
     if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -179,7 +169,7 @@ function removeCover() {
 }
 
 // =========================
-// PREVIEW DE CAPTURAS - ACTUALIZADO PARA 1-8 IMÁGENES
+// PREVIEW DE CAPTURAS
 // =========================
 function handleScreenshotsPreview(event) {
     const files = event.target.files;
@@ -193,19 +183,16 @@ function handleScreenshotsPreview(event) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Validar que sea imagen
         if (!file.type.startsWith("image/")) {
             alert(`El archivo "${file.name}" no es una imagen válida. Se omitirá.`);
             continue;
         }
 
-        // Validar tamaño máximo (25MB)
         if (file.size > 25 * 1024 * 1024) {
             alert(`La imagen "${file.name}" es demasiado grande. Máximo 25MB por imagen.`);
             continue;
         }
 
-        // ✅ NUEVO: Máximo 8 imágenes
         if (validFiles >= 8) {
             alert("Máximo 8 capturas permitidas. Las imágenes adicionales serán ignoradas.");
             break;
@@ -222,7 +209,6 @@ function handleScreenshotsPreview(event) {
             const container = document.createElement("div");
             container.classList.add("screenshot-item");
             
-            // Mostrar información de tamaño
             const sizeInfo = document.createElement("div");
             sizeInfo.classList.add("screenshot-size");
             sizeInfo.textContent = formatFileSize(file.size);
@@ -248,16 +234,12 @@ function handleScreenshotsPreview(event) {
         reader.readAsDataURL(file);
     }
 
-    // ✅ NUEVO: Mostrar contador actualizado para 1-8 imágenes
     const counter = document.createElement("div");
     counter.textContent = `Capturas seleccionadas: ${validFiles}/1 mínimo, 8 máximo`;
     counter.classList.add("screenshot-counter");
     previewContainer.appendChild(counter);
 }
 
-// =========================
-// FORMATEAR TAMAÑO DE ARCHIVO
-// =========================
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -266,9 +248,6 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// =========================
-// ELIMINAR CAPTURA INDIVIDUAL
-// =========================
 function removeScreenshot(container, file) {
     container.remove();
     
@@ -286,9 +265,6 @@ function removeScreenshot(container, file) {
     updateScreenshotCounter();
 }
 
-// =========================
-// ACTUALIZAR CONTADOR CAPTURAS - ACTUALIZADO
-// =========================
 function updateScreenshotCounter() {
     const previewContainer = document.getElementById("screenshots-preview");
     const counters = previewContainer.getElementsByClassName("screenshot-counter");
@@ -312,11 +288,15 @@ function mostrarFormulario() {
 }
 
 // =========================
-// MODAL MEDIAFIRE
+// SISTEMA DE ALMACENAMIENTO: MediaFire + Enlace externo
 // =========================
+let mediaFireLink = "";
+let externalLink = "";
+
+// ---------- MEDIAFIRE ----------
 function openMediaFireModal() {
-    document.getElementById("mediafire-modal").style.display = "block";
-    document.getElementById("mediafire-url").value = "";
+    document.getElementById("mediafire-modal").style.display = "flex";
+    document.getElementById("mediafire-url").value = mediaFireLink || "";
 }
 
 function closeMediaFireModal() {
@@ -324,45 +304,122 @@ function closeMediaFireModal() {
 }
 
 function saveMediaFireLink() {
-    const urlInput = document.getElementById("mediafire-url");
-    const url = urlInput.value.trim();
-    const storageServiceInput = document.getElementById("storage-service");
-    
+    const url = document.getElementById("mediafire-url").value.trim();
+
     if (!url) {
-        alert("Por favor ingresa una URL válida de MediaFire");
+        alert("⚠️ Debes pegar un enlace de MediaFire válido.");
         return;
     }
-
-    if (!url.includes("mediafire.com")) {
-        alert("Por favor ingresa una URL válida de MediaFire (debe contener 'mediafire.com')");
+    if (!/^https?:\/\//i.test(url)) {
+        alert("⚠️ El enlace debe comenzar con http:// o https://");
         return;
     }
-
-    try {
-        new URL(url);
-    } catch (e) {
-        alert("Por favor ingresa una URL válida");
-        return;
+    if (!/mediafire\.com/i.test(url)) {
+        if (!confirm("El enlace no parece ser de MediaFire. ¿Deseas continuar igualmente?")) return;
     }
 
-    storageServiceInput.value = "mediafire";
-    
+    mediaFireLink = url;
+    document.getElementById("mediafire-url-hidden").value = url;
+    document.getElementById("storage-service").value = "mediafire";
+    externalLink = "";
+    document.getElementById("external-download-url").value = "";
+
     const mediafireBtn = document.querySelector('.storage-btn-green');
     if (mediafireBtn) {
         mediafireBtn.innerHTML = '<i class="fa fa-check"></i> MediaFire (URL agregada)';
         mediafireBtn.style.background = "#28a745";
     }
-    
-    alert(`Enlace de MediaFire guardado correctamente:\n${url}`);
+
+    const externalBtn = document.querySelector('.storage-btn-blue');
+    if (externalBtn) {
+        externalBtn.innerHTML = '<i class="fa fa-link"></i> Enlace externo';
+        externalBtn.style.background = "";
+    }
+
+    showStorageStatus(`✅ Enlace de MediaFire guardado: <a href="${url}" target="_blank" rel="noopener">${url}</a>`);
     closeMediaFireModal();
 }
 
-// Cerrar modal al hacer clic fuera
-window.onclick = function(event) {
-    const modal = document.getElementById("mediafire-modal");
-    if (event.target === modal) {
-        closeMediaFireModal();
+// ---------- ENLACE EXTERNO ----------
+function openExternalLinkModal() {
+    document.getElementById("external-link-modal").style.display = "flex";
+    document.getElementById("external-url").value = externalLink || "";
+}
+
+function closeExternalLinkModal() {
+    document.getElementById("external-link-modal").style.display = "none";
+}
+
+function saveExternalLink() {
+    const url = document.getElementById("external-url").value.trim();
+
+    if (!url) {
+        alert("⚠️ Debes pegar un enlace de descarga válido.");
+        return;
     }
+    try {
+        new URL(url);
+    } catch {
+        alert("⚠️ El enlace no es válido. Asegúrate de incluir https://");
+        return;
+    }
+
+    externalLink = url;
+    document.getElementById("external-download-url").value = url;
+    document.getElementById("storage-service").value = "external";
+    mediaFireLink = "";
+    document.getElementById("mediafire-url-hidden").value = "";
+
+    const externalBtn = document.querySelector('.storage-btn-blue');
+    if (externalBtn) {
+        externalBtn.innerHTML = '<i class="fa fa-check"></i> Enlace externo (URL agregada)';
+        externalBtn.style.background = "#28a745";
+    }
+
+    const mediafireBtn = document.querySelector('.storage-btn-green');
+    if (mediafireBtn) {
+        mediafireBtn.innerHTML = '<i class="fa fa-cloud-download"></i> MediaFire';
+        mediafireBtn.style.background = "";
+    }
+
+    showStorageStatus(`✅ Enlace externo guardado: <a href="${url}" target="_blank" rel="noopener">${url}</a>`);
+    closeExternalLinkModal();
+}
+
+// ---------- ESTADO VISUAL ----------
+function showStorageStatus(html) {
+    const el = document.getElementById("storage-status");
+    el.innerHTML = html;
+    el.style.display = "block";
+}
+
+// ---------- CERRAR MODALES AL HACER CLIC FUERA ----------
+window.addEventListener('click', function(event) {
+    const mf = document.getElementById("mediafire-modal");
+    const ext = document.getElementById("external-link-modal");
+    if (event.target === mf) closeMediaFireModal();
+    if (event.target === ext) closeExternalLinkModal();
+});
+
+// ---------- VALIDAR ALMACENAMIENTO ----------
+function validarAlmacenamiento() {
+    const storage = document.getElementById("storage-service").value;
+    const mediafire = document.getElementById("mediafire-url-hidden").value.trim();
+    const external = document.getElementById("external-download-url").value.trim();
+
+    if (!storage) {
+        alert("⚠️ Debes seleccionar dónde se alojará tu juego: MediaFire o Enlace externo.");
+        return false;
+    }
+    if (storage === "mediafire" && !mediafire) {
+        alert("⚠️ Debes agregar un enlace de MediaFire.");
+        return false;
+    }
+    if (storage === "external" && !external) {
+        alert("⚠️ Debes agregar un enlace externo de descarga.");
+        return false;
+    }
+    return true;
 }
 
 // =========================
@@ -381,15 +438,13 @@ function fileToBase64(file) {
 }
 
 // =========================
-// VALIDAR FORMULARIO - ACTUALIZADO PARA 1-8 IMÁGENES
+// VALIDAR FORMULARIO
 // =========================
 function validarFormulario() {
     const title = document.getElementById("title").value.trim();
     const description = document.getElementById("description").value.trim();
     const screenshotsInput = document.getElementById("screenshots");
     const coverInput = document.getElementById("cover");
-    const storageService = document.getElementById("storage-service").value;
-    const mediafireUrl = document.getElementById("mediafire-url").value;
     const termsCheckbox = document.getElementById("terms");
     const pricing = document.getElementById("pricing").value;
     const price = document.getElementById("price").value;
@@ -402,7 +457,6 @@ function validarFormulario() {
         throw new Error("La descripción debe tener al menos 10 caracteres");
     }
 
-    // ✅ CAMBIO: Ahora acepta de 1 a 8 imágenes
     if (!screenshotsInput.files || screenshotsInput.files.length < 1) {
         throw new Error("Debes subir al menos 1 captura del juego");
     }
@@ -411,7 +465,6 @@ function validarFormulario() {
         throw new Error("Máximo 8 capturas permitidas");
     }
 
-    // Validar tamaño de cada captura (25MB máximo)
     if (screenshotsInput.files) {
         for (let i = 0; i < screenshotsInput.files.length; i++) {
             const file = screenshotsInput.files[i];
@@ -425,13 +478,12 @@ function validarFormulario() {
         throw new Error("Debes subir una portada para el juego");
     }
 
-    // Validar tamaño de portada (25MB máximo)
     if (coverInput.files[0].size > 25 * 1024 * 1024) {
         throw new Error("La portada es demasiado grande. Máximo 25MB permitidos.");
     }
 
-    if (!storageService && !mediafireUrl) {
-        throw new Error("Debes seleccionar un servicio de almacenamiento y agregar la URL");
+    if (!validarAlmacenamiento()) {
+        throw new Error("Debes agregar un enlace de descarga (MediaFire o externo).");
     }
 
     if (!termsCheckbox.checked) {
@@ -450,24 +502,13 @@ function validarFormulario() {
 // =========================
 function mapearValoresAlIngles(valor) {
     const mapeo = {
-        // Categorías
         'aventura': 'adventure',
         'rpg': 'rpg',
         'acción': 'action',
         'puzzle': 'puzzle',
         'terror': 'horror',
         'otro': 'other',
-        
-        // Géneros principales
         'no-genero': 'no-genre',
-        'aventura': 'adventure',
-        'rpg': 'rpg',
-        'acción': 'action',
-        'puzzle': 'puzzle',
-        'terror': 'horror',
-        'otro': 'other',
-        
-        // Precios
         'gratis': 'free',
         'pago': 'paid',
         'donacion': 'donation'
@@ -477,7 +518,7 @@ function mapearValoresAlIngles(valor) {
 }
 
 // =========================
-// SUBIR JUEGO - FUNCIÓN PRINCIPAL ACTUALIZADA
+// SUBIR JUEGO - FUNCIÓN PRINCIPAL
 // =========================
 async function subirJuego() {
     try {
@@ -496,10 +537,8 @@ async function subirJuego() {
 
         console.log("Subiendo juego para usuario ID:", userId);
 
-        // Validar formulario primero
         validarFormulario();
 
-        // Obtener datos del formulario y mapear al inglés
         const formData = {
             title: document.getElementById("title").value.trim(),
             description: document.getElementById("description").value.trim(),
@@ -507,43 +546,37 @@ async function subirJuego() {
             main_genre: mapearValoresAlIngles(document.getElementById("main_genre").value),
             genres: document.getElementById("genres").value,
             
-            // Requisitos mínimos
             min_os: document.getElementById("min_os").value || null,
             min_cpu: document.getElementById("min_cpu").value || null,
             min_ram: document.getElementById("min_ram").value || null,
             min_gpu: document.getElementById("min_gpu").value || null,
             min_storage: document.getElementById("min_storage").value || null,
             
-            // Requisitos recomendados
             rec_os: document.getElementById("rec_os").value || null,
             rec_cpu: document.getElementById("rec_cpu").value || null,
             rec_ram: document.getElementById("rec_ram").value || null,
             rec_gpu: document.getElementById("rec_gpu").value || null,
             rec_storage: document.getElementById("rec_storage").value || null,
             
-            // Multimedia
             youtube_url: document.getElementById("youtube_url").value || null,
             storage_service: document.getElementById("storage-service").value || null,
-            mediafire_url: document.getElementById("mediafire-url").value || null,
+            mediafire_url: document.getElementById("mediafire-url-hidden").value || null,
+            external_download_url: document.getElementById("external-download-url").value || null,
             
-            // Precio
             pricing: mapearValoresAlIngles(document.getElementById("pricing").value),
             price: document.getElementById("pricing").value === "pago" ? 
                    parseFloat(document.getElementById("price").value) : 0.0,
             
-            // Términos
             terms_accepted: document.getElementById("terms").checked
         };
 
         console.log("Datos del formulario mapeados:", formData);
 
-        // Mostrar loading
         const submitBtn = document.querySelector('button[onclick="subirJuego()"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
         submitBtn.disabled = true;
 
-        // Convertir archivos a base64 (con manejo de errores mejorado)
         const coverInput = document.getElementById("cover");
         if (coverInput.files[0]) {
             console.log("Convirtiendo portada a base64...");
@@ -576,7 +609,6 @@ async function subirJuego() {
             console.log("Todas las capturas convertidas correctamente");
         }
 
-        // Enviar datos al servidor
         console.log("Enviando datos al servidor...");
         const response = await fetch("https://distinct-oralla-takumi-net-0d317399.koyeb.app/api/juegos", {
             method: "POST",
@@ -590,18 +622,14 @@ async function subirJuego() {
         const result = await response.json();
         console.log("Respuesta del servidor:", result);
 
-        // Restaurar botón
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
 
         if (result.ok) {
             alert("¡Juego publicado con éxito! 🎮\nID del juego: " + result.id);
-            // Limpiar formulario
             document.getElementById("upload-form").reset();
-            // Limpiar previews
             removeCover();
             document.getElementById("screenshots-preview").innerHTML = "";
-            // Redirigir a la página de mis juegos
             window.location.href = "marketplace.html";
         } else {
             throw new Error(result.error || "Error al subir el juego");
@@ -611,7 +639,6 @@ async function subirJuego() {
         console.error("Error subiendo juego:", error);
         alert(`Error: ${error.message}`);
         
-        // Restaurar botón en caso de error
         const submitBtn = document.querySelector('button[onclick="subirJuego()"]');
         if (submitBtn) {
             submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Publicar Juego';
@@ -628,7 +655,7 @@ window.addEventListener("error", function(e) {
 });
 
 // =========================
-// ESTILOS CSS DINÁMICOS PARA MEJOR VISUALIZACIÓN
+// ESTILOS CSS DINÁMICOS
 // =========================
 const dynamicStyles = `
 .screenshot-size {
@@ -670,7 +697,6 @@ const dynamicStyles = `
 }
 `;
 
-// Inject styles
 const styleSheet = document.createElement("style");
 styleSheet.textContent = dynamicStyles;
 document.head.appendChild(styleSheet);
